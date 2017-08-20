@@ -11,10 +11,18 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'HomeController@home');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::group(['middleware' => 'auth'], function () {
+	Route::get('/home', 'HomeController@home');
+	Route::get('/settings', 'HomeController@settings');
+
+	Route::group(['prefix' => 'tests'], function () {
+		Route::group(['namespace' => 'Professor'], function () {
+			Route::get('/', 'TestController@index');
+		});
+	});
+
+});
