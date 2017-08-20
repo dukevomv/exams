@@ -5,14 +5,10 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Exams Portal</div>
+                <div class="panel-heading">Settings</div>
 
                 <div class="panel-body">
-                    @if(Auth::check())
-                        You are logged in!
-                    @else
-                        You must login in order to do more things.
-                    @endif
+                    Here you will be able to edit your preferences and profile details.
                 </div>
             </div>
         </div>

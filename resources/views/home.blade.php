@@ -5,10 +5,14 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Dashboard</div>
+                <div class="panel-heading">Welcome</div>
 
                 <div class="panel-body">
-                    You are logged in!
+                    @if(Auth::check())
+                        You are logged in!
+                    @else
+                        You must login in order to do more things.
+                    @endif
                 </div>
             </div>
         </div>

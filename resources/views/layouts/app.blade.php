@@ -11,6 +11,7 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Styles -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type='text/css'></link>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
@@ -36,7 +37,26 @@
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
-                        &nbsp;
+                        @if (Auth::guest())
+                            <li>
+                                <a href="{{ url('/home') }}">Home</a>
+                            </li>
+                        @elseif(Auth::user()->role == 'professor')
+                            <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
+                                <a href="{{ url('/lessons') }}">Lessons</a>
+                            </li>
+                            <li class="{{ Request::is('exams') || Request::is('exams/*') ? 'active' : '' }}">
+                                <a href="{{ url('/exams') }}">Exams</a>
+                            </li>
+                            <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
+                                <a href="{{ url('/tests') }}">Tests</a>
+                            </li>
+                            <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">
+                                <a href="{{ url('/segments') }}">Segments</a>
+                            </li>
+                        @elseif(Auth::user()->role == 'student')
+                            
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -52,11 +72,13 @@
                                 </a>
 
                                 <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{{url('/settings')}}"><i class="fa fa-cog"></i> Settings</a></li>
+                                    <li role="separator" class="divider"></li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                            Logout
+                                            <i class="fa fa-sign-out"></i> Logout
                                         </a>
 
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -70,7 +92,6 @@
                 </div>
             </div>
         </nav>
-
         @yield('content')
     </div>
 
