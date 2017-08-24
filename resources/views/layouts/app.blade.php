@@ -45,9 +45,6 @@
                             <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
                                 <a href="{{ url('/lessons') }}">Lessons</a>
                             </li>
-                            <li class="{{ Request::is('exams') || Request::is('exams/*') ? 'active' : '' }}">
-                                <a href="{{ url('/exams') }}">Exams</a>
-                            </li>
                             <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
                                 <a href="{{ url('/tests') }}">Tests</a>
                             </li>
@@ -68,7 +65,7 @@
                         @else
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                    {{ Auth::user()->name }} <span class="caret"></span>
+                                   <span class="label label-primary">{{ucfirst(Auth::user()->role)}}</span> {{ Auth::user()->name }} <span class="caret"></span>
                                 </a>
 
                                 <ul class="dropdown-menu" role="menu">

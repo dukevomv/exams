@@ -19,9 +19,12 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/home', 'HomeController@home');
 	Route::get('/settings', 'HomeController@settings');
 
-	Route::group(['prefix' => 'tests'], function () {
+	Route::group(['prefix' => 'lessons'], function () {
 		Route::group(['namespace' => 'Professor'], function () {
-			Route::get('/', 'TestController@index');
+			Route::get('/', 'LessonController@index')->name('lessons_index');
+			Route::post('subscribe', 'LessonController@subscribe');
+			Route::post('create', 'LessonController@create');
+			Route::post('delete', 'LessonController@delete');
 		});
 	});
 
