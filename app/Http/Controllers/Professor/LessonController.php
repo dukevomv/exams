@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Lesson;
 use Log;
+
 class LessonController extends Controller
 {
 	public function index(Request $req) {

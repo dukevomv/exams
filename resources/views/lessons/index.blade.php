@@ -8,13 +8,13 @@
           <div class="col-xs-8">
             <div class="btn-group pull-left">
               <button id="status" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{ucfirst(app('request')->input('status','all'))}} <span class="caret"></span>
+                {{ucfirst(Request::input('status','all'))}} <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
-                <li @if(app('request')->input('status','') == '')class="active"@endif><a href="{{route('lessons_index',['page'=>1])}}">All</a></li>
-                <li @if(app('request')->input('status','') == 'approved')class="active"@endif><a href="{{route('lessons_index',['status'=>'approved','page'=>1])}}">Approved</a></li>
-                <li @if(app('request')->input('status','') == 'pending')class="active"@endif><a href="{{route('lessons_index',['status'=>'pending','page'=>1])}}">Pending</a></li>
-                <li @if(app('request')->input('status','') == 'unsubscribed')class="active"@endif><a href="{{route('lessons_index',['status'=>'unsubscribed','page'=>1])}}">Unsubscribed</a></li>
+                <li @if(Request::input('status','') == '')class="active"@endif><a href="{{route('lessons_index',[])}}">All</a></li>
+                <li @if(Request::input('status','') == 'approved')class="active"@endif><a href="{{route('lessons_index',['status'=>'approved'])}}">Approved</a></li>
+                <li @if(Request::input('status','') == 'pending')class="active"@endif><a href="{{route('lessons_index',['status'=>'pending'])}}">Pending</a></li>
+                <li @if(Request::input('status','') == 'unsubscribed')class="active"@endif><a href="{{route('lessons_index',['status'=>'unsubscribed'])}}">Unsubscribed</a></li>
               </ul>
             </div>
           </div>
@@ -22,7 +22,7 @@
             <div class="input-group">
               <input type="text" class="form-control" placeholder="Search">
               <span class="input-group-btn">
-                <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+                <a href="{{route('lessons_index',Request::except('page'))}}" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
               </span>
             </div>
           </div>
@@ -71,7 +71,7 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <nav class="pull-right" aria-label="Page navigation">
-          {{ $lessons->appends(['status' => app('request')->input('status','all')])->links() }}
+          {{ $lessons->appends(Request::except('page'))->links() }}
         </nav>
       </div>
     </div>
