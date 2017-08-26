@@ -27,6 +27,6 @@ class LessonController extends Controller
 		}	
 
 		$lessons = $lessons->paginate(10);
-    return view('lessons.index',['lessons'=>$lessons]);
-  }
+		return view('lessons.index',['lessons'=>$lessons]);
+	}
 }

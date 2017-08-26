@@ -8354,7 +8354,11 @@ body {
   font-family: Ubuntu;
 }
 
-.button-row {
+.btn-row-margin-bottom {
   margin-bottom: 20px;
+}
+
+.btn-margin-left {
+  margin-left: 15px;
 }
 

@@ -28,4 +28,13 @@ Route::group(['middleware' => 'auth'], function () {
 		});
 	});
 
+	Route::group(['prefix' => 'segments'], function () {
+		Route::group(['namespace' => 'Professor'], function () {
+			Route::get('/', 'SegmentController@index')->name('segments_index');
+			Route::get('create', 'SegmentController@createView');
+			Route::post('create', 'SegmentController@create');
+			Route::post('delete', 'SegmentController@delete');
+		});
+	});
+
 });
