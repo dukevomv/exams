@@ -9,7 +9,18 @@
 
                 <div class="panel-body">
                     @if(Auth::check())
-                        You are logged in!
+                        You are logged in!ssss
+                    @else
+                        You must login in order to do more things.
+                    @endif
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Exams Portal</div>
+
+                <div class="panel-body">
+                    @if(Auth::check())
+                        You are logged in!s
                     @else
                         You must login in order to do more things.
                     @endif
