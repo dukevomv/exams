@@ -24,7 +24,7 @@
 
         <div class="panel panel-default">
           <div class="panel-heading">
-            Segments Logic
+            Segments Logic &middot; <small class="text-warning">25 August 2017</small>
             <div class="pull-right">
               <span class="label label-default">IN PROGRESS</span>
               <span class="label label-success">BACKEND</span>
@@ -39,7 +39,7 @@
 
         <div class="panel panel-default">
           <div class="panel-heading">
-            Lessons Logic
+            Lessons Logic &middot; <small class="text-warning">23 August 2017</small>
             <div class="pull-right">
               <span class="label label-primary">UI UX</span>
               <span class="label label-success">BACKEND</span>
@@ -58,7 +58,7 @@
 
         <div class="panel panel-default">
           <div class="panel-heading">
-            First Blood
+            First Blood &middot; <small class="text-warning">7 August 2017</small>
             <div class="pull-right">
               <span class="label label-danger">NEW</span> 
             </div>
