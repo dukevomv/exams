@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-{{var_dump($errors)}}
 <div class="container">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
