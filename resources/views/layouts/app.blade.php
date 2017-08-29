@@ -45,7 +45,7 @@
                             <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
                                 <a href="{{ url('/lessons') }}">Lessons</a>
                             </li>
-                            <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
+                            <li class="hidden {{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
                                 <a href="{{ url('/tests') }}">Tests</a>
                             </li>
                             <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">

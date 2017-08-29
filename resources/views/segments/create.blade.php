@@ -3,42 +3,34 @@
 @section('content')
   <div class="container">
     <div class="row">
-      <div class="btn-row-margin-bottom col-md-8 col-md-offset-2">
-        <div class="row">
-          <div class="col-xs-8">
-            <div class="btn-group pull-left">
-              <button type="button" class="btn btn-primary" >
-                <i class="fa fa-plus"></i> Single Choice
-              </button>
-            </div>
-            <div class="btn-group btn-margin-left pull-left">
-              <button type="button" class="btn btn-primary" >
-                <i class="fa fa-plus"></i> Multiple Choice
-              </button>
-            </div>
-          </div>
-          <div class="col-xs-4">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search">
-              <span class="input-group-btn">
-                <a href="{{route('lessons_index',Request::except('page'))}}" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
-              </span>
-            </div>
-          </div>
-        </div>  
-      </div>  
-    </div>  
-    <div class="row">
       <div class="col-md-8 col-md-offset-2">
+        <h1>Create Segment</h1>
         <div class="panel panel-default">
-          <div class="panel-heading">Create Segment</div>
+          <div class="panel-heading">Basic Information</div>
           <div class="panel-body">
             <form>
-              <div class="input-group">
-                <input type="text" class="form-control" placeholder="Name">
+              <div class="col-md-2 btn-row-margin-bottom">
+                <label>Lesson:</label>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Select Lesson <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                  </ul>
+                </div>
               </div>
-              <div class="input-group">
-                <textarea type="text" class="form-control" placeholder="Name"></textarea>
+              <div class="col-md-8 col-md-offset-2 btn-row-margin-bottom">
+                <label>Name:</label>
+                  <input type="text" class="form-control" placeholder="Basic HTML questions">
+              </div>
+              <div class="col-md-12">
+                <label>Description:</label>
+                <textarea type="text" class="form-control" placeholder="All you need to know about HTML..."></textarea>
               </div>
             </form>
           </div>
@@ -46,10 +38,27 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-8 col-md-offset-2">
-        <nav class="pull-right" aria-label="Page navigation">
-        </nav>
-      </div>
-    </div>
+      <div class="btn-row-margin-bottom col-md-8 col-md-offset-2">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="btn-group pull-left">
+              <button type="button" class="btn btn-default" >
+                <i class="fa fa-plus"></i> Single Choice
+              </button>
+            </div>
+            <div class="btn-group btn-margin-left pull-left">
+              <button type="button" class="btn btn-default" >
+                <i class="fa fa-plus"></i> Multiple Choice
+              </button>
+            </div>
+            <div class="btn-group btn-margin-left pull-right">
+              <button type="button" class="btn btn-primary" >
+                <i class="fa fa-save"></i> Save
+              </button>
+            </div>
+          </div>
+        </div>  
+      </div>  
+    </div>  
   </div>
 @endsection

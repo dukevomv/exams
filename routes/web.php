@@ -37,4 +37,13 @@ Route::group(['middleware' => 'auth'], function () {
 		});
 	});
 
+	Route::group(['prefix' => 'tests'], function () {
+		Route::group(['namespace' => 'Professor'], function () {
+			Route::get('/', 'TestController@index')->name('tests_index');
+			Route::get('create', 'TestController@createView');
+			Route::post('create', 'TestController@create');
+			Route::post('delete', 'TestController@delete');
+		});
+	});
+
 });
