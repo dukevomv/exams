@@ -20,8 +20,19 @@ class Lesson extends Model
     return $this->belongsTo(LessonUser::class,'id','lesson_id')->where('user_id',Auth::user()->id);
   }
 
-  public function scopeFilterUserId($query,$user_id = null) {
-  	$user_id = is_null($user_id) ? Auth::user()->id : $user_id;
-    return $query->users()->wherePivot('user_id',$user_id);
+  public function scopePending($query) {
+    return $query->whereHas('status',function($query){
+      $query->where('approved',0);
+    });
+  }
+
+  public function scopeApproved($query) {
+    return $query->whereHas('status',function($query){
+      $query->where('approved',1);
+    });
+  }
+
+  public function scopeUnsubscribed($query) {
+    return $query->has('status','=',0);
   }
 }

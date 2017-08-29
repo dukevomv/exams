@@ -5,11 +5,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Segments\Segment;
+use App\Models\Lesson;
 
 class SegmentController extends Controller
 {
 	public function index(Request $req) {
 		$segments = Segment::all();
+
+		$lessons = Lesson::approved()->get();
 /*
 		if($req->input('status','') != ''){
 			if($req->status == 'approved'){
@@ -26,10 +29,11 @@ class SegmentController extends Controller
 		}	
 
 		$lessons = $lessons->paginate(10);*/
-		return view('segments.index',['segments'=>$segments]);
+		return view('segments.index',['segments'=>$segments,'lessons'=>$lessons]);
 	}
 
 	public function createView(Request $req) {
-		return view('segments.create');
+		$lessons = Lesson::approved()->get();
+		return view('segments.create',['lessons'=>$lessons]);
 	}
 }

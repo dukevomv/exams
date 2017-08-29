@@ -13,20 +13,11 @@ class LessonController extends Controller
 		$lessons = Lesson::with('status');
 
 		if($req->input('status','') != ''){
-			if($req->status == 'approved'){
-				$lessons->whereHas('status',function($query){
-					$query->where('approved',1);
-				});
-			} else if($req->status == 'pending'){
-				$lessons->whereHas('status',function($query){
-					$query->where('approved',0);
-				});
-			} else if($req->status == 'unsubscribed'){
-				$lessons->has('status','=',0);
-			}
+			$lessons->{$req->status}();
 		}	
 
 		$lessons = $lessons->paginate(10);
+		
 		return view('lessons.index',['lessons'=>$lessons]);
 	}
 }

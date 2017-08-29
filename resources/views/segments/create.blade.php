@@ -16,11 +16,9 @@
                     Select Lesson <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li><a href="#">Something else here</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="#">Separated link</a></li>
+                    @foreach($lessons as $lesson)
+                      <li @if(Request::input('lesson','') == $lesson->id)class="active"@endif><a href="#">{{$lesson->name}}</a></li>
+                    @endforeach
                   </ul>
                 </div>
               </div>

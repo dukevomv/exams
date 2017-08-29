@@ -12,6 +12,10 @@
               </button>
               <ul class="dropdown-menu">
                 <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('lessons_index',[])}}">All</a></li>
+                <li role="separator" class="divider"></li>
+                @foreach($lessons as $lesson)
+                  <li @if(Request::input('lesson','') == $lesson->id)class="active"@endif><a href="#">{{$lesson->name}}</a></li>
+                @endforeach
               </ul>
             </div>
             <div class="btn-group btn-margin-left pull-left">
