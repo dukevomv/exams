@@ -42,7 +42,7 @@
             <div class="order-value">1</div>
             <div class="order-down cursor-pointer"><i class="fa fa-angle-down" aria-hidden="true"></i></div>
           </div>
-          <div class="panel-heading">Single Choice Task</div>
+          <div class="panel-heading">Single Choice Task <span class="trash-btn pull-right"><i class="fa fa-trash"></i></span></div>
           <div class="panel-body">
             <div class="col-md-12 row-margin-bottom">
               <label>Task Title:</label>
@@ -79,7 +79,7 @@
             <div class="order-value">2</div>
             <div class="order-down cursor-pointer"><i class="fa fa-angle-down" aria-hidden="true"></i></div>
           </div>
-          <div class="panel-heading">Multiple Choice Task</div>
+          <div class="panel-heading">Multiple Choice Task <span class="trash-btn pull-right"><i class="fa fa-trash"></i></span></div>
           <div class="panel-body">
             <div class="col-md-12 row-margin-bottom">
               <label>Task Title:</label>

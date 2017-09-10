@@ -44,6 +44,13 @@ textarea{
 	top:0;
 }
 
+.trash-btn{
+	color:$brand-danger;    
+	font-size: 1.4em;
+  margin-top: -5px;
+  display: inline-block;
+  cursor:pointer;
+}
 .order-wrap{
 	position:absolute;
 	left: -50px;
