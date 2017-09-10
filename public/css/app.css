@@ -8358,11 +8358,52 @@ textarea {
   resize: vertical;
 }
 
-.btn-row-margin-bottom {
+.row-margin-bottom {
   margin-bottom: 20px;
 }
 
-.btn-margin-left {
+.margin-left-15 {
   margin-left: 15px;
+}
+
+.margin-bottom-15 {
+  margin-bottom: 15px;
+}
+
+.margin-bottom-30 {
+  margin-bottom: 30px;
+}
+
+.relative {
+  position: relative;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.fixed-toolbar {
+  position: fixed;
+  margin-top: 100px;
+  top: 0;
+}
+
+.order-wrap {
+  position: absolute;
+  left: -50px;
+  height: 70px;
+  width: 50px;
+  top: calc(50% - 35px);
+  text-align: center;
+}
+
+.order-wrap .order-up,
+.order-wrap .order-down {
+  font-weight: 600;
+  color: #3097D1;
+}
+
+.order-wrap.disabled {
+  opacity: 0.3;
 }
 

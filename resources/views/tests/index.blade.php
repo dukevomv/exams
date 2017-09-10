@@ -3,7 +3,7 @@
 @section('content')
   <div class="container">
     <div class="row">
-      <div class="btn-row-margin-bottom col-md-8 col-md-offset-2">
+      <div class="row-margin-bottom col-md-8 col-md-offset-2">
         <div class="row">
           <div class="col-xs-8">
             <div class="btn-group pull-left">
@@ -14,7 +14,7 @@
                 <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('lessons_index',[])}}">All</a></li>
               </ul>
             </div>
-            <div class="btn-group btn-margin-left pull-left">
+            <div class="btn-group margin-left-15 pull-left">
               <a href="{{url('segments/create')}}" type="button" class="btn btn-primary" >
                 <i class="fa fa-plus"></i> Create
               </a>
