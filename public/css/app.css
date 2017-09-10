@@ -8385,6 +8385,7 @@ textarea {
 .fixed-toolbar {
   position: fixed;
   margin-top: 100px;
+  max-width: 250px;
   top: 0;
 }
 
