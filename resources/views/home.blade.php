@@ -24,6 +24,21 @@
 
         <div class="panel panel-default">
           <div class="panel-heading">
+            Segments Logic &middot; <small class="text-warning">10 September 2017</small>
+            <div class="pull-right">
+              <span class="label label-default">IN PROGRESS</span>
+              <span class="label label-primary">UI UX</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p>
+              The <a href="{{ url('/segments/create') }}" target="_blank">Create Segment</a> wizard is in progress for the UI and front functionality. 
+            </p>
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
             Segments Logic &middot; <small class="text-warning">25 August 2017</small>
             <div class="pull-right">
               <span class="label label-default">IN PROGRESS</span>
