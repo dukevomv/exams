@@ -62,7 +62,7 @@
             <div class="panel-body">
               <div class="col-md-12 row-margin-bottom">
                 <label>Task Title:</label>
-                <textarea type="text" class="form-control" placeholder="What is Bootstrap?"></textarea>
+                <textarea type="text" class="form-control default-focus" placeholder="What is Bootstrap?"></textarea>
               </div>
               <div class="col-md-12 task-answer row-margin-bottom">
                 <div class="input-group">
@@ -101,7 +101,7 @@
             <div class="panel-body">
               <div class="col-md-12 row-margin-bottom">
                 <label>Task Title:</label>
-                <textarea type="text" class="form-control" placeholder="What is Bootstrap?"></textarea>
+                <textarea type="text" class="form-control default-focus" placeholder="What is Bootstrap?"></textarea>
               </div>
               <div class="col-md-12 task-answer row-margin-bottom">
                 <div class="input-group">
@@ -150,7 +150,9 @@
   <script type="text/javascript">
 
     $('.fixed-toolbar button.task-type').on('click',function(e){
-      $('#segment-body').append($('#tool-dom #'+$(this).attr('data-task-type')+'-dom').html())
+      let new_task = $('#tool-dom #'+$(this).attr('data-task-type')+'-dom').html()
+      $('#segment-body').append(new_task)
+      FocusTask($('#segment-body .task-wrap').last())
       ReorderSegmentTasks()
     })
 
@@ -182,6 +184,10 @@
       $("#segment-body .task-wrap").each(function(index) {
         $(this).find('.order-wrap .order-value').text(index+1)
       });
+    }
+
+    function FocusTask(element){
+      element.find('.default-focus').focus()
     }
   </script>
 @endsection
