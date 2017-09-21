@@ -199,8 +199,23 @@
     }
 
     $("#save-btn").on('click',function(e){
+      
+      let thisBtn = $(this)
+      thisBtn.addClass('disabled')
       let segment = new Segment()
-      console.log(segment)
+      if(segment.Validate){
+        $.ajax({
+          type: "POST",
+          url: "{{url('segments/create')}}",
+          data: {_token:"{{csrf_token()}}",...segment},
+          success: function(data){
+            console.log(data)
+            thisBtn.removeClass('disabled')
+          }
+        })
+      } else {
+        $(this).removeClass('disabled')
+      }
     })
 
     var Segment = function Segment(){
@@ -213,16 +228,15 @@
     }
 
     Segment.prototype.Validate = function(){
+      return true
+    }
+    Segment.prototype.UpdateBasics = function(){
       return false
     }
-
     Segment.prototype.UpdateTasks = function(){
       return false
     }
 
-    Segment.prototype.UpdateBasics = function(){
-      return false
-    }
 
     $('.dropdown-custom .dropdown-menu li > a').click(function(e){
       e.preventDefault()
