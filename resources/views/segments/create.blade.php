@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('styles')
+  <style type="text/css">
+  </style>
+@endsection
+
 @section('content')
   <div class="container">
     <div class="row">
@@ -60,7 +65,7 @@
       </div>
       <div class="hidden" id="tool-dom">
         <div class="task-dom" id="rmc-dom">
-          <div class="panel panel-default task-wrap relative">
+          <div class="panel panel-default task-wrap relative" data-task-type="rmc">
             <div class="order-wrap">
               <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
               <div class="order-value"></div>
@@ -68,30 +73,46 @@
             </div>
             <div class="panel-heading">Single Choice Task <span class="trash-btn pull-right"><i class="fa fa-trash"></i></span></div>
             <div class="panel-body">
-              <div class="col-md-12 row-margin-bottom">
+              <div class="col-md-12 row-margin-bottom task-title">
                 <label>Task Title:</label>
                 <textarea type="text" class="form-control default-focus" placeholder="What is Bootstrap?"></textarea>
               </div>
-              <div class="col-md-12 task-answer row-margin-bottom">
-                <div class="input-group">
-                  <span class="input-group-addon cursor-pointer"><i class="fa fa-arrows" aria-hidden="true"></i></span>
-                  <input type="text" name="answers[0]" class="form-control" placeholder="Choice 1">
-                  <span class="input-group-addon">
-                    <label class="cursor-pointer"><input type="radio" name="correct" checked> Correct</label>
-                  </span>
+              <div class="task-list">
+                <div class="col-md-12 task-choice row-margin-bottom">
+                  <div class="input-group col-xs-11 pull-left">
+                    <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
+                    <input type="text" class="form-control task-desc" placeholder="Choice">
+                    <span class="input-group-addon">
+                      <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct"> Correct</label>
+                    </span>
+                  </div>
+                  <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
                 </div>
-              </div>
-              <div class="col-md-12 task-answer row-margin-bottom">
-                <div class="input-group">
-                  <span class="input-group-addon cursor-pointer"><i class="fa fa-arrows" aria-hidden="true"></i></span>
-                  <input type="text" name="answers[0]" class="form-control" placeholder="Choice 2">
-                  <span class="input-group-addon">
-                    <label class="cursor-pointer"><input type="radio" name="correct"> Correct</label>
-                  </span>
+                <div class="col-md-12 task-choice row-margin-bottom">
+                  <div class="input-group col-xs-11 pull-left">
+                    <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
+                    <input type="text" class="form-control task-desc default-focus" placeholder="Choice">
+                    <span class="input-group-addon">
+                      <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct"> Correct</label>
+                    </span>
+                  </div>
+                  <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
                 </div>
               </div>
               <div class="col-md-12">
-                <button type="button" class="btn btn-link" >
+                <div class="new-choice-wrap hidden">
+                  <div class="col-md-12 task-choice row-margin-bottom">
+                    <div class="input-group col-xs-11 pull-left">
+                      <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
+                      <input type="text" class="form-control task-desc default-focus" placeholder="Choice">
+                      <span class="input-group-addon">
+                        <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct"> Correct</label>
+                      </span>
+                    </div>
+                    <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-link add-choice">
                   <i class="fa fa-plus"></i> Add Choice
                 </button>
               </div>
@@ -99,7 +120,7 @@
           </div> 
         </div>
         <div class="task-dom" id="cmc-dom">
-          <div class="panel panel-default task-wrap relative">
+          <div class="panel panel-default task-wrap relative" data-task-type="cmc">
             <div class="order-wrap">
               <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
               <div class="order-value"></div>
@@ -107,30 +128,46 @@
             </div>
             <div class="panel-heading">Multiple Choice Task <span class="trash-btn pull-right"><i class="fa fa-trash"></i></span></div>
             <div class="panel-body">
-              <div class="col-md-12 row-margin-bottom">
+              <div class="col-md-12 row-margin-bottom task-title">
                 <label>Task Title:</label>
                 <textarea type="text" class="form-control default-focus" placeholder="What is Bootstrap?"></textarea>
               </div>
-              <div class="col-md-12 task-answer row-margin-bottom">
-                <div class="input-group">
-                  <span class="input-group-addon cursor-pointer"><i class="fa fa-arrows" aria-hidden="true"></i></span>
-                  <input type="text" name="answers[0]" class="form-control" placeholder="Choice 1">
-                  <span class="input-group-addon">
-                    <label class="cursor-pointer"><input type="checkbox" name="correct" checked> Correct</label>
-                  </span>
+              <div class="task-list">
+                <div class="col-md-12 task-choice row-margin-bottom">
+                  <div class="input-group col-xs-11 pull-left">
+                    <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
+                    <input type="text" class="form-control task-desc" placeholder="Choice">
+                    <span class="input-group-addon">
+                      <label class="cursor-pointer"><input type="checkbox" class="task-correct" name="correct"> Correct</label>
+                    </span>
+                  </div>
+                  <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
                 </div>
-              </div>
-              <div class="col-md-12 task-answer row-margin-bottom">
-                <div class="input-group">
-                  <span class="input-group-addon cursor-pointer"><i class="fa fa-arrows" aria-hidden="true"></i></span>
-                  <input type="text" name="answers[0]" class="form-control" placeholder="Choice 2">
-                  <span class="input-group-addon">
-                    <label class="cursor-pointer"><input type="checkbox" name="correct"> Correct</label>
-                  </span>
+                <div class="col-md-12 task-choice row-margin-bottom">
+                  <div class="input-group col-xs-11 pull-left">
+                    <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
+                    <input type="text" class="form-control default-focus task-desc" placeholder="Choice">
+                    <span class="input-group-addon">
+                      <label class="cursor-pointer"><input type="checkbox" class="task-correct" name="correct"> Correct</label>
+                    </span>
+                  </div>
+                  <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
                 </div>
               </div>
               <div class="col-md-12">
-                <button type="button" class="btn btn-link" >
+                <div class="new-choice-wrap hidden">
+                  <div class="col-md-12 task-choice row-margin-bottom">
+                    <div class="input-group col-xs-11 pull-left">
+                      <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
+                      <input type="text" class="form-control task-desc default-focus" placeholder="Choice">
+                      <span class="input-group-addon">
+                        <label class="cursor-pointer"><input type="checkbox" class="task-correct" name="correct"> Correct</label>
+                      </span>
+                    </div>
+                    <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-link add-choice">
                   <i class="fa fa-plus"></i> Add Choice
                 </button>
               </div>
@@ -155,7 +192,9 @@
 @endsection
 
 @section('scripts')
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
   <script type="text/javascript">
+
 
     $('.fixed-toolbar button.task-type').on('click',function(e){
       let new_task = $('#tool-dom #'+$(this).attr('data-task-type')+'-dom').html()
@@ -188,21 +227,41 @@
       ReorderSegmentTasks()
     })
 
+    $(document).on('click','.task-wrap .add-choice',function(e){
+      let new_choice = $(this).parent().find('.new-choice-wrap').html()
+      let panel_body = $(this).closest('.panel-body')
+      panel_body.find('.task-list').append(new_choice)
+      FocusTask(panel_body.find('.task-list').last())
+    })
+
+    $(document).on('click','.task-choice .trash-choice',function(e){
+      $(this).closest('.task-choice').remove()
+    })
+
     function ReorderSegmentTasks(){
       $("#segment-body .task-wrap").each(function(index) {
         $(this).find('.order-wrap .order-value').text(index+1)
       })
+      $(document).find(".task-wrap .panel-body .task-list").sortable({
+        appendTo: document.body,
+        cursor: "move",
+        items: "> .task-choice",
+        placeholder: "choice-placeholder",
+        opacity: 0.5,
+        handle: '.choice-handle',
+        update: function( event, ui ) {}
+      });
     }
 
     function FocusTask(element){
-      element.find('.default-focus').focus()
+      element.find('.default-focus')
     }
 
     $("#save-btn").on('click',function(e){
-      
       let thisBtn = $(this)
       thisBtn.addClass('disabled')
       let segment = new Segment()
+      segment.UpdateTasks()
       if(segment.Validate){
         $.ajax({
           type: "POST",
@@ -234,9 +293,41 @@
       return false
     }
     Segment.prototype.UpdateTasks = function(){
-      return false
-    }
+      let tasks = {}
+      $("#segment-body .task-wrap").each(function(index) {
+        let task_type = $(this).attr('data-task-type')
+        if(!!!tasks[task_type])
+          tasks[task_type] = []
+        tasks[task_type].push(GetTaskDetails($(this),task_type))
+      })
+      this.tasks = tasks
 
+      function GetTaskDetails(element, task_type){
+        let task = {
+          task_id : null,
+          order   : element.find('.order-wrap .order-value').text(),
+          type    : task_type,
+          title   : element.find('.panel-body .task-title textarea').val()
+        }
+        switch(task_type) {
+          case "rmc":
+          case "cmc":
+            task.choices = []
+            element.find('.task-list .task-choice').each(function(i) {
+              let choice = {
+                desc    : $(this).find('input.task-desc').val(),
+                correct : $(this).find('input.task-correct').is(":checked")
+              }
+              if(choice.desc != '')
+                task.choices.push(choice)
+            })
+            break;
+          default:
+            //code block
+        }
+        return task
+      }
+    }
 
     $('.dropdown-custom .dropdown-menu li > a').click(function(e){
       e.preventDefault()
