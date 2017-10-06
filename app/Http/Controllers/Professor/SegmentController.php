@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Segments\Segment;
 use App\Models\Lesson;
+use Log;
 
 class SegmentController extends Controller
 {
@@ -37,7 +38,17 @@ class SegmentController extends Controller
 		return view('segments.create',['lessons'=>$lessons]);
 	}
 
-	public function create(Request $request) {
-		return $request->all();
+	public function update(Request $request) {
+		if(!is_null($request->segment_id)){
+			$segment = Segment::find($request->segment_id);
+			$segment->fill($request->only(['lesson_id','title','description']));
+		}	else {
+			$segment = Segment::create($request->only(['lesson_id','title','description']));
+		}
+/*
+		foreach($request->tasks)
+		$segment->tasks()->save();*/
+
+		return $segment;
 	}
 }

@@ -281,24 +281,22 @@
       this.constructor
       this.segment_id  = $('.basics-wrap #segment-id').val().trim() != '' ? $('.basics-wrap #segment-name').val().trim() : null
       this.lesson_id   = $('.basics-wrap #segment-lesson').val() != 'default' ? parseInt($('.basics-wrap #segment-lesson').val()) : null
-      this.name        = $('.basics-wrap #segment-name').val().trim()
+      this.title        = $('.basics-wrap #segment-name').val().trim()
       this.description = $('.basics-wrap #segment-description').val().trim()
       this.tasks       = []
     }
 
     Segment.prototype.Validate = function(){
-      return true
+      return false
     }
     Segment.prototype.UpdateBasics = function(){
       return false
     }
     Segment.prototype.UpdateTasks = function(){
-      let tasks = {}
+      let tasks = []
       $("#segment-body .task-wrap").each(function(index) {
         let task_type = $(this).attr('data-task-type')
-        if(!!!tasks[task_type])
-          tasks[task_type] = []
-        tasks[task_type].push(GetTaskDetails($(this),task_type))
+        tasks.push(GetTaskDetails($(this),task_type))
       })
       this.tasks = tasks
 

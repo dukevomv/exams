@@ -9,6 +9,7 @@ use App\Models\Segments\Task;
 
 class Segment extends Model
 {
+  public $fillable = ['lesson_id','title','description'];
   public function lesson()
   {
     return $this->BelongsTo(Lesson::class);
