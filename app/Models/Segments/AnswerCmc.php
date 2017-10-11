@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AnswerCmc extends Model
 {
   protected $table = 'answers_cmc';
+  public $fillable = ['description','correct'];
   
   public function tasks()
   {

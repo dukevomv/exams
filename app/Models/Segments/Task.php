@@ -9,6 +9,8 @@ use App\Models\Segments\AnswerCmc;
 
 class Task extends Model
 {
+  public $fillable = ['type','position','description','points'];
+  
   public function rmc()
   {
     return $this->hasMany(AnswerRmc::class,'task_id');

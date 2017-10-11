@@ -263,6 +263,7 @@
       let segment = new Segment()
       segment.UpdateTasks()
       if(segment.Validate){
+        console.log(segment)
         $.ajax({
           type: "POST",
           url: "{{url('segments/create')}}",
@@ -279,9 +280,9 @@
 
     var Segment = function Segment(){
       this.constructor
-      this.segment_id  = $('.basics-wrap #segment-id').val().trim() != '' ? $('.basics-wrap #segment-name').val().trim() : null
+      this.id          = $('.basics-wrap #segment-id').val().trim() != '' ? $('.basics-wrap #segment-name').val().trim() : null
       this.lesson_id   = $('.basics-wrap #segment-lesson').val() != 'default' ? parseInt($('.basics-wrap #segment-lesson').val()) : null
-      this.title        = $('.basics-wrap #segment-name').val().trim()
+      this.title       = $('.basics-wrap #segment-name').val().trim()
       this.description = $('.basics-wrap #segment-description').val().trim()
       this.tasks       = []
     }
@@ -302,22 +303,23 @@
 
       function GetTaskDetails(element, task_type){
         let task = {
-          task_id : null,
-          order   : element.find('.order-wrap .order-value').text(),
-          type    : task_type,
-          title   : element.find('.panel-body .task-title textarea').val()
+          id          : null,
+          position    : element.find('.order-wrap .order-value').text(),
+          type        : task_type,
+          description : element.find('.panel-body .task-title textarea').val(),
+          points      : 5
         }
         switch(task_type) {
           case "rmc":
           case "cmc":
-            task.choices = []
+            task.data = []
             element.find('.task-list .task-choice').each(function(i) {
               let choice = {
-                desc    : $(this).find('input.task-desc').val(),
-                correct : $(this).find('input.task-correct').is(":checked")
+                description   : $(this).find('input.task-desc').val(),
+                correct       : $(this).find('input.task-correct').is(":checked") ? 1 : 0
               }
               if(choice.desc != '')
-                task.choices.push(choice)
+                task.data.push(choice)
             })
             break;
           default:

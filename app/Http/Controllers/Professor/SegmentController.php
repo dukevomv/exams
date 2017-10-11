@@ -39,16 +39,25 @@ class SegmentController extends Controller
 	}
 
 	public function update(Request $request) {
-		if(!is_null($request->segment_id)){
-			$segment = Segment::find($request->segment_id);
-			$segment->fill($request->only(['lesson_id','title','description']));
-		}	else {
-			$segment = Segment::create($request->only(['lesson_id','title','description']));
-		}
-/*
-		foreach($request->tasks)
-		$segment->tasks()->save();*/
+		$segment = Segment::updateOrCreate(['id'=>$request->input('id',null)],$request->only(['lesson_id','title','description']));
+
+    foreach($request->tasks as $req_task){
+			$task = $segment->tasks()->updateOrCreate(['id'=>isset($req_task['id']) ? $req_task['id'] : null],array_only($req_task,['type','position','description','points']));
+			$task_details = $this->fillTaskDetails($task,$req_task['data']);
+    }
 
 		return $segment;
+	}
+
+	private function fillTaskDetails($task,$task_data){
+		$task_type_keys = [
+			'rmc' => ['description','correct'],
+			'cmc' => ['description','correct']
+		];
+		$details = [];
+		foreach($task_data as $option){
+			$details[] = $task->{$task->type}()->updateOrCreate(['id'=>isset($option['id']) ? $option['id'] : null],array_only($option,$task_type_keys[$task->type]));
+		}
+		return $details;
 	}
 }
