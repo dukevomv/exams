@@ -31,9 +31,11 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::group(['prefix' => 'segments'], function () {
 		Route::group(['namespace' => 'Professor'], function () {
 			Route::get('/', 'SegmentController@index')->name('segments_index');
-			Route::get('create', 'SegmentController@createView');
+			Route::get('create', 'SegmentController@updateView');
+			Route::get('{id}/edit', 'SegmentController@updateView');
+
 			Route::post('create', 'SegmentController@update');
-			Route::post('delete', 'SegmentController@delete');
+			Route::post('{id}/edit', 'SegmentController@update');
 		});
 	});
 

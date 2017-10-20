@@ -12,7 +12,6 @@ class SegmentController extends Controller
 {
 	public function index(Request $request) {
 		$segments = Segment::all();
-
 		$lessons = Lesson::approved()->get();
 /*
 		if($request->input('status','') != ''){
@@ -33,9 +32,12 @@ class SegmentController extends Controller
 		return view('segments.index',['segments'=>$segments,'lessons'=>$lessons]);
 	}
 
-	public function createView(Request $request) {
+	public function updateView($id = null, Request $request) {
 		$lessons = Lesson::approved()->get();
-		return view('segments.create',['lessons'=>$lessons]);
+		$segment = Segment::find($id);
+		if(!is_null($id) && is_null($segment))
+			return redirect('segments/create');
+		return view('segments.update',['lessons'=>$lessons,'segment'=>$segment]);
 	}
 
 	public function update(Request $request) {

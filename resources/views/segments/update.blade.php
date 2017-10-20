@@ -9,7 +9,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-8 col-md-offset-3" id="segment-body">
-        <h1>Create Segment</h1>
+        <h1>@if($segment) Edit Segment @else Create Segment @endif</h1>
         <div class="panel panel-default basics-wrap relative">
           <div class="order-wrap disabled">
             <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
