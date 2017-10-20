@@ -22,18 +22,18 @@
               <label>Lesson:</label>
               <div class="btn-group dropdown-custom">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Select Lesson <span class="caret"></span>
+                  @if($segment) {{$lessons->where('id', $segment->lesson_id)->first()->name}} @else Select Lesson @endif <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                  <li class="active dropdown-value-default"><a href="#" data-dropdown-value="default">Select Lesson</a></li>
+                  <li class="@if(!$segment) active @endif dropdown-value-default"><a href="#" data-dropdown-value="default">Select Lesson</a></li>
                   @foreach($lessons as $lesson)
-                    <li><a href="#" data-dropdown-value="{{$lesson->id}}">{{$lesson->name}}</a></li>
+                    <li @if($segment && $segment->lesson_id == $lesson->id) class="active" @endif><a href="#" data-dropdown-value="{{$lesson->id}}">{{$lesson->name}}</a></li>
                   @endforeach
                 </ul>
                 <select class="hidden dropdown-select" id="segment-lesson">
                   <option value="default">Select Lesson</option>
                   @foreach($lessons as $lesson)
-                    <option value="{{$lesson->id}}">{{$lesson->name}}</option>
+                    <option value="{{$lesson->id}}"  @if($segment && $segment->lesson_id == $lesson->id) selected @endif>{{$lesson->name}}</option>
                   @endforeach
                 </select>
               </div>
@@ -41,11 +41,11 @@
             <input type="hidden" id="segment-id">
             <div class="col-md-8 col-md-offset-2 row-margin-bottom">
               <label>Name:</label>
-              <input type="text" class="form-control" id="segment-name" placeholder="Basic HTML questions">
+              <input type="text" class="form-control" @if($segment) value="{{$segment->title}}" @endif id="segment-name" placeholder="Basic HTML questions">
             </div>
             <div class="col-md-12">
               <label>Description:</label>
-              <textarea type="text" class="form-control" id="segment-description" placeholder="All you need to know about HTML..."></textarea>
+              <textarea type="text" class="form-control" id="segment-description" placeholder="All you need to know about HTML...">@if($segment){{$segment->description}}@endif</textarea>
             </div>
           </div>
         </div>
