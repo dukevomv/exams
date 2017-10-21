@@ -1,3 +1,4 @@
+<?php $rmc_name = uniqid('uniq_');?>
 <div class="panel panel-default task-wrap relative" data-task-type="rmc">
   <div class="order-wrap">
     <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
@@ -18,7 +19,7 @@
               <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
               <input type="text" class="form-control task-desc" placeholder="Choice" value="{{$choice->description}}">
               <span class="input-group-addon">
-                <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct" @if($choice->correct) checked @endif > Correct</label>
+                <label class="cursor-pointer"><input type="radio" class="task-correct set-unique-val" name="{{$rmc_name}}" @if($choice->correct) checked @endif > Correct</label>
               </span>
             </div>
             <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
@@ -30,7 +31,7 @@
             <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
             <input type="text" class="form-control task-desc" placeholder="Choice">
             <span class="input-group-addon">
-              <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct"> Correct</label>
+              <label class="cursor-pointer"><input type="radio" class="task-correct set-unique-val" name="{{$rmc_name}}"> Correct</label>
             </span>
           </div>
           <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
@@ -44,7 +45,7 @@
             <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
             <input type="text" class="form-control task-desc default-focus" placeholder="Choice">
             <span class="input-group-addon">
-              <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct"> Correct</label>
+              <label class="cursor-pointer"><input type="radio" class="task-correct set-unique-val" name="correct"> Correct</label>
             </span>
           </div>
           <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>

@@ -98,8 +98,10 @@
 
 
     $('.fixed-toolbar button.task-type').on('click',function(e){
-      let new_task = $('#tool-dom #'+$(this).attr('data-task-type')+'-dom').html()
-      $('#segment-body').append(new_task)
+      let new_task = $('#tool-dom #'+$(this).attr('data-task-type')+'-dom')
+      SetUniqueValue(new_task)
+      let new_task_html = new_task.html()
+      $('#segment-body').append(new_task_html)
       FocusTask($('#segment-body .task-wrap').last())
       ReorderSegmentTasks()
     })
@@ -156,6 +158,11 @@
 
     function FocusTask(element){
       element.find('.default-focus')
+    }
+
+    function SetUniqueValue(task){
+      let unique = 'uniq_'+(new Date()).getTime()
+      task.find('.set-unique-val').prop('name',unique)
     }
 
     $("#save-btn").on('click',function(e){
