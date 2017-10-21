@@ -16,13 +16,13 @@ class Segment extends Model
   }
   public function tasks()
   {
-    return $this->hasMany(Task::class);
+    return $this->hasMany(Task::class)->orderBy('position','asc');
   }
 
   public function scopeWithTasksAnswers($query)
 	{
 		return $query->with(['tasks' => function($q) {
-			$q->with(['rmc','cmc'])->orderBy('row_num');
+			$q->with(['rmc','cmc'])->orderBy('position');
 		}]);
 	}
 }

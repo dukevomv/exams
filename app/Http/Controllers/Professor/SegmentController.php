@@ -34,7 +34,7 @@ class SegmentController extends Controller
 
 	public function updateView($id = null, Request $request) {
 		$lessons = Lesson::approved()->get();
-		$segment = Segment::find($id);
+		$segment = Segment::where('id',$id)->withTasksAnswers()->first();
 		if(!is_null($id) && is_null($segment))
 			return redirect('segments/create');
 		return view('segments.update',['lessons'=>$lessons,'segment'=>$segment]);

@@ -49,6 +49,11 @@
             </div>
           </div>
         </div>
+        @if($segment)
+          @foreach($segment->tasks as $task)
+            @include('includes.segments.task_types.'.$task->type, ['fill'=>true,'task' => $task])
+          @endforeach
+        @endif
       </div>
     </div>
     <div class="fixed-toolbar col-xs-2">
@@ -65,114 +70,10 @@
       </div>
       <div class="hidden" id="tool-dom">
         <div class="task-dom" id="rmc-dom">
-          <div class="panel panel-default task-wrap relative" data-task-type="rmc">
-            <div class="order-wrap">
-              <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
-              <div class="order-value"></div>
-              <div class="order-trigger cursor-pointer" data-order-direction="down"><i class="fa fa-angle-down" aria-hidden="true"></i></div>
-            </div>
-            <div class="panel-heading">Single Choice Task <span class="trash-btn pull-right"><i class="fa fa-trash"></i></span></div>
-            <div class="panel-body">
-              <div class="col-md-12 row-margin-bottom task-title">
-                <label>Task Title:</label>
-                <textarea type="text" class="form-control default-focus" placeholder="What is Bootstrap?"></textarea>
-              </div>
-              <div class="task-list">
-                <div class="col-md-12 task-choice row-margin-bottom">
-                  <div class="input-group col-xs-11 pull-left">
-                    <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
-                    <input type="text" class="form-control task-desc" placeholder="Choice">
-                    <span class="input-group-addon">
-                      <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct"> Correct</label>
-                    </span>
-                  </div>
-                  <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
-                </div>
-                <div class="col-md-12 task-choice row-margin-bottom">
-                  <div class="input-group col-xs-11 pull-left">
-                    <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
-                    <input type="text" class="form-control task-desc default-focus" placeholder="Choice">
-                    <span class="input-group-addon">
-                      <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct"> Correct</label>
-                    </span>
-                  </div>
-                  <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="new-choice-wrap hidden">
-                  <div class="col-md-12 task-choice row-margin-bottom">
-                    <div class="input-group col-xs-11 pull-left">
-                      <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
-                      <input type="text" class="form-control task-desc default-focus" placeholder="Choice">
-                      <span class="input-group-addon">
-                        <label class="cursor-pointer"><input type="radio" class="task-correct" name="correct"> Correct</label>
-                      </span>
-                    </div>
-                    <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
-                  </div>
-                </div>
-                <button type="button" class="btn btn-link add-choice">
-                  <i class="fa fa-plus"></i> Add Choice
-                </button>
-              </div>
-            </div>
-          </div> 
+          @include('includes.segments.task_types.rmc',['fill'=>false])
         </div>
         <div class="task-dom" id="cmc-dom">
-          <div class="panel panel-default task-wrap relative" data-task-type="cmc">
-            <div class="order-wrap">
-              <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
-              <div class="order-value"></div>
-              <div class="order-trigger cursor-pointer" data-order-direction="down"><i class="fa fa-angle-down" aria-hidden="true"></i></div>
-            </div>
-            <div class="panel-heading">Multiple Choice Task <span class="trash-btn pull-right"><i class="fa fa-trash"></i></span></div>
-            <div class="panel-body">
-              <div class="col-md-12 row-margin-bottom task-title">
-                <label>Task Title:</label>
-                <textarea type="text" class="form-control default-focus" placeholder="What is Bootstrap?"></textarea>
-              </div>
-              <div class="task-list">
-                <div class="col-md-12 task-choice row-margin-bottom">
-                  <div class="input-group col-xs-11 pull-left">
-                    <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
-                    <input type="text" class="form-control task-desc" placeholder="Choice">
-                    <span class="input-group-addon">
-                      <label class="cursor-pointer"><input type="checkbox" class="task-correct" name="correct"> Correct</label>
-                    </span>
-                  </div>
-                  <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
-                </div>
-                <div class="col-md-12 task-choice row-margin-bottom">
-                  <div class="input-group col-xs-11 pull-left">
-                    <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
-                    <input type="text" class="form-control default-focus task-desc" placeholder="Choice">
-                    <span class="input-group-addon">
-                      <label class="cursor-pointer"><input type="checkbox" class="task-correct" name="correct"> Correct</label>
-                    </span>
-                  </div>
-                  <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="new-choice-wrap hidden">
-                  <div class="col-md-12 task-choice row-margin-bottom">
-                    <div class="input-group col-xs-11 pull-left">
-                      <span class="input-group-addon cursor-pointer choice-handle"><i class="fa fa-arrows"></i></span>
-                      <input type="text" class="form-control task-desc default-focus" placeholder="Choice">
-                      <span class="input-group-addon">
-                        <label class="cursor-pointer"><input type="checkbox" class="task-correct" name="correct"> Correct</label>
-                      </span>
-                    </div>
-                    <span class="pull-right cursor-pointer trash-choice"><i class="fa fa-minus-circle"></i></span>
-                  </div>
-                </div>
-                <button type="button" class="btn btn-link add-choice">
-                  <i class="fa fa-plus"></i> Add Choice
-                </button>
-              </div>
-            </div>
-          </div>
+          @include('includes.segments.task_types.cmc',['fill'=>false])
         </div>
       </div>
 
