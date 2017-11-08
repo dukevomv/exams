@@ -7,9 +7,13 @@
   </div>
   <div class="panel-heading">Single Choice Task <span class="trash-btn pull-right"><i class="fa fa-trash"></i></span></div>
   <div class="panel-body">
-    <div class="col-md-12 row-margin-bottom task-title">
+    <div class="col-md-10 row-margin-bottom task-title">
       <label>Task Title:</label>
       <textarea type="text" class="form-control default-focus" placeholder="What is Bootstrap?">@if($fill && $task){{$task->description}}@endif</textarea>
+    </div>
+    <div class="col-md-2 row-margin-bottom task-points">
+      <label>Points:</label>
+      <input type="number" class="form-control" value="@if($fill && $task){{$task->points}}@endif">
     </div>
     <div class="task-list">
       @if($fill && $task)

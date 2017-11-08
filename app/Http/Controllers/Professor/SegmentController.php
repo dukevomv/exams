@@ -53,8 +53,8 @@ class SegmentController extends Controller
 
 	private function fillTaskDetails($task,$task_data){
 		$task_type_keys = [
-			'rmc' => ['description','correct'],
-			'cmc' => ['description','correct']
+			'rmc' => ['description','points','correct'],
+			'cmc' => ['description','points','correct']
 		];
 		$details = [];
 		foreach($task_data as $option){

@@ -224,6 +224,7 @@
             element.find('.task-list .task-choice').each(function(i) {
               let choice = {
                 description   : $(this).find('input.task-desc').val(),
+                points        : $(this).find('input.task-points').val(),
                 correct       : $(this).find('input.task-correct').is(":checked") ? 1 : 0
               }
               if(choice.desc != '')
