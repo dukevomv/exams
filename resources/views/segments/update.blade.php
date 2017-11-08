@@ -19,6 +19,7 @@
           <div class="panel-heading">Basic Information</div>
           <div class="panel-body">
             <div class="col-md-2 row-margin-bottom">
+              <input type="hidden" id="segment-id" @if($segment) value="{{$segment->id}}" @endif>
               <label>Lesson:</label>
               <div class="btn-group dropdown-custom">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -38,7 +39,6 @@
                 </select>
               </div>
             </div>
-            <input type="hidden" id="segment-id">
             <div class="col-md-8 col-md-offset-2 row-margin-bottom">
               <label>Name:</label>
               <input type="text" class="form-control" @if($segment) value="{{$segment->title}}" @endif id="segment-name" placeholder="Basic HTML questions">
@@ -188,7 +188,7 @@
 
     var Segment = function Segment(){
       this.constructor
-      this.id          = $('.basics-wrap #segment-id').val().trim() != '' ? $('.basics-wrap #segment-name').val().trim() : null
+      this.id          = $('.basics-wrap #segment-id').val().trim() != '' ? $('.basics-wrap #segment-id').val().trim() : null
       this.lesson_id   = $('.basics-wrap #segment-lesson').val() != 'default' ? parseInt($('.basics-wrap #segment-lesson').val()) : null
       this.title       = $('.basics-wrap #segment-name').val().trim()
       this.description = $('.basics-wrap #segment-description').val().trim()
@@ -211,11 +211,11 @@
 
       function GetTaskDetails(element, task_type){
         let task = {
-          id          : null,
+          id          : element.find('.panel-body input.task-id').val().trim() != '' ? element.find('.panel-body input.task-id').val().trim() : null,
           position    : element.find('.order-wrap .order-value').text(),
           type        : task_type,
           description : element.find('.panel-body .task-title textarea').val(),
-          points      : 5
+          points      : element.find('.panel-body .task-points input').val() != '' ? element.find('.panel-body .task-points input').val().trim() : 0,
         }
         switch(task_type) {
           case "rmc":
@@ -223,12 +223,11 @@
             task.data = []
             element.find('.task-list .task-choice').each(function(i) {
               let choice = {
-                description   : $(this).find('input.task-desc').val(),
-                points        : $(this).find('input.task-points').val(),
-                correct       : $(this).find('input.task-correct').is(":checked") ? 1 : 0
+                id            : $(this).find('input.choice-id').val().trim() != '' ? $(this).find('input.choice-id').val().trim() : null,
+                description   : $(this).find('input.choice-desc').val(),
+                correct       : $(this).find('input.choice-correct').is(":checked") ? 1 : 0
               }
-              if(choice.desc != '')
-                task.data.push(choice)
+              if(choice.description != '')   task.data.push(choice)
             })
             break;
           default:

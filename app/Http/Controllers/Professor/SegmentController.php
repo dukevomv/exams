@@ -42,7 +42,7 @@ class SegmentController extends Controller
 
 	public function update(Request $request) {
 		$segment = Segment::updateOrCreate(['id'=>$request->input('id',null)],$request->only(['lesson_id','title','description']));
-
+Log::info($request->all());
     foreach($request->tasks as $req_task){
 			$task = $segment->tasks()->updateOrCreate(['id'=>isset($req_task['id']) ? $req_task['id'] : null],array_only($req_task,['type','position','description','points']));
 			$task_details = $this->fillTaskDetails($task,$req_task['data']);
