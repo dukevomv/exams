@@ -33,6 +33,8 @@ Route::group(['middleware' => 'auth'], function () {
 			Route::get('/', 'SegmentController@index')->name('segments_index');
 			Route::get('create', 'SegmentController@updateView');
 			Route::get('{id}/edit', 'SegmentController@updateView');
+			Route::get('{id}/preview', 'SegmentController@preview');
+			Route::get('{id}/delete', 'SegmentController@delete');
 
 			Route::post('create', 'SegmentController@update');
 			Route::post('{id}/edit', 'SegmentController@update');

@@ -11,24 +11,13 @@ use Log;
 class SegmentController extends Controller
 {
 	public function index(Request $request) {
-		$segments = Segment::all();
-		$lessons = Lesson::approved()->get();
-/*
-		if($request->input('status','') != ''){
-			if($request->status == 'approved'){
-				$lessons->whereHas('status',function($query){
-					$query->where('approved',1);
-				});
-			} else if($request->status == 'pending'){
-				$lessons->whereHas('status',function($query){
-					$query->where('approved',0);
-				});
-			} else if($request->status == 'unsubscribed'){
-				$lessons->has('status','=',0);
-			}
-		}	
+		$lessons 	= Lesson::approved()->get();
+		$segments = Segment::whereIn('lesson_id',$lessons->pluck('id')->all());
 
-		$lessons = $lessons->paginate(10);*/
+		if($request->input('lesson','') != '')
+			$segments->where('lesson_id',$request->lesson);
+
+		$segments = $segments->paginate(10);
 		return view('segments.index',['segments'=>$segments,'lessons'=>$lessons]);
 	}
 
@@ -42,7 +31,6 @@ class SegmentController extends Controller
 
 	public function update(Request $request) {
 		$segment = Segment::updateOrCreate(['id'=>$request->input('id',null)],$request->only(['lesson_id','title','description']));
-Log::info($request->all());
     foreach($request->tasks as $req_task){
 			$task = $segment->tasks()->updateOrCreate(['id'=>isset($req_task['id']) ? $req_task['id'] : null],array_only($req_task,['type','position','description','points']));
 			$task_details = $this->fillTaskDetails($task,$req_task['data']);
@@ -50,6 +38,25 @@ Log::info($request->all());
 
 		return $segment;
 	}
+
+	public function preview($id = null, Request $request) {
+		$segment = Segment::where('id',$id)->with('lesson')->withTasksAnswers()->first();
+		if(!is_null($id) && is_null($segment))
+			return redirect('segments');
+		return view('segments.preview',['segment'=>$segment]);
+	}
+
+	public function delete($id = null) {
+		$segment = Segment::where('id',$id)->first();
+		if(is_null($id) || is_null($segment))
+			return back()->with(['error'=>'Segment cannot be deleted.']);
+		$segment->delete();
+		return back()->with(['success'=>'Segment deleted successfully']);
+	}
+
+
+
+
 
 	private function fillTaskDetails($task,$task_data){
 		$task_type_keys = [

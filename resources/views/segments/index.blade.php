@@ -8,13 +8,24 @@
           <div class="col-xs-8">
             <div class="btn-group pull-left">
               <button id="lesson" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{ucfirst(Request::input('lesson','all'))}} <span class="caret"></span>
+                <?php 
+                  $selected_lesson = Request::input('lesson','All');
+                  foreach($lessons as $lesson){
+                    if($selected_lesson == $lesson->id){
+                      $selected_lesson = $lesson->name;
+                      break;
+                    }
+                  }
+                ?>
+                {{$selected_lesson}} <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
-                <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('lessons_index',[])}}">All</a></li>
+                <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('segments_index',[])}}">All</a></li>
                 <li role="separator" class="divider"></li>
                 @foreach($lessons as $lesson)
-                  <li @if(Request::input('lesson','') == $lesson->id)class="active"@endif><a href="#">{{$lesson->name}}</a></li>
+                  <li @if(Request::input('lesson','') == $lesson->id)class="active"@endif>
+                    <a href="{{route('segments_index',['lesson'=>$lesson->id])}}">{{$lesson->name}}</a>
+                  </li>
                 @endforeach
               </ul>
             </div>
@@ -28,7 +39,7 @@
             <div class="input-group">
               <input type="text" class="form-control" placeholder="Search">
               <span class="input-group-btn">
-                <a href="{{route('lessons_index',Request::except('page'))}}" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
+                <a href="{{route('segments_index',Request::except('page'))}}" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
               </span>
             </div>
           </div>
@@ -45,6 +56,24 @@
               <th>Tests</th>
               <th>Action</th>
             </tr>
+            @foreach($segments as $segment)
+              <tr>
+                <td>{{$segment->title}}</td>
+                <td>{{$segment->lesson->name}}</td>
+                <td></td>
+                <td>
+                  <a href="{{url('segments/'.$segment->id.'/preview')}}" type="button" class="btn btn-primary btn-xs">
+                    <i class="fa fa-eye"></i>
+                  </a>
+                  <a href="{{url('segments/'.$segment->id.'/edit')}}" type="button" class="btn btn-success btn-xs">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  <a href="{{url('segments/'.$segment->id.'/delete')}}" type="button" class="btn btn-danger btn-xs">
+                    <i class="fa fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+            @endforeach
           </table>
         </div>
       </div>
@@ -52,6 +81,7 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <nav class="pull-right" aria-label="Page navigation">
+          {{ $segments->appends(Request::except('page'))->links() }}
         </nav>
       </div>
     </div>

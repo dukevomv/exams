@@ -79,9 +79,9 @@
 
       <h5>Actions</h5>
       <div class="btn-group margin-bottom-15">
-        <button type="button" class="btn btn-default">
+        <a @if($segment) href="{{url('segments/'.$segment->id.'/preview')}}" @else disabled @endif type="button" class="btn btn-default">
           <i class="fa fa-eye"></i> Preview
-        </button>
+        </a>
       </div>
       <div class="btn-group margin-bottom-15">
         <button type="button" id="save-btn" class="btn btn-primary">

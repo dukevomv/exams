@@ -9,12 +9,11 @@ use Log;
 
 class LessonController extends Controller
 {
-	public function index(Request $req) {
+	public function index(Request $request) {
 		$lessons = Lesson::with('status');
 
-		if($req->input('status','') != ''){
-			$lessons->{$req->status}();
-		}	
+		if($request->input('status','') != '')
+			$lessons->{$request->status}();
 
 		$lessons = $lessons->paginate(10);
 		
