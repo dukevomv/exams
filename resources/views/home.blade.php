@@ -24,30 +24,16 @@
 
         <div class="panel panel-default">
           <div class="panel-heading">
-            Segments Logic &middot; <small class="text-warning">10 September 2017</small>
+            Segments Logic &middot; <small class="text-warning">11 November 2017</small>
             <div class="pull-right">
-              <span class="label label-default">IN PROGRESS</span>
+              <span class="label label-danger">NEW</span> 
               <span class="label label-primary">UI UX</span>
-            </div>
-          </div>
-          <div class="panel-body">
-            <p>
-              The <a href="{{ url('/segments/create') }}" target="_blank">Create Segment</a> wizard is in progress for the UI and front functionality. 
-            </p>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            Segments Logic &middot; <small class="text-warning">25 August 2017</small>
-            <div class="pull-right">
-              <span class="label label-default">IN PROGRESS</span>
               <span class="label label-success">BACKEND</span>
             </div>
           </div>
           <div class="panel-body">
             <p>
-              The <a href="{{ url('/segments') }}" target="_blank">Segments</a> section is in progress for the backend logic and structure. 
+              The <a href="{{ url('/segments') }}" target="_blank">Segments</a> section basic functionality is ready with working actions like Listing, Create, Edit and Delete. 
             </p>
           </div>
         </div>
@@ -75,7 +61,7 @@
           <div class="panel-heading">
             First Blood &middot; <small class="text-warning">7 August 2017</small>
             <div class="pull-right">
-              <span class="label label-danger">NEW</span> 
+              <span class="label label-success">BACKEND</span>
             </div>
           </div>
           <div class="panel-body">
