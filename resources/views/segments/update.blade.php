@@ -177,8 +177,8 @@
           url: "{{url('segments/create')}}",
           data: {_token:"{{csrf_token()}}",...segment},
           success: function(data){
-            console.log(data)
             thisBtn.removeClass('disabled')
+            document.location = '/segments/'+data.id+'/edit';
           }
         })
       } else {
