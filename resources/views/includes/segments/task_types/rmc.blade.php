@@ -2,7 +2,7 @@
 <div class="panel panel-default task-wrap relative" data-task-type="rmc">
   <div class="order-wrap">
     <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
-    <div class="order-value"></div>
+    <div class="order-value">@if($fill && $task){{$task->position}}@endif</div>
     <div class="order-trigger cursor-pointer" data-order-direction="down"><i class="fa fa-angle-down" aria-hidden="true"></i></div>
   </div>
   <div class="panel-heading">Single Choice Task <span class="trash-btn pull-right"><i class="fa fa-trash"></i></span></div>
