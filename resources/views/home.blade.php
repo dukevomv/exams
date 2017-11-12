@@ -24,6 +24,21 @@
 
         <div class="panel panel-default">
           <div class="panel-heading">
+            Tests Logic &middot; <small class="text-warning">12 November 2017</small>
+            <div class="pull-right">
+              <span class="label label-danger">NEW</span> 
+              <span class="label label-default">IN PROGRESS</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p>
+              The <a href="{{ url('/tests') }}" target="_blank">Tests</a> section is created and it will contain all your saved tests ready to become your student's exams. 
+            </p>
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
             Segments Logic &middot; <small class="text-warning">11 November 2017</small>
             <div class="pull-right">
               <span class="label label-danger">NEW</span> 
@@ -33,7 +48,13 @@
           </div>
           <div class="panel-body">
             <p>
-              The <a href="{{ url('/segments') }}" target="_blank">Segments</a> section basic functionality is ready with working actions like Listing, Create, Edit and Delete. 
+              The <a href="{{ url('/segments') }}" target="_blank">Segments</a> section basic functionality is ready with its actions and its full backend implimentation with the 2 first types of questions, Multiple and SIngle Choice.
+            </p>
+            <p>
+              <b>Functionalities added:</b> Listing, Create, Edit and Delete 
+            </p>
+            <p>
+              <b>Functionalities comming soon:</b> Validation in Forms.
             </p>
           </div>
         </div>
