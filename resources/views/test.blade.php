@@ -19,9 +19,9 @@
 
 @section('content')
   <div class="container">
-    <textarea class="col-xs-5 col-md-4" name="" id="execute" >console.log('asdas'); return 1</textarea>
+    <textarea class="col-xs-5 col-md-4" name="" id="execute" >return "I'm dynamic!"</textarea>
     <div class="col-xs-2 col-md-1 text-center"><button id="run">Run</button></div>
-    <div class="col-xs-5 col-md-4" id="results">asddsasd</div>
+    <div class="col-xs-5 col-md-4" id="results">Press "Run" to see results.</div>
   </div>
 @endsection
 
@@ -32,10 +32,8 @@
       newScript = document.createElement('script');
       newScript.id = 'scriptContainer';
       newScript.text = script;
-      console.log(script)
       let results = new Function(script)();
       //let results = new eval('({'+script+'})')
-      console.log(results)
       $('#results').html(results);
     })
   </script>
