@@ -51,7 +51,7 @@
         </div>
         @if($segment)
           @foreach($segment->tasks as $task)
-            @include('includes.segments.task_types.'.$task->type, ['fill'=>true,'task' => $task])
+            @include('includes.form.segments.task_types.'.$task->type, ['fill'=>true,'task' => $task])
           @endforeach
         @endif
       </div>
@@ -70,10 +70,10 @@
       </div>
       <div class="hidden" id="tool-dom">
         <div class="task-dom" id="rmc-dom">
-          @include('includes.segments.task_types.rmc',['fill'=>false])
+          @include('includes.form.segments.task_types.rmc',['fill'=>false])
         </div>
         <div class="task-dom" id="cmc-dom">
-          @include('includes.segments.task_types.cmc',['fill'=>false])
+          @include('includes.form.segments.task_types.cmc',['fill'=>false])
         </div>
       </div>
 
