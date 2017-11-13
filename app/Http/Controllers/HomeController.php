@@ -22,4 +22,9 @@ class HomeController extends Controller
     {
         return view('settings');
     }
+
+    public function test()
+    {
+        return view('test');
+    }
 }

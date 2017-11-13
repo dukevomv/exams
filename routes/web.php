@@ -17,6 +17,7 @@ Auth::routes();
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::get('/home', 'HomeController@home');
+	Route::get('/test', 'HomeController@test');
 	Route::get('/settings', 'HomeController@settings');
 
 	Route::group(['prefix' => 'lessons'], function () {
