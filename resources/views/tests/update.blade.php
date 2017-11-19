@@ -8,7 +8,7 @@
 @section('content')
   <div class="container">
     <div class="row">
-      <div class="col-md-8 col-md-offset-3" id="test-body">
+      <div class="col-md-9 col-md-offset-3" id="test-body">
         <h1>@if($test) Edit Test @else Create Test @endif</h1>
         <div class="panel panel-default basics-wrap relative">
           <div class="order-wrap disabled">
