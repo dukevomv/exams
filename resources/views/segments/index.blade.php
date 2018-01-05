@@ -60,7 +60,7 @@
               <tr>
                 <td>{{$segment->title}}</td>
                 <td>{{$segment->lesson->name}}</td>
-                <td></td>
+                <td>{{$segment->tests_count}}</td>
                 <td>
                   <a href="{{url('segments/'.$segment->id.'/preview')}}" type="button" class="btn btn-primary btn-xs">
                     <i class="fa fa-eye"></i>

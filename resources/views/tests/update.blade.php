@@ -22,7 +22,12 @@
           <div class="panel-body">
             <div class="col-md-4 row-margin-bottom">
               <label>Scheduled for:</label>
-              <input type='datetime-local' class="form-control" id="test-scheduled" @if($test) value="{{Carbon\Carbon::parse($test->scheduled_at)->format('Y-m-d\Th:i')}}" @endif/>
+              <?php 
+                $scheduled = null;
+                if($test && !is_null($test->scheduled_at))
+                  $scheduled = Carbon\Carbon::parse($test->scheduled_at)->format('Y-m-d\TH:i');
+              ?>
+              <input type='datetime-local' class="form-control" id="test-scheduled" @if($scheduled) value="{{$scheduled}}" @endif/>
             </div>
             <div class="col-md-3 row-margin-bottom">
               <label>Duration (mins):</label>
@@ -153,7 +158,7 @@
   <script type="text/javascript">
     const basic_url = "{{url('/')}}"
     let test_segment_ids = @if($test) {!! json_encode($test->segments->pluck('id')->all()) !!}; @else []; @endif
-    
+
     function RefreshSidebarSegments(defaultFilters = false){
       const defaultDataFilters = {
         lesson_id: null,

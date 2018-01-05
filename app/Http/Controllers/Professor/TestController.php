@@ -15,7 +15,7 @@ class TestController extends Controller
 {
 	public function index(Request $request) {
 		$lessons 	= Lesson::approved()->get();
-		$tests = Test::whereIn('lesson_id',$lessons->pluck('id')->all());
+		$tests = Test::withCount('segments')->whereIn('lesson_id',$lessons->pluck('id')->all());
 
 		if($request->input('lesson','') != '')
 			$tests->where('lesson_id',$request->lesson);
@@ -36,8 +36,8 @@ class TestController extends Controller
 
 	public function update(Request $request) {
 		$fields = $request->only(['lesson_id','name','description','scheduled_at','duration']);
-		if(array_key_exists('scheduled_at',$fields))
-			$fields['scheduled_at'] = Carbon::createFromFormat('Y-m-d\Th:i',$fields['scheduled_at']);
+		if(array_key_exists('scheduled_at',$fields) && !is_null($fields['scheduled_at']))
+			$fields['scheduled_at'] = Carbon::createFromFormat('Y-m-d\TH:i',$fields['scheduled_at']);
 		Log::info($fields);
 		$test = Test::updateOrCreate(['id'=>$request->input('id',null)],$fields);
 		$ordered_segments = [];

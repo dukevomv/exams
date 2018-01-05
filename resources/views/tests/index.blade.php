@@ -53,9 +53,27 @@
             <tr>
               <th>Name</th>
               <th>Lesson</th>
-              <th>Tests</th>
+              <th>Segments</th>
               <th>Action</th>
             </tr>
+            @foreach($tests as $test)
+              <tr>
+                <td>{{$test->name}}</td>
+                <td>{{$test->lesson->name}}</td>
+                <td>{{$test->segments_count}}</td>
+                <td>
+                  <a href="{{url('tests/'.$test->id.'/preview')}}" type="button" class="btn btn-primary btn-xs">
+                    <i class="fa fa-eye"></i>
+                  </a>
+                  <a href="{{url('tests/'.$test->id.'/edit')}}" type="button" class="btn btn-success btn-xs">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  <a href="{{url('tests/'.$test->id.'/delete')}}" type="button" class="btn btn-danger btn-xs">
+                    <i class="fa fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+            @endforeach
           </table>
         </div>
       </div>

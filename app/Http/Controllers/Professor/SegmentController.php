@@ -12,7 +12,7 @@ class SegmentController extends Controller
 {
 	public function index(Request $request) {
 		$lessons 	= Lesson::approved()->get();
-		$segments = Segment::whereIn('lesson_id',$lessons->pluck('id')->all());
+		$segments = Segment::withCount('tests')->whereIn('lesson_id',$lessons->pluck('id')->all());
 
 		if($request->input('lesson','') != '')
 			$segments->where('lesson_id',$request->lesson);
