@@ -21,6 +21,19 @@ class SegmentController extends Controller
 		return view('segments.index',['segments'=>$segments,'lessons'=>$lessons]);
 	}
 
+	public function sidebarIndex(Request $request) {
+		$segments = Segment::whereIn('lesson_id',Lesson::approved()->get()->pluck('id')->all());
+
+		if(!is_null($request->input('lesson_id',null)))
+			$segments->where('lesson_id',$request->lesson_id);
+
+		if($request->input('search','') != '')
+			$segments->where('title','like','%'.$request->search.'%');
+
+		$segments = $segments->withCount('tasks')->get();
+		return response()->json($segments);
+	}
+
 	public function updateView($id = null, Request $request) {
 		$lessons = Lesson::approved()->get();
 		$segment = Segment::where('id',$id)->withTasksAnswers()->first();
@@ -43,7 +56,11 @@ class SegmentController extends Controller
 		$segment = Segment::where('id',$id)->with('lesson')->withTasksAnswers()->first();
 		if(!is_null($id) && is_null($segment))
 			return redirect('segments');
-		return view('segments.preview',['segment'=>$segment]);
+
+		if($request->input('modal',0) == 1)
+			return view('segments.modal_preview',['segment'=>$segment])->render();
+		else
+			return view('segments.preview',['segment'=>$segment]);
 	}
 
 	public function delete($id = null) {

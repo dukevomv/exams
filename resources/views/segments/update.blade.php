@@ -8,8 +8,10 @@
 @section('content')
   <div class="container">
     <div class="row">
+      <div class="col-xs-12">
+        <h1>@if($segment) Edit @else Create @endif Segment</h1>
+      </div>
       <div class="col-md-9 col-md-offset-3" id="segment-body">
-        <h1>@if($segment) Edit Segment @else Create Segment @endif</h1>
         <div class="panel panel-default basics-wrap relative">
           <div class="order-wrap disabled">
             <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
@@ -57,7 +59,19 @@
       </div>
     </div>
     <div class="fixed-toolbar col-xs-2">
-      <h5>Tools</h5>
+      <h5>Actions</h5>
+      <div class="btn-group margin-bottom-15">
+        <a @if($segment) href="{{url('segments/'.$segment->id.'/preview')}}" @else disabled @endif type="button" class="btn btn-default">
+          <i class="fa fa-eye"></i> Preview
+        </a>
+      </div>
+      <div class="btn-group margin-bottom-15">
+        <button type="button" id="save-btn" class="btn btn-primary">
+          <i class="fa fa-save"></i> Save
+        </button>
+      </div>
+      
+      <h5>Question Types</h5>
       <div class="btn-group margin-bottom-15">
         <button type="button" class="btn btn-default task-type" data-task-type="rmc">
           <i class="fa fa-plus"></i> Single Choice
@@ -75,18 +89,6 @@
         <div class="task-dom" id="cmc-dom">
           @include('includes.form.segments.task_types.cmc',['fill'=>false])
         </div>
-      </div>
-
-      <h5>Actions</h5>
-      <div class="btn-group margin-bottom-15">
-        <a @if($segment) href="{{url('segments/'.$segment->id.'/preview')}}" @else disabled @endif type="button" class="btn btn-default">
-          <i class="fa fa-eye"></i> Preview
-        </a>
-      </div>
-      <div class="btn-group margin-bottom-15">
-        <button type="button" id="save-btn" class="btn btn-primary">
-          <i class="fa fa-save"></i> Save
-        </button>
       </div>
     </div>
   </div>
@@ -174,7 +176,7 @@
         console.log(segment)
         $.ajax({
           type: "POST",
-          url: "{{url('segments/create')}}",
+          url: "{{url('segments/update')}}",
           data: {_token:"{{csrf_token()}}",...segment},
           success: function(data){
             thisBtn.removeClass('disabled')

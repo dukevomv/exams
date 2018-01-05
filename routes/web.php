@@ -31,12 +31,13 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::group(['prefix' => 'segments'], function () {
 		Route::group(['namespace' => 'Professor'], function () {
 			Route::get('/', 'SegmentController@index')->name('segments_index');
+			Route::get('/sidebar', 'SegmentController@sidebarIndex');
 			Route::get('create', 'SegmentController@updateView');
 			Route::get('{id}/edit', 'SegmentController@updateView');
 			Route::get('{id}/preview', 'SegmentController@preview');
 			Route::get('{id}/delete', 'SegmentController@delete');
 
-			Route::post('create', 'SegmentController@update');
+			Route::post('update', 'SegmentController@update');
 			Route::post('{id}/edit', 'SegmentController@update');
 		});
 	});
@@ -45,8 +46,10 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::group(['namespace' => 'Professor'], function () {
 			Route::get('/', 'TestController@index')->name('tests_index');
 			Route::get('create', 'TestController@updateView');
+			Route::get('{id}/edit', 'TestController@updateView');
 
-			Route::post('create', 'TestController@create');
+			Route::post('update', 'TestController@update');
+			Route::post('{id}/edit', 'TestController@update');
 			Route::post('delete', 'TestController@delete');
 		});
 	});

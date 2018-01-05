@@ -5,6 +5,7 @@ namespace App\Models\Segments;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Lesson;
+use App\Models\Test;
 use App\Models\Segments\Task;
 
 class Segment extends Model
@@ -14,6 +15,12 @@ class Segment extends Model
   {
     return $this->BelongsTo(Lesson::class);
   }
+
+  public function tests()
+  {
+    return $this->BelongsToMany(Test::class)->withTimestamps();
+  }
+
   public function tasks()
   {
     return $this->hasMany(Task::class)->orderBy('position','asc');

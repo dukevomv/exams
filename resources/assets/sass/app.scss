@@ -20,6 +20,13 @@ textarea{
 	margin-bottom: 20px;
 }
 
+.no-padding{
+	padding: 0!important;
+}
+
+.margin-right-15{
+	margin-right: 15px;
+}
 .margin-left-15{
 	margin-left: 15px;
 }
@@ -39,10 +46,17 @@ textarea{
 }
 
 .fixed-toolbar{
+	padding: 0;
 	position: fixed;
-	margin-top: 100px;
+	margin-top: 150px;
 	max-width:250px;
 	top:0;
+}
+.fixed-toolbar .preview-segment{
+  max-width: 230px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .trash-btn{
@@ -69,6 +83,9 @@ textarea{
 	}
 }
 
+  .changed-button i{
+    color:$brand-primary;
+  }
 
   .choice-placeholder{
     height:36px;
