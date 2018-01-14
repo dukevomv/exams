@@ -53,24 +53,34 @@
             <tr>
               <th>Name</th>
               <th>Lesson</th>
+              <th>Scheduled for</th>
               <th>Segments</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
             @foreach($tests as $test)
               <tr>
                 <td>{{$test->name}}</td>
                 <td>{{$test->lesson->name}}</td>
+                <td>{{$test->scheduled_at}}</td>
                 <td>{{$test->segments_count}}</td>
+                <td>@if($test->published == 0) draft @else published @endif</td>
                 <td>
                   <a href="{{url('tests/'.$test->id.'/preview')}}" type="button" class="btn btn-primary btn-xs">
                     <i class="fa fa-eye"></i>
                   </a>
-                  <a href="{{url('tests/'.$test->id.'/edit')}}" type="button" class="btn btn-success btn-xs">
-                    <i class="fa fa-pencil"></i>
-                  </a>
-                  <a href="{{url('tests/'.$test->id.'/delete')}}" type="button" class="btn btn-danger btn-xs">
-                    <i class="fa fa-trash"></i>
-                  </a>
+                  @if($test->published == 0)
+                    <a href="{{url('tests/'.$test->id.'/edit')}}" type="button" class="btn btn-success btn-xs">
+                      <i class="fa fa-pencil"></i>
+                    </a>
+                    <a href="{{url('tests/'.$test->id.'/delete')}}" type="button" class="btn btn-danger btn-xs">
+                      <i class="fa fa-trash"></i>
+                    </a>
+                  @else
+                    <a href="{{url('tests/'.$test->id.'/lobby')}}" type="button" class="btn btn-primary btn-xs">
+                      <i class="fa fa-users"></i>
+                    </a>
+                  @endif
                 </td>
               </tr>
             @endforeach

@@ -38,7 +38,7 @@ class TestController extends Controller
 		$fields = $request->only(['lesson_id','name','description','scheduled_at','duration']);
 		if(array_key_exists('scheduled_at',$fields) && !is_null($fields['scheduled_at']))
 			$fields['scheduled_at'] = Carbon::createFromFormat('Y-m-d\TH:i',$fields['scheduled_at']);
-		Log::info($fields);
+
 		$test = Test::updateOrCreate(['id'=>$request->input('id',null)],$fields);
 		$ordered_segments = [];
 		$count = 1;
@@ -49,5 +49,20 @@ class TestController extends Controller
     $test->segments()->sync($ordered_segments);
 
 		return $test;
+	}
+
+	public function delete($id = null) {
+		$test = Test::where('id',$id)->first();
+		if(is_null($id) || is_null($test))
+			return back()->with(['error'=>'Test cannot be deleted.']);
+		$test->delete();
+		return back()->with(['success'=>'Test deleted successfully']);
+	}
+
+	public function lobby($id = null) {
+		$test = Test::where('id',$id)->where('published',1)->with('lesson')->first();
+		if(is_null($test))
+			return redirect('tests');
+		return view('tests.lobby',['test'=>$test]);
 	}
 }

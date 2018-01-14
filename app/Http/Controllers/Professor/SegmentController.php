@@ -64,8 +64,8 @@ class SegmentController extends Controller
 	}
 
 	public function delete($id = null) {
-		$segment = Segment::where('id',$id)->first();
-		if(is_null($id) || is_null($segment))
+		$segment = Segment::withCount('tests')->where('id',$id)->first();
+		if(is_null($id) || is_null($segment) || $segment->tests_count > 0)
 			return back()->with(['error'=>'Segment cannot be deleted.']);
 		$segment->delete();
 		return back()->with(['success'=>'Segment deleted successfully']);

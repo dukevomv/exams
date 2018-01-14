@@ -47,6 +47,9 @@ Route::group(['middleware' => 'auth'], function () {
 			Route::get('/', 'TestController@index')->name('tests_index');
 			Route::get('create', 'TestController@updateView');
 			Route::get('{id}/edit', 'TestController@updateView');
+			Route::get('{id}/preview', 'TestController@preview');
+			Route::get('{id}/delete', 'TestController@delete');
+			Route::get('{id}/lobby', 'TestController@lobby');
 
 			Route::post('update', 'TestController@update');
 			Route::post('{id}/edit', 'TestController@update');
