@@ -18,6 +18,10 @@ class CreateTestsTable extends Migration
             $table->integer('lesson_id')->unsigned();
             $table->foreign('lesson_id')->references('id')->on('lessons')->onDelete('cascade');
             $table->string('name');
+            $table->text('description');
+            $table->string('status')->default('draft');
+            $table->datetime('scheduled_at')->nullable();
+            $table->integer('duration')->nullable();
             $table->timestamps();
         });
     }

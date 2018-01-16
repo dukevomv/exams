@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Professor;
+namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -22,6 +22,12 @@ class TestController extends Controller
 
 		$tests = $tests->paginate(10);
 		return view('tests.index',['tests'=>$tests,'lessons'=>$lessons]);
+	}
+
+	public function preview($id = null, Request $request) {
+		$lessons = Lesson::approved()->get()->pluck('id')->all();
+		$test = Test::with('segments')->where('id',$id)->whereIn('lesson_id',$lessons)->first();
+		return view('tests.preview',['test'=>$test]);
 	}
 
 	public function updateView($id = null, Request $request) {
@@ -60,7 +66,7 @@ class TestController extends Controller
 	}
 
 	public function lobby($id = null) {
-		$test = Test::where('id',$id)->where('published',1)->with('lesson')->first();
+		$test = Test::where('id',$id)->where('status','!=','draft')->with('lesson')->first();
 		if(is_null($test))
 			return redirect('tests');
 		return view('tests.lobby',['test'=>$test]);

@@ -38,15 +38,6 @@
         <div class="test-name"><i>{{$test->name}}</i></div>
         <div class="icon"><i class="fa fa-spinner fa-pulse"></i></div>
         <div class="description"></div>
-        <div class="action-wrap">
-          @if(Auth::user()->role == 'professor')
-            <button class="action action-{{$test->status}} hidden btn btn-default">In past</button>
-          @elseif(Auth::user()->role == 'student')
-            @if(true)
-              <button class="action action-{{$test->status}} hidden btn btn-default">Go to test</button>
-            @endif
-          @endif
-        </div>
       </div>
     </div>   
     <!-- 
@@ -100,20 +91,22 @@
   <script>
     let test_name = '{{$test->name}}'
     const announcements = {
-      inFarFuture   : ['This test will take place '],
-      inFuture      : ['This test will take place '],
-      inCloseFuture : ['This test will start '],
-      started       : ['This test is currently taking place and will end '],
-      finished      : ['This test took place '],
-      graded        : ['This test took place ']
+      professor : {
+        inFarFuture : ['This test will take place '],
+        inFuture : ['This test will take place '],
+        inCloseFuture : ['This test will start '],
+        happening : ['This test is currently taking place and will end '],
+        processing : ['This test took place '],
+        inPast : ['This test took place ']
+      }
     }
     const icons = {
       inFarFuture   : ['<i class="fa fa-calendar" aria-hidden="true"></i>'],
       inFuture      : ['<i class="fa fa-calendar" aria-hidden="true"></i>'],
       inCloseFuture : ['<i class="fa fa-envelope" aria-hidden="true"></i>'],
-      started       : ['<i class="fa fa-envelope-open" aria-hidden="true"></i>'],
-      finished      : ['<i class="fa fa-calculator" aria-hidden="true"></i>'],
-      graded        : ['<i class="fa fa-calculator" aria-hidden="true"></i>']
+      happening     : ['<i class="fa fa-envelope-open" aria-hidden="true"></i>'],
+      processing    : ['<i class="fa fa-calculator" aria-hidden="true"></i>'],
+      inPast        : ['<i class="fa fa-calculator" aria-hidden="true"></i>']
     }
     //
     let role = '{{Auth::user()->role}}'
@@ -136,19 +129,17 @@
         else
           return 'inCloseFuture'
       } else if(diff-duration < 0){
-        return 'started'
+        return 'happening'
       } else {
-        return 'graded'
+        return 'inPast'
       }
     }
     function AnnouncementUpdater(){
       timeline = TimelineGenerator()
       console.log(timeline)
-      let countdown = timeline == 'graded' ? moment(scheduled_at).fromNow() : (timeline == 'started' ? moment(scheduled_at).add(duration,'seconds').fromNow() : moment(scheduled_at).fromNow())
+      let countdown = timeline == 'inPast' ? moment(scheduled_at).fromNow() : (timeline == 'happening' ? moment(scheduled_at).add(duration,'seconds').fromNow() : moment(scheduled_at).fromNow())
       $('.announcement .icon').html(icons[timeline])
-      $('.announcement .description').html(announcements[timeline][0]+'<b>'+countdown+'</b>.')
-      $('.announcement .action-wrap .action').addClass('hidden')
-      $('.announcement .action-wrap .action.action-'+timeline).removeClass('hidden')
+      $('.announcement .description').html(announcements[role][timeline][0]+'<b>'+countdown+'</b>.')
     }
     /*console.log(moment(scheduled_at).format('dddd'))
     let seconds_left = 59

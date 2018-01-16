@@ -64,19 +64,24 @@
                 <td>{{$test->lesson->name}}</td>
                 <td>{{$test->scheduled_at}}</td>
                 <td>{{$test->segments_count}}</td>
-                <td>@if($test->published == 0) draft @else published @endif</td>
+                <td>{{$test->status}}</td>
                 <td>
-                  <a href="{{url('tests/'.$test->id.'/preview')}}" type="button" class="btn btn-primary btn-xs">
-                    <i class="fa fa-eye"></i>
-                  </a>
-                  @if($test->published == 0)
+                  @if(true)
+                    <a href="{{url('tests/'.$test->id)}}" type="button" class="btn btn-primary btn-xs">
+                      <i class="fa fa-eye"></i>
+                    </a>
+                  @endif
+                  @if(in_array($test->status,['draft','published']))
                     <a href="{{url('tests/'.$test->id.'/edit')}}" type="button" class="btn btn-success btn-xs">
                       <i class="fa fa-pencil"></i>
                     </a>
+                  @endif
+                  @if($test->status == 'draft')
                     <a href="{{url('tests/'.$test->id.'/delete')}}" type="button" class="btn btn-danger btn-xs">
                       <i class="fa fa-trash"></i>
                     </a>
-                  @else
+                  @endif
+                  @if($test->status != 'draft')
                     <a href="{{url('tests/'.$test->id.'/lobby')}}" type="button" class="btn btn-primary btn-xs">
                       <i class="fa fa-users"></i>
                     </a>

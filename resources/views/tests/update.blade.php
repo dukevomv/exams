@@ -85,7 +85,7 @@
     <div class="fixed-toolbar col-xs-2">
       <h5>Actions</h5>
       <div class="btn-group margin-bottom-15">
-        <a @if($test) href="{{url('tests/'.$test->id.'/preview')}}" @else disabled @endif type="button" class="btn btn-default">
+        <a @if($test) href="{{url('tests/'.$test->id)}}" @else disabled @endif type="button" class="btn btn-default">
           <i class="fa fa-eye"></i> Preview
         </a>
       </div>
