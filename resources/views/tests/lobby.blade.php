@@ -40,10 +40,18 @@
         <div class="description"></div>
         <div class="action-wrap">
           @if(Auth::user()->role == 'professor')
-            <button class="action action-{{$test->status}} hidden btn btn-default">In past</button>
+            @if($test->status == 'published')
+              <a href="{{url('tests/'.$test->id.'/start')}}" class="action action-{{$test->status}} btn btn-success">Start Now</a>
+            @elseif($test->status == 'started')
+              <a href="{{url('tests/'.$test->id.'/finish')}}" class="action action-{{$test->status}} btn btn-danger">Finish Now</a>
+            @elseif($test->status == 'finished')
+              <a href="{{url('tests/'.$test->id.'/grade')}}" class="action action-{{$test->status}} btn btn-default">Grades</a>
+            @endif
           @elseif(Auth::user()->role == 'student')
-            @if(true)
-              <button class="action action-{{$test->status}} hidden btn btn-default">Go to test</button>
+            @if($test->status == 'published')
+              <a href="{{url('tests/'.$test->id.'/register')}}" class="action action-{{$test->status}} btn btn-success">Register</a>
+            @elseif($test->status == 'started')
+              <a href="{{url('tests/'.$test->id.'/live')}}" class="action action-{{$test->status}} btn btn-default">Go to Test</a>
             @endif
           @endif
         </div>
@@ -78,16 +86,16 @@
         </div>
         <hr class="col-xs-12">
         <div class="spec-wrap col-xs-12 col-sm-6 col-md-4">
-          <span class="title">Professors</span><br>
+          <span class="title">Registered Users</span><br>
+          <span class="value">{{count($test->users)}}</span>
+        </div>
+        <div class="spec-wrap col-xs-12 col-sm-6 col-md-4">
+          <span class="title">Active Professors</span><br>
           <span class="value">2</span>
         </div>
         <div class="spec-wrap col-xs-12 col-sm-6 col-md-4">
-          <span class="title">Students</span><br>
+          <span class="title">Active Students</span><br>
           <span class="value">45</span>
-        </div>
-        <div class="spec-wrap col-xs-12 col-sm-6 col-md-4">
-          <span class="title">Lesson</span><br>
-          <span class="value">{{$test->lesson->name}}</span>
         </div>
       </div>
     </div>
@@ -120,10 +128,10 @@
     let scheduled_at = '{{$test->scheduled_at}}'
     let duration = parseInt('{{$test->duration}}')*60
     let diff = moment().diff(moment(scheduled_at),'seconds')
-    setInterval(function(){
+    /*setInterval(function(){
       ++diff
       AnnouncementUpdater()
-    },1000)
+    },1000)*/
 
     function TimelineGenerator(){
       console.log(diff)

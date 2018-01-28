@@ -8,6 +8,7 @@ class AnswerRmc extends Model
 {
   protected $table = 'answers_rmc';
   public $fillable = ['description','correct'];
+  public $hidden = ['correct'];
   
   public function tasks()
   {

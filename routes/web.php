@@ -40,21 +40,35 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::group(['prefix' => 'tests'], function () {
 		Route::get('/', 'TestController@index')->name('tests_index');
-		Route::get('create', 'TestController@updateView');
 		Route::get('{id}', 'TestController@preview');
 		Route::get('{id}/lobby', 'TestController@lobby');
-		Route::get('{id}/edit', 'TestController@updateView');
-		Route::get('{id}/delete', 'TestController@delete');
-
-		Route::post('update', 'TestController@update');
-		Route::post('{id}/edit', 'TestController@update');
 
 		//will proceed the statuses from /tests/id page 
 		// and will provide required fields for schedules and test
 		//draft -> published -> started -> finished -> graded 
-		Route::post('{id}/proceed', 'TestController@proceed');
+		//Route::post('{id}/proceed', 'TestController@proceed');
 
-		Route::post('delete', 'TestController@delete');
+		//professors
+		Route::group(['namespace' => 'Professor'], function () {
+			Route::get('create', 'TestController@updateView');
+			Route::get('{id}/edit', 'TestController@updateView');
+			Route::get('{id}/delete', 'TestController@delete');
+
+			Route::post('update', 'TestController@update');
+			Route::post('{id}/edit', 'TestController@update');
+
+			Route::post('delete', 'TestController@delete');
+
+
+			Route::get('{id}/start', 'TestController@start');
+			Route::get('{id}/finish', 'TestController@finish');
+		});
+
+		//students
+		Route::group(['namespace' => 'Student'], function () {
+			Route::get('{id}/register', 'TestController@register');
+			Route::get('{id}/live', 'TestController@live');
+		});
 	});
 
 });

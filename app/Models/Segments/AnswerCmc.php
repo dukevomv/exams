@@ -8,6 +8,7 @@ class AnswerCmc extends Model
 {
   protected $table = 'answers_cmc';
   public $fillable = ['description','correct'];
+  public $hidden = ['correct'];
   
   public function tasks()
   {

@@ -53,7 +53,12 @@
                             <a href="{{ url('/segments') }}">Segments</a>
                         </li>
                     @elseif(Auth::user()->role == 'student')
-                        
+                        <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
+                            <a href="{{ url('/lessons') }}">Lessons</a>
+                        </li>
+                        <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
+                            <a href="{{ url('/tests') }}">Tests</a>
+                        </li>
                     @endif
                 </ul>
 

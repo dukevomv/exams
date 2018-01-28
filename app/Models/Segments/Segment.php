@@ -26,10 +26,14 @@ class Segment extends Model
     return $this->hasMany(Task::class)->orderBy('position','asc');
   }
 
-  public function scopeWithTasksAnswers($query)
+  public function scopeWithTaskAnswers($query,$correct = false)
 	{
-		return $query->with(['tasks' => function($q) {
-			$q->with(['rmc','cmc'])->orderBy('position');
+		return $query->with(['tasks' => function($q) use($correct){
+      if($correct)
+        $withs = ['rmc_full','cmc_full'];
+      else
+        $withs = ['rmc','cmc'];
+			$q->with($withs)->orderBy('position');
 		}]);
 	}
 }

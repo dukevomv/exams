@@ -30,43 +30,8 @@ class TestController extends Controller
 		return view('tests.preview',['test'=>$test]);
 	}
 
-	public function updateView($id = null, Request $request) {
-		$lessons = Lesson::approved()->get();
-		$test = Test::where('id',$id)->with(['segments'=>function($q){
-			$q->withCount('tasks');
-		}])->first();
-		if(!is_null($id) && is_null($test))
-			return redirect('tests/create');
-		return view('tests.update',['lessons'=>$lessons,'test'=>$test]);
-	}
-
-	public function update(Request $request) {
-		$fields = $request->only(['lesson_id','name','description','scheduled_at','duration']);
-		if(array_key_exists('scheduled_at',$fields) && !is_null($fields['scheduled_at']))
-			$fields['scheduled_at'] = Carbon::createFromFormat('Y-m-d\TH:i',$fields['scheduled_at']);
-
-		$test = Test::updateOrCreate(['id'=>$request->input('id',null)],$fields);
-		$ordered_segments = [];
-		$count = 1;
-    foreach($request->segments as $req_segment){
-			$ordered_segments[$req_segment] = ['position'=>$count];
-			$count++;
-    }
-    $test->segments()->sync($ordered_segments);
-
-		return $test;
-	}
-
-	public function delete($id = null) {
-		$test = Test::where('id',$id)->first();
-		if(is_null($id) || is_null($test))
-			return back()->with(['error'=>'Test cannot be deleted.']);
-		$test->delete();
-		return back()->with(['success'=>'Test deleted successfully']);
-	}
-
 	public function lobby($id = null) {
-		$test = Test::where('id',$id)->where('status','!=','draft')->with('lesson')->first();
+		$test = Test::where('id',$id)->where('status','!=','draft')->with('lesson','users')->first();
 		if(is_null($test))
 			return redirect('tests');
 		return view('tests.lobby',['test'=>$test]);

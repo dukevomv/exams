@@ -15,9 +15,20 @@ class Task extends Model
   {
     return $this->hasMany(AnswerRmc::class,'task_id');
   }
+
+  public function rmc_full()
+  {
+    return $this->hasMany(AnswerRmc::class,'task_id')->select('answers_rmc.*');
+  }
+
   public function cmc()
   {
     return $this->hasMany(AnswerCmc::class,'task_id');
+  }
+
+  public function cmc_full()
+  {
+    return $this->hasMany(AnswerCmc::class,'task_id')->select('answers_cmc.*');
   }
 
   public function scopeAnswers($query)

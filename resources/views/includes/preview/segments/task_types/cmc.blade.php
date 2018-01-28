@@ -5,7 +5,7 @@
       @foreach($task->cmc as $choice)
         <div class="col-md-12 task-choice row-margin-bottom">
           <label class="cursor-pointer">
-            <input type="checkbox" class="choice-correct set-unique-val"> 
+            <input type="checkbox" id="task-{{$task->id}}-choice-{{$choice->id}}" class="autosave-field choice-correct set-unique-val">
             <span>{{$choice->description}}</span>
           </label>
         </div>

@@ -36,7 +36,7 @@ class SegmentController extends Controller
 
 	public function updateView($id = null, Request $request) {
 		$lessons = Lesson::approved()->get();
-		$segment = Segment::where('id',$id)->withTasksAnswers()->first();
+		$segment = Segment::where('id',$id)->withTaskAnswers()->first();
 		if(!is_null($id) && is_null($segment))
 			return redirect('segments/create');
 		return view('segments.update',['lessons'=>$lessons,'segment'=>$segment]);
@@ -53,7 +53,7 @@ class SegmentController extends Controller
 	}
 
 	public function preview($id = null, Request $request) {
-		$segment = Segment::where('id',$id)->with('lesson')->withTasksAnswers()->first();
+		$segment = Segment::where('id',$id)->with('lesson')->withTaskAnswers()->first();
 		if(!is_null($id) && is_null($segment))
 			return redirect('segments');
 
