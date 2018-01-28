@@ -128,10 +128,23 @@
   <script src="{{asset('js/autosave.js')}}"></script>
   <script>
     $('[data-toggle="tooltip"]').tooltip()
-    let started_at = '{{$test->started_at}}'
-    let duration = parseInt('{{$test->duration}}')
-    let now = moment('{{Carbon\Carbon::now()->toDateTimeString()}}')
-    let diff = moment(started_at).add({minutes:duration}).diff(now, 'seconds', true)
+
+    let localStorageForUser = function (){
+      if(test_user_status == 'registered')
+        $.ajax({
+          type: "POST",
+          url: "{{url('tests/'.$test->id.'/live/start')}}",
+          data: {_token:"{{csrf_token()}}"},
+          success: function(data){
+            if(data.success){
+              localStorage.clear()
+              $(".autosave-field").autoSave(startAutoSave,finishAutoSave);
+            }
+          }
+        })
+      else
+        $(".autosave-field").autoSave(startAutoSave,finishAutoSave);
+    }
 
     let updateRemainText = function (){
       let progress_percentage = 100 - ((diff/60)/duration)*100;
@@ -148,6 +161,27 @@
       $('.progress-wrap .remain-line').css('width',progress_percentage+'%')
     }
 
+    let startAutoSave = function() {
+      var time = new Date().getTime();
+      $("#autosave-results").text("Saving...");
+      console.log("Saving local changes...")
+    }
+    let finishAutoSave = function() {
+      var time = new Date().getTime();
+      $("#autosave-results").text("All local changes saved.");
+      console.log("All changes saved local.",time)
+    }
+
+    const test_id = '{{$test->id}}'
+    const test_user_status = '{{$test->user[0]->pivot->status}}'
+    let local_storage_reset = '{{$test->user}}'
+    let started_at = '{{$test->started_at}}'
+    let duration = parseInt('{{$test->duration}}')
+    let now = moment('{{Carbon\Carbon::now()->toDateTimeString()}}')
+    let diff = moment(started_at).add({minutes:duration}).diff(now, 'seconds', true)
+
+    localStorageForUser()
+
     const interval_delay = 60
     const timeout_delay = diff%60
     diff += 60 - timeout_delay
@@ -161,17 +195,6 @@
       },interval_delay*1000)
     },timeout_delay*1000)
 
-    let startAutoSave = function() {
-      var time = new Date().getTime();
-      $("#autosave-results").text("Saving...");
-      console.log("Saving local changes...")
-    }
-    let finishAutoSave = function() {
-      var time = new Date().getTime();
-      $("#autosave-results").text("All local changes saved.");
-      console.log("All changes saved local.",time)
-    }
-    $(".autosave-field").autoSave(startAutoSave,finishAutoSave);
     if(localStorage)
       finishAutoSave()
   </script>

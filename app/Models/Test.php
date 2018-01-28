@@ -24,6 +24,10 @@ class Test extends Model
     return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status','grade');
   }
 
+  public function user() {
+    return $this->belongsToMany(User::class)->where('user_id',Auth::id())->withTimestamps()->withPivot('status','grade');
+  }
+
   public function register() {
 		$this->users()->attach(Auth::id(), ['status' =>'registered']);
   }

@@ -68,6 +68,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::group(['namespace' => 'Student'], function () {
 			Route::get('{id}/register', 'TestController@register');
 			Route::get('{id}/live', 'TestController@live');
+			Route::post('{id}/live/start', 'TestController@live_start');
 		});
 	});
 

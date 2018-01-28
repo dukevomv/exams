@@ -32,12 +32,28 @@ class TestController extends Controller
 		$user_id = Auth::id();
 		$test = Test::where('id',$id)
 						->where('status','started')
-						->with(['segments'=>function($query){
+						->with(['user','segments'=>function($query){
 							$query->withTaskAnswers();
 						}])
 						->first();
 		if(is_null($test))
 			return redirect('tests')->with(['error'=>'The test is not live right now.']);
 		return view('tests.live',['test'=>$test]);
+	}
+
+	public function live_start($id = null) {
+		$user_id = Auth::id();
+		$test = Test::where('id',$id)
+						->where('status','started')
+						->with(['user'])
+						->first();
+		if(is_null($test))
+			return redirect('tests')->with(['error'=>'The test is not live right now.']);
+		if($test->user[0]->pivot->status != 'registered')
+			return redirect('tests')->with(['error'=>'The test have already started for current user.']);
+		$test->user[0]->pivot->status = 'started';
+		$test->user[0]->pivot->started_at = Carbon::now();
+		$test->user[0]->pivot->save();
+		return response()->json(['success'=>true]);
 	}
 }
