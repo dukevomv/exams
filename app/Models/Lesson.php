@@ -8,8 +8,14 @@ use App\Models\User;
 use App\Models\LessonUser;
 use Auth;
 use DB;
+
+use App\Traits\Searchable;
+
 class Lesson extends Model
 {
+  use Searchable;
+  protected $search = ['name','gunet_code'];
+
   public function users()
   {
     return $this->belongsToMany(User::class)->withPivot('user_id','approved');

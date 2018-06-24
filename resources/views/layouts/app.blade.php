@@ -40,6 +40,13 @@
                         <li>
                             <a href="{{ url('/home') }}">Home</a>
                         </li>
+                    @elseif(Auth::user()->role == 'admin')
+                        <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
+                            <a href="{{ url('/users') }}">Users</a>
+                        </li>
+                        <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
+                            <a href="{{ url('/lessons') }}">Lessons</a>
+                        </li>
                     @elseif(Auth::user()->role == 'professor')
                         <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
                             <a href="{{ url('/lessons') }}">Lessons</a>
@@ -69,7 +76,7 @@
                     @else
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                               <span class="label label-primary">{{ucfirst(Auth::user()->role)}}</span> {{ Auth::user()->name }} <span class="caret"></span>
+                               <span class="label label-{{Auth::user()->role}}">{{ucfirst(Auth::user()->role)}}</span> {{ Auth::user()->name }} <span class="caret"></span>
                             </a>
 
                             <ul class="dropdown-menu" role="menu">

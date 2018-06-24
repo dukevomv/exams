@@ -5,24 +5,29 @@
     <div class="row">
       <div class="row-margin-bottom col-xs-12">
         <div class="row">
-          <div class="col-xs-8">
+          <div class="col-xs-9">
             <div class="btn-group pull-left">
               <button id="status" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ucfirst(Request::input('status','all'))}} <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
-                <li @if(Request::input('status','') == '')class="active"@endif><a href="{{route('lessons_index',[])}}">All</a></li>
-                <li @if(Request::input('status','') == 'approved')class="active"@endif><a href="{{route('lessons_index',['status'=>'approved'])}}">Approved</a></li>
-                <li @if(Request::input('status','') == 'pending')class="active"@endif><a href="{{route('lessons_index',['status'=>'pending'])}}">Pending</a></li>
-                <li @if(Request::input('status','') == 'unsubscribed')class="active"@endif><a href="{{route('lessons_index',['status'=>'unsubscribed'])}}">Unsubscribed</a></li>
+                <li @if(Request::input('status','') == '')class="active"@endif><a href="{{route('lessons_index',Request::except('page'))}}">All</a></li>
+                <li @if(Request::input('status','') == 'approved')class="active"@endif><a href="{{route('lessons_index',array_merge(Request::except('page'),['status'=>'approved']))}}">Approved</a></li>
+                <li @if(Request::input('status','') == 'pending')class="active"@endif><a href="{{route('lessons_index',array_merge(Request::except('page'),['status'=>'pending']))}}">Pending</a></li>
+                <li @if(Request::input('status','') == 'unsubscribed')class="active"@endif><a href="{{route('lessons_index',array_merge(Request::except('page'),['status'=>'unsubscribed']))}}">Unsubscribed</a></li>
               </ul>
             </div>
+            <div class="btn-group margin-left-15 pull-left">
+              <a href="{{url('lessons/create')}}" type="button" class="btn btn-primary" >
+                <i class="fa fa-plus"></i> Create
+              </a>
+            </div>
           </div>
-          <div class="col-xs-4">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search">
+          <div class="col-xs-3">
+            <div class="input-group search-wrap">
+              <input type="text" class="form-control" placeholder="Search" value="{{Request::input('search','')}}">
               <span class="input-group-btn">
-                <a href="{{route('lessons_index',Request::except('page'))}}" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
+                <a href="#" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
               </span>
             </div>
           </div>

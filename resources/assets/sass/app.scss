@@ -11,6 +11,20 @@
 // Bootstrap
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 
+
+// assets
+@import "assets/toggle";
+
+
+.label-admin {
+    background-color: $brand-admin;
+}
+.label-professor {
+    background-color: $brand-professor;
+}
+.label-student {
+    background-color: $brand-student;
+}
 body{
 	font-family: Ubuntu;
 }

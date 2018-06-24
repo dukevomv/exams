@@ -14,6 +14,9 @@ class LessonController extends Controller
 
 		if($request->input('status','') != '')
 			$lessons->{$request->status}();
+		
+		if($request->input('search','') != '')
+			$lessons->search($request->search);
 
 		$lessons = $lessons->paginate(10);
 		

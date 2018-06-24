@@ -16,6 +16,9 @@ class SegmentController extends Controller
 
 		if($request->input('lesson','') != '')
 			$segments->where('lesson_id',$request->lesson);
+		
+		if($request->input('search','') != '')
+			$segments->search($request->search);
 
 		$segments = $segments->paginate(10);
 		return view('segments.index',['segments'=>$segments,'lessons'=>$lessons]);

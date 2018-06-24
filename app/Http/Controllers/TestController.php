@@ -19,6 +19,9 @@ class TestController extends Controller
 
 		if($request->input('lesson','') != '')
 			$tests->where('lesson_id',$request->lesson);
+		
+		if($request->input('search','') != '')
+			$tests->search($request->search);
 
 		$tests = $tests->paginate(10);
 		return view('tests.index',['tests'=>$tests,'lessons'=>$lessons]);

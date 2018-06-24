@@ -8,8 +8,11 @@ use App\Models\Lesson;
 use App\Models\Test;
 use App\Models\Segments\Task;
 
+use App\Traits\Searchable;
 class Segment extends Model
 {
+  use Searchable;
+  private $search=['title','description'];
   public $fillable = ['lesson_id','title','description'];
   public function lesson()
   {

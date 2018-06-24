@@ -5,7 +5,7 @@
     <div class="row">
       <div class="row-margin-bottom col-xs-12">
         <div class="row">
-          <div class="col-xs-8">
+          <div class="col-xs-9">
             <div class="btn-group pull-left">
               <button id="lesson" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <?php 
@@ -20,11 +20,11 @@
                 {{$selected_lesson}} <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
-                <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('segments_index',[])}}">All</a></li>
+                <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('segments_index',Request::except('page'))}}">All</a></li>
                 <li role="separator" class="divider"></li>
                 @foreach($lessons as $lesson)
                   <li @if(Request::input('lesson','') == $lesson->id)class="active"@endif>
-                    <a href="{{route('segments_index',['lesson'=>$lesson->id])}}">{{$lesson->name}}</a>
+                    <a href="{{route('segments_index',array_merge(Request::except('page'),['lesson'=>$lesson->id]))}}">{{$lesson->name}}</a>
                   </li>
                 @endforeach
               </ul>
@@ -35,11 +35,11 @@
               </a>
             </div>
           </div>
-          <div class="col-xs-4">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search">
+          <div class="col-xs-3">
+            <div class="input-group search-wrap">
+              <input type="text" class="form-control" placeholder="Search" value="{{Request::input('search','')}}">
               <span class="input-group-btn">
-                <a href="{{route('segments_index',Request::except('page'))}}" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
+                <a href="#" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
               </span>
             </div>
           </div>

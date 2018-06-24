@@ -20,6 +20,11 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/test', 'HomeController@test');
 	Route::get('/settings', 'HomeController@settings');
 
+	Route::group(['prefix' => 'users'], function () {
+		Route::get('/', 'UserController@index')->name('users_index');
+		Route::post('create', 'LessonController@create');
+	});
+
 	Route::group(['prefix' => 'lessons'], function () {
 		Route::get('/', 'LessonController@index')->name('lessons_index');
 		Route::post('subscribe', 'LessonController@subscribe');

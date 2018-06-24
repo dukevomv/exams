@@ -9,8 +9,13 @@ use App\Models\Lesson;
 use App\Models\Segments\Segment;
 use Auth;
 use Carbon\Carbon;
+
+use App\Traits\Searchable;
 class Test extends Model
 {
+  use Searchable;
+  private $search=['name'];
+
   public $fillable = ['lesson_id','name','description','scheduled_at','duration'];
   public function lesson() {
     return $this->BelongsTo(Lesson::class);

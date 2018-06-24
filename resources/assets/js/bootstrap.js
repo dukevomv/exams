@@ -11,6 +11,7 @@ try {
     window.$ = window.jQuery = require('jquery');
     window.moment = require('moment');
     require('bootstrap-sass');
+    window.queryString = require('query-string');
 } catch (e) {}
 
 /**
