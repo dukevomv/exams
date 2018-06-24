@@ -10,8 +10,6 @@
 
   <title>{{ config('app.name', 'Laravel') }}</title>
 
-  <!-- Styles -->
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type='text/css'></link>
   <link href="{{ asset('css/app.css') }}" rel="stylesheet">
   @yield('styles')
 </head>
