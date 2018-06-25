@@ -24,12 +24,7 @@
             </div>
           </div>
           <div class="col-xs-3">
-            <div class="input-group search-wrap">
-              <input type="text" class="form-control" placeholder="Search" value="{{Request::input('search','')}}">
-              <span class="input-group-btn">
-                <a href="#" class="btn btn-default" type="button"><i class="fa fa-search"></i></a>
-              </span>
-            </div>
+            @include('includes.assets.search-wrap', ['value'=>Request::input('search','')])
           </div>
         </div>  
       </div>  
@@ -106,9 +101,21 @@
 @section('scripts')
 <script>  
   $('.approved-toggle input').on('change',function(){
-    const value = $(this).prop('checked')
-    let toggle = $(this).closest('.approved-toggle')
-    console.log(toggle.attr('data-user-id'))
+    let input = $(this)
+    const value = input.prop('checked')
+    let toggle = input.closest('.approved-toggle')
+    $.post( 
+      "{{url('users/invite')}}", 
+      { 
+        _token: '{{csrf_token()}}',
+        user : toggle.attr('data-user-id'),
+      }
+    )
+    .fail(function( data ) {
+      setTimeout(function(){
+        input.prop('checked',!value)
+    },200)
+    });
   })
 </script>
 @endsection

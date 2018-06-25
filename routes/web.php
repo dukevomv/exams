@@ -22,7 +22,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 	Route::group(['prefix' => 'users'], function () {
 		Route::get('/', 'UserController@index')->name('users_index');
-		Route::post('create', 'LessonController@create');
+		Route::post('invite', 'UserController@invite');
 	});
 
 	Route::group(['prefix' => 'lessons'], function () {

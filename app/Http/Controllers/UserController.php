@@ -24,5 +24,9 @@ class UserController extends Controller
 	}
 
 	public function invite(Request $request) {
+		$user = User::find($request->input('user',''));
+		$user->approved = !$user->approved;
+		$user->save();
+		return $user;
 	}
 }
