@@ -20,7 +20,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/test', 'HomeController@test');
 	Route::get('/settings', 'HomeController@settings');
 
-	Route::group(['prefix' => 'users'], function () {
+	Route::group(['prefix' => 'users','middleware' => 'can:accessUsers'], function () {
 		Route::get('/', 'UserController@index')->name('users_index');
 		Route::post('invite', 'UserController@invite');
 	});
@@ -28,10 +28,14 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::group(['prefix' => 'lessons'], function () {
 		Route::get('/', 'LessonController@index')->name('lessons_index');
 		Route::post('subscribe', 'LessonController@subscribe');
-		Route::post('create', 'LessonController@create');
+
+		Route::group(['middleware' => 'can:customizeLessons'], function () {
+			Route::get('create', 'LessonController@create');
+			Route::post('create', 'LessonController@create');
+		});
 	});
 
-	Route::group(['prefix' => 'segments'], function () {
+	Route::group(['prefix' => 'segments','middleware' => 'can:accessSegments'], function () {
 		Route::get('/', 'SegmentController@index')->name('segments_index');
 		Route::get('/sidebar', 'SegmentController@sidebarIndex');
 		Route::get('create', 'SegmentController@updateView');
@@ -54,7 +58,7 @@ Route::group(['middleware' => 'auth'], function () {
 		//Route::post('{id}/proceed', 'TestController@proceed');
 
 		//professors
-		Route::group(['namespace' => 'Professor'], function () {
+		Route::group(['namespace' => 'Professor','middleware' => 'can:customizeTests'], function () {
 			Route::get('create', 'TestController@updateView');
 			Route::get('{id}/edit', 'TestController@updateView');
 			Route::get('{id}/delete', 'TestController@delete');
@@ -70,7 +74,7 @@ Route::group(['middleware' => 'auth'], function () {
 		});
 
 		//students
-		Route::group(['namespace' => 'Student'], function () {
+		Route::group(['namespace' => 'Student','middleware' => 'can:takeTests'], function () {
 			Route::get('{id}/register', 'TestController@register');
 			Route::get('{id}/live', 'TestController@live');
 			Route::post('{id}/live/start', 'TestController@live_start');
