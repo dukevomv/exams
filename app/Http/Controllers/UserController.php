@@ -15,6 +15,9 @@ class UserController extends Controller
 		if($request->input('role','') != '')
 			$users->where('role',$request->role);
 
+		if($request->input('approved','') != '')
+			$users->where('approved',$request->approved);
+
 		if($request->input('search','') != '')
 			$users->search($request->search);
 
@@ -23,7 +26,7 @@ class UserController extends Controller
 		return view('users.index',['users'=>$users]);
 	}
 
-	public function invite(Request $request) {
+	public function toggleApprove(Request $request) {
 		$user = User::find($request->input('user',''));
 		$user->approved = !$user->approved;
 		$user->save();

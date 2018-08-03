@@ -64,8 +64,9 @@
                             <label class="col-md-4 control-label">Role</label>
 
                             <div class="col-md-6">
-                                <label class="pull-left"><input type="radio" name="role" value="professor" checked><span>Professor</span></label>
-                                <label style="margin-left:15px" class="pull-left"><input type="radio" name="role" value="student"><span>Student</span></label>
+                                <label class="pull-left" style="margin-left:15px" class="pull-left"><input type="radio" name="role" value="admin"><span>Admin</span></label>
+                                <label style="margin-left:15px"><input type="radio" name="role" value="professor"><span>Professor</span></label>
+                                <label style="margin-left:15px" class="pull-left"><input type="radio" name="role" value="student" checked><span>Student</span></label>
       
                                 @if ($errors->has('role'))
                                     <span class="help-block">
