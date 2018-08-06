@@ -18,7 +18,7 @@
               </ul>
             </div>
             <div class="btn-group margin-left-15 pull-left">
-              <a href="{{url('lessons/create')}}" type="button" class="btn btn-primary" >
+              <a href="{{url('lessons/create')}}" type="button" class="btn btn-primary" disabled>
                 <i class="fa fa-plus"></i> Create
               </a>
             </div>
@@ -56,9 +56,9 @@
                 </td>
                 <td>
                   @if(is_null($lesson->status))
-                    <button type="button" class="btn btn-success btn-xs">Subscribe</button>
+                    <button type="button" class="btn btn-success btn-xs" disabled>Subscribe</button>
                   @elseif($lesson->status->approved == 0)
-                    <button type="button" class="btn btn-danger btn-xs">Cancel</button>
+                    <button type="button" class="btn btn-danger btn-xs" disabled>Cancel</button>
                   @elseif($lesson->status->approved == 1)
                   @endif
                 </td>

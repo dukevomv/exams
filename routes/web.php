@@ -15,10 +15,12 @@ Route::get('/', 'HomeController@home');
 
 Auth::routes();
 
+Route::get('/settings', 'HomeController@settings');
+Route::post('/settings', 'HomeController@updateSettings')->middleware('auth');
+
 Route::group(['middleware' => ['auth','can:navigate']], function () {
 	Route::get('/home', 'HomeController@home');
 	Route::get('/test', 'HomeController@test');
-	Route::get('/settings', 'HomeController@settings');
 
 	Route::group(['prefix' => 'users','middleware' => 'can:accessUsers'], function () {
 		Route::get('/', 'UserController@index')->name('users_index');
