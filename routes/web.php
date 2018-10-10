@@ -32,8 +32,9 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 		Route::post('subscribe', 'LessonController@subscribe');
 
 		Route::group(['middleware' => 'can:customizeLessons'], function () {
-			Route::get('create', 'LessonController@create');
-			Route::post('create', 'LessonController@create');
+			Route::get('{lesson}', 'LessonController@show');
+			Route::post('/', 'LessonController@update');
+			Route::get('{id}/delete', 'LessonController@delete');
 		});
 	});
 

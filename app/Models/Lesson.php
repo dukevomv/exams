@@ -15,6 +15,7 @@ class Lesson extends Model
 {
   use Searchable;
   protected $search = ['name','gunet_code'];
+  public $fillable = ['name','gunet_code','semester'];
 
   public function users()
   {

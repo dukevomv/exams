@@ -22,4 +22,21 @@ class LessonController extends Controller
 		
 		return view('lessons.index',['lessons'=>$lessons]);
 	}
+	
+	public function show(Lesson $lesson,Request $request) {
+		return $lesson;
+	}
+	
+	public function update(Request $request) {
+		$lesson = Lesson::updateOrCreate(['id'=>$request->input('id',null)],$request->only(['name','gunet_code','semester']));
+		return redirect('lessons');
+	}
+	
+	public function delete($id = null) {
+		$lesson = Lesson::withCount('users')->where('id',$id)->first();
+		if(is_null($id) || is_null($lesson) || $lesson->users_count > 0)
+			return back()->with(['error'=>'Lesson cannot be deleted.']);
+		$lesson->delete();
+		return back()->with(['success'=>'Lesson deleted successfully']);
+	}
 }

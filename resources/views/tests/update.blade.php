@@ -9,7 +9,7 @@
   <div class="container">
     <div class="row">
       <div class="col-xs-12">
-        <h1>@if($test) Edit @else Create @endif Test</h1>
+        <h1>@if($lesson) Edit @else Create @endif Test</h1>
       </div>
       <div class="col-md-9 col-md-offset-3" id="test-body">
         <div class="panel panel-default basics-wrap relative">
