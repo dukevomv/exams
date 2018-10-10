@@ -29,12 +29,15 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 
 	Route::group(['prefix' => 'lessons'], function () {
 		Route::get('/', 'LessonController@index')->name('lessons_index');
-		Route::post('subscribe', 'LessonController@subscribe');
+		Route::get('{id}/approval/request', 'LessonController@requestApproval');
+		Route::get('{id}/approval/cancel', 'LessonController@cancelApproval');
 
 		Route::group(['middleware' => 'can:customizeLessons'], function () {
 			Route::get('{lesson}', 'LessonController@show');
 			Route::post('/', 'LessonController@update');
 			Route::get('{id}/delete', 'LessonController@delete');
+			Route::get('{id}/users', 'LessonController@getUserApprovals');
+			Route::post('/approvals', 'LessonController@editApprovals');
 		});
 	});
 

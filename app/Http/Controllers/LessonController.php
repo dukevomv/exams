@@ -6,11 +6,15 @@ use Illuminate\Http\Request;
 
 use App\Models\Lesson;
 use Log;
+use Auth;
 
 class LessonController extends Controller
 {
 	public function index(Request $request) {
 		$lessons = Lesson::with('status');
+		
+		if(Auth::user()->role == 'admin')
+			$lessons->withCount(['pending_users','approved_professors','approved_students']);
 
 		if($request->input('status','') != '')
 			$lessons->{$request->status}();
@@ -38,5 +42,33 @@ class LessonController extends Controller
 			return back()->with(['error'=>'Lesson cannot be deleted.']);
 		$lesson->delete();
 		return back()->with(['success'=>'Lesson deleted successfully']);
+	}
+	
+	public function requestApproval($id = null) {
+		$lesson = Lesson::where('id',$id)->with('status')->first();
+		if(is_null($id) || is_null($lesson) || !is_null($lesson->status))
+			return back()->with(['error'=>'Request for approval is not available for this Lesson']);
+		$lesson->users()->attach(['user_id'=>Auth::user()->id]);
+		return back()->with(['success'=>'Request for approval sent for this Lesson']);
+	}
+	
+	public function cancelApproval($id = null) {
+		$lesson = Lesson::where('id',$id)->with('status')->first();
+		if(is_null($id) || is_null($lesson) || is_null($lesson->status) || $lesson->status->approved == 1)
+			return back()->with(['error'=>'Cancellation of approval is not available for this Lesson']);
+		$lesson->users()->detach(['user_id'=>Auth::user()->id]);
+		return back()->with(['success'=>'Request for approval sent for this Lesson']);
+	}
+	
+	public function getUserApprovals($id = null) {
+		$lesson = Lesson::where('id',$id)->with('users')->first();
+		return $lesson;
+	}
+	
+	public function toggleApprove(Request $request) {
+		$user = User::find($request->input('user',''));
+		$user->approved = !$user->approved;
+		$user->save();
+		return $user;
 	}
 }

@@ -40,11 +40,12 @@
               <th>Semester</th>
               <th>Code</th>
               @if(Auth::user()->role == 'admin')
-                <th>Subscribed</th>
+                <th>Approved</th>
+                <th>Actions</th>
               @else
                 <th>Status</th>
+                <th>Approval</th>
               @endif
-              <th>Actions</th>
             </tr>
             @foreach($lessons as $lesson)
               <tr>
@@ -53,8 +54,12 @@
                 <td>{{$lesson->gunet_code}}</td>
                 <td>
                 @if(Auth::user()->role == 'admin')
-                  <span class="label label-professor">2</span>
-                  <span class="label label-student">5</span>
+                  @if($lesson->approved_professors_count > 0)
+                    <span class="label label-professor">{{$lesson->approved_professors_count}}</span>
+                  @endif
+                  @if($lesson->approved_students_count > 0)
+                    <span class="label label-student">{{$lesson->approved_students_count}}</span>
+                  @endif
                 @else
                   @if(is_null($lesson->status))
                     Unsubscribed
@@ -67,7 +72,7 @@
                 </td>
                 <td>
                   @if(Auth::user()->role == 'admin')
-                    <button class="btn btn-primary btn-xs">
+                    <button class="btn btn-{{$lesson->pending_users_count == 0 ? 'default': 'primary'}} btn-xs" onClick="InitLessonUserApprovalModal({{$lesson->id}})">
                       <i class="fa fa-users"></i>
                     </button>
                     <button class="btn btn-default btn-xs" onClick="InitUpdateLessonModal({{$lesson->id}})">
@@ -78,9 +83,13 @@
                     </a>
                   @else
                     @if(is_null($lesson->status))
-                      <button type="button" class="btn btn-success btn-xs" disabled>Subscribe</button>
+                      <a href="{{url('lessons/'.$lesson->id.'/approval/request')}}" type="button" class="btn btn-success btn-xs">
+                        Request
+                      </a>
                     @elseif($lesson->status->approved == 0)
-                      <button type="button" class="btn btn-danger btn-xs" disabled>Cancel</button>
+                      <a href="{{url('lessons/'.$lesson->id.'/approval/cancel')}}" type="button" class="btn btn-danger btn-xs">
+                        Cancel
+                      </a>
                     @elseif($lesson->status->approved == 1)
                     @endif
                   @endif
@@ -134,8 +143,23 @@
     </div>
   </div>
   
+  <div class="modal fade lesson-users-modal" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Lesson Approval Requests</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered">
+            <tr><th>Name</th><th>Email</th><th>Approved</th></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 @endsection
-
 
 @section('scripts')
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
@@ -148,8 +172,8 @@
       if(id == null){
         modal.find('span.action-update').addClass('hidden')
         modal.find('span.action-create').removeClass('hidden')
-        $.each( editableFields, function(key,field) {
-          modal.find('input[name="'+field+'"]').val('')
+        $.each( editableFields, function(key,val) {
+          modal.find('input[name="'+val+'"]').val('')
         });
         modal.modal('show')
       } else {
@@ -159,14 +183,78 @@
           type: "GET",
           url: basic_url+'/'+id,
           success: function(data){
-            $.each( editableFields, function(key,field) {
-              modal.find('input[name="'+field+'"]').val(data[field])
+            $.each( editableFields, function(key,val) {
+              modal.find('input[name="'+val+'"]').val(data[val])
             });
             modal.modal('show')
           }
         })
       }
     }
+    
+    function InitLessonUserApprovalModal(id){
+      var modal = $('.lesson-users-modal')
+      $.ajax({
+        type: "GET",
+        url: basic_url+'/'+id+'/users',
+        success: function(data){
+          var table = modal.find('.modal-body table');
+          table.find('.custom-row').remove();
+          $.each( data.users, function(key,value) {
+          var row = '<tr class="custom-row">'
+             row +=   '<td>'+value.name+'</td>'
+             row +=   '<td>'+value.email+'</td>'
+             row +=   '<td>'
+             row +=     '<label class="toggle" data-user-id="'+value.id+'">'
+             row +=       '<input type="checkbox" '+ value.pivot.approved == 1 ? 'checked' : ''+'>'
+             row +=       '<span class="slider"></span></label></td>'
+             row += '</tr>'
+            table.append(row)
+          });
+        
+          
+    $(document).on('change','.lesson-users-modal .custom-row .toggle input',function(){
+      console.log('adsasd')
+      let input = $(this)
+      const value = input.prop('checked')
+      let toggle = input.closest('.approved-toggle')
+      $.post( 
+        "{{url('lessons/users/toggle-approve')}}", 
+        { 
+          _token: '{{csrf_token()}}',
+          user : toggle.attr('data-user-id'),
+        }
+      )
+      .fail(function( data ) {
+        setTimeout(function(){
+          input.prop('checked',!value)
+      },200)
+      });
+    })
+          modal.modal('show')
+        }
+      })
+    }
+    
+    $(document).on('change','.lesson-users-modal .custom-row .toggle input',function(){
+      console.log('adsasd')
+      let input = $(this)
+      const value = input.prop('checked')
+      let toggle = input.closest('.approved-toggle')
+      $.post( 
+        "{{url('lessons/users/toggle-approve')}}", 
+        { 
+          _token: '{{csrf_token()}}',
+          user : toggle.attr('data-user-id'),
+        }
+      )
+      .fail(function( data ) {
+        setTimeout(function(){
+          input.prop('checked',!value)
+      },200)
+      });
+    })
+  
   </script>
 @endsection
 

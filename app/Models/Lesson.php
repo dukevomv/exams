@@ -17,14 +17,38 @@ class Lesson extends Model
   protected $search = ['name','gunet_code'];
   public $fillable = ['name','gunet_code','semester'];
 
-  public function users()
-  {
+  public function users(){
     return $this->belongsToMany(User::class)->withPivot('user_id','approved');
   }
 
-  public function status()
-  {
+  public function status(){
     return $this->belongsTo(LessonUser::class,'id','lesson_id')->where('user_id',Auth::user()->id);
+  }
+  
+  
+  public function pending_users(){
+    return $this->belongsToMany(User::class)->wherePivot('approved',0);
+  }
+  
+  public function pending_students(){
+    return $this->pending_users()->where('role','student');
+  }
+  
+  public function pending_professors(){
+    return $this->pending_users()->where('role','professor');
+  }
+  
+  
+  public function approved_users(){
+    return $this->belongsToMany(User::class)->wherePivot('approved',1);
+  }
+  
+  public function approved_students(){
+    return $this->approved_users()->where('role','student');
+  }
+  
+  public function approved_professors(){
+    return $this->approved_users()->where('role','professor');
   }
 
   public function scopePending($query) {
