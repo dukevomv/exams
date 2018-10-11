@@ -46,12 +46,26 @@ class SegmentController extends Controller
 	}
 
 	public function update(Request $request) {
+		$this->validate($request, [
+      'lesson_id' 	=> 'required|exists:lessons,id',
+      'title' 			=> 'required|string',
+      'description' => 'required|string',
+      'tasks' 			=> 'array',
+      'tasks.*.type' 				=> 'required|string',
+      'tasks.*.points' 			=> 'required|integer|max:255',
+      'tasks.*.description' => 'required|string',
+      'tasks.*.position' 		=> 'required|integer|max:255',
+    ]);
 		$segment = Segment::updateOrCreate(['id'=>$request->input('id',null)],$request->only(['lesson_id','title','description']));
-    foreach($request->tasks as $req_task){
-			$task = $segment->tasks()->updateOrCreate(['id'=>isset($req_task['id']) ? $req_task['id'] : null],array_only($req_task,['type','position','description','points']));
-			$task_details = $this->fillTaskDetails($task,$req_task['data']);
+    foreach($request->input('tasks',[]) as $req_task){
+			$task = $segment->tasks()->updateOrCreate(
+				['id'=>isset($req_task['id']) ? $req_task['id'] : null],
+				array_only($req_task,['type','position','description','points'])
+			);
+			if(isset($req_task['data']))
+				$task_details = $this->fillTaskDetails($task,$req_task['data']);
     }
-
+    
 		return $segment;
 	}
 

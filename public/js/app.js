@@ -17132,7 +17132,7 @@ module.exports = Cancel;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(133);
-module.exports = __webpack_require__(163);
+module.exports = __webpack_require__(165);
 
 
 /***/ }),
@@ -17154,7 +17154,9 @@ __webpack_require__(134);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-__webpack_require__(179);
+__webpack_require__(163);
+
+__webpack_require__(180);
 
 /***/ }),
 /* 134 */
@@ -48673,27 +48675,6 @@ module.exports = function spread(callback) {
 /* 163 */
 /***/ (function(module, exports) {
 
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 164 */,
-/* 165 */,
-/* 166 */,
-/* 167 */,
-/* 168 */,
-/* 169 */,
-/* 170 */,
-/* 171 */,
-/* 172 */,
-/* 173 */,
-/* 174 */,
-/* 175 */,
-/* 176 */,
-/* 177 */,
-/* 178 */,
-/* 179 */
-/***/ (function(module, exports) {
-
 
 $('.search-wrap a').click(function (e) {
 	e.preventDefault();
@@ -48710,6 +48691,42 @@ $('.search-wrap input').keypress(function (e) {
 		$(this).closest('.search-wrap').find('a').click();
 	}
 });
+
+/***/ }),
+/* 164 */,
+/* 165 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 166 */,
+/* 167 */,
+/* 168 */,
+/* 169 */,
+/* 170 */,
+/* 171 */,
+/* 172 */,
+/* 173 */,
+/* 174 */,
+/* 175 */,
+/* 176 */,
+/* 177 */,
+/* 178 */,
+/* 179 */,
+/* 180 */
+/***/ (function(module, exports) {
+
+window.showValidatorErrors = function (data) {
+  if (!data.responseJSON || data.responseJSON.length == 0) return 1;
+  $('.wrap-for-banners .ajax-errors').remove();
+  var errors = '<div class="alert alert-danger ajax-errors"><ul>';
+  $.each(data.responseJSON, function (key, val) {
+    errors += '<li>' + val[0] + '</li>';
+  });
+  errors += '</ul></div>';
+  $('.wrap-for-banners').append(errors);
+};
 
 /***/ })
 /******/ ]);

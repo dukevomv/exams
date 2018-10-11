@@ -15,3 +15,5 @@ require('./bootstrap');
  */
 
 require('./assets/search-wrap');
+
+require('./assets/validator-errors');

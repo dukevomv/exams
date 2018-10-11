@@ -11,7 +11,40 @@
       <div class="col-xs-12">
         <h1>@if($segment) Edit @else Create @endif Segment</h1>
       </div>
-      <div class="col-md-9 col-md-offset-3" id="segment-body">
+      <div class="col-md-3 sidebar-toolbar">
+        <h5>Actions</h5>
+        <div class="btn-group margin-bottom-15">
+          <a @if($segment) href="{{url('segments/'.$segment->id.'/preview')}}" @else disabled @endif type="button" class="btn btn-default">
+            <i class="fa fa-eye"></i> Preview
+          </a>
+        </div>
+        <div class="btn-group margin-bottom-15">
+          <button type="button" id="save-btn" class="btn btn-primary">
+            <i class="fa fa-save"></i> Save
+          </button>
+        </div>
+        
+        <h5>Question Types</h5>
+        <div class="btn-group margin-bottom-15">
+          <button type="button" class="btn btn-default task-type" data-task-type="rmc">
+            <i class="fa fa-plus"></i> Single Choice
+          </button>
+        </div>
+        <div class="btn-group margin-bottom-15">
+          <button type="button" class="btn btn-default task-type" data-task-type="cmc">
+            <i class="fa fa-plus"></i> Multiple Choice
+          </button>
+        </div>
+        <div class="hidden" id="tool-dom">
+          <div class="task-dom" id="rmc-dom">
+            @include('includes.form.segments.task_types.rmc',['fill'=>false])
+          </div>
+          <div class="task-dom" id="cmc-dom">
+            @include('includes.form.segments.task_types.cmc',['fill'=>false])
+          </div>
+        </div>
+      </div>
+      <div class="col-md-9" id="segment-body">
         <div class="panel panel-default basics-wrap relative">
           <div class="order-wrap disabled">
             <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
@@ -58,39 +91,6 @@
         @endif
       </div>
     </div>
-    <div class="fixed-toolbar col-xs-2">
-      <h5>Actions</h5>
-      <div class="btn-group margin-bottom-15">
-        <a @if($segment) href="{{url('segments/'.$segment->id.'/preview')}}" @else disabled @endif type="button" class="btn btn-default">
-          <i class="fa fa-eye"></i> Preview
-        </a>
-      </div>
-      <div class="btn-group margin-bottom-15">
-        <button type="button" id="save-btn" class="btn btn-primary">
-          <i class="fa fa-save"></i> Save
-        </button>
-      </div>
-      
-      <h5>Question Types</h5>
-      <div class="btn-group margin-bottom-15">
-        <button type="button" class="btn btn-default task-type" data-task-type="rmc">
-          <i class="fa fa-plus"></i> Single Choice
-        </button>
-      </div>
-      <div class="btn-group margin-bottom-15">
-        <button type="button" class="btn btn-default task-type" data-task-type="cmc">
-          <i class="fa fa-plus"></i> Multiple Choice
-        </button>
-      </div>
-      <div class="hidden" id="tool-dom">
-        <div class="task-dom" id="rmc-dom">
-          @include('includes.form.segments.task_types.rmc',['fill'=>false])
-        </div>
-        <div class="task-dom" id="cmc-dom">
-          @include('includes.form.segments.task_types.cmc',['fill'=>false])
-        </div>
-      </div>
-    </div>
   </div>
 @endsection
 
@@ -99,7 +99,7 @@
   <script type="text/javascript">
 
 
-    $('.fixed-toolbar button.task-type').on('click',function(e){
+    $('.sidebar-toolbar button.task-type').on('click',function(e){
       let new_task = $('#tool-dom #'+$(this).attr('data-task-type')+'-dom')
       SetUniqueValue(new_task)
       let new_task_html = new_task.html()
@@ -170,6 +170,7 @@
     $("#save-btn").on('click',function(e){
       let thisBtn = $(this)
       thisBtn.addClass('disabled')
+      thisBtn.prop('disabled',true)
       let segment = new Segment()
       segment.UpdateTasks()
       if(segment.Validate){
@@ -181,7 +182,12 @@
           success: function(data){
             thisBtn.removeClass('disabled')
             document.location = '/segments/'+data.id+'/edit';
-          }
+          },
+          error: function(data){
+            showValidatorErrors(data)
+            thisBtn.removeClass('disabled')
+            thisBtn.prop('disabled',false)
+          },
         })
       } else {
         $(this).removeClass('disabled')

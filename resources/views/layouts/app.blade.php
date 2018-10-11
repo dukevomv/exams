@@ -100,7 +100,7 @@
             </div>
         </div>
     </nav>
-    <div class="container">
+    <div class="container wrap-for-banners">
       @if (session('success'))
         <div class="alert alert-success">
           {{ session('success') }}
