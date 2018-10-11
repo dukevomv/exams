@@ -86,11 +86,10 @@
                       <a href="{{url('lessons/'.$lesson->id.'/approval/request')}}" type="button" class="btn btn-success btn-xs">
                         Request
                       </a>
-                    @elseif($lesson->status->approved == 0)
-                      <a href="{{url('lessons/'.$lesson->id.'/approval/cancel')}}" type="button" class="btn btn-danger btn-xs">
-                        Cancel
+                    @else
+                      <a href="{{url('lessons/'.$lesson->id.'/approval/cancel')}}" type="button" class="btn btn-danger btn-xs @if($lesson->status->approved == 1) disabled @endif" @if($lesson->status->approved == 1) disabled @endif>
+                        Revoke
                       </a>
-                    @elseif($lesson->status->approved == 1)
                     @endif
                   @endif
                 </td>
