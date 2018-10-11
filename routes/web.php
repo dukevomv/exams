@@ -37,7 +37,7 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 			Route::post('/', 'LessonController@update');
 			Route::get('{id}/delete', 'LessonController@delete');
 			Route::get('{id}/users', 'LessonController@getUserApprovals');
-			Route::post('/approvals', 'LessonController@editApprovals');
+			Route::post('users/toggle-approve', 'LessonController@toggleApprove');
 		});
 	});
 

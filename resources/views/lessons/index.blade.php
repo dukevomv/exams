@@ -152,7 +152,7 @@
         </div>
         <div class="modal-body">
           <table class="table table-bordered">
-            <tr><th>Name</th><th>Email</th><th>Approved</th></tr>
+            <tr><th>Name</th><th>Email</th><th>Role</th><th>Approved</th></tr>
           </table>
         </div>
       </div>
@@ -164,7 +164,8 @@
 @section('scripts')
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
   <script type="text/javascript">
-    const basic_url = "{{url('lessons')}}";
+    var basic_url = "{{url('lessons')}}";
+    var approvalsChanged = false
     
     function InitUpdateLessonModal(id=null){
       var editableFields = ['id','name','gunet_code','semester'];
@@ -201,60 +202,48 @@
           var table = modal.find('.modal-body table');
           table.find('.custom-row').remove();
           $.each( data.users, function(key,value) {
-          var row = '<tr class="custom-row">'
+            var row = '<tr class="custom-row">'
              row +=   '<td>'+value.name+'</td>'
              row +=   '<td>'+value.email+'</td>'
+             row +=   '<td><span class="label label-'+value.role+'">'+value.role+'</span></td>'
              row +=   '<td>'
-             row +=     '<label class="toggle" data-user-id="'+value.id+'">'
-             row +=       '<input type="checkbox" '+ value.pivot.approved == 1 ? 'checked' : ''+'>'
+             row +=     '<label class="toggle" data-user-id="'+value.id+'" data-lesson-id="'+id+'">'
+             row +=       '<input type="checkbox" '+ (value.pivot.approved == 1 ? 'checked' : '')+'>'
              row +=       '<span class="slider"></span></label></td>'
              row += '</tr>'
             table.append(row)
           });
-        
-          
-    $(document).on('change','.lesson-users-modal .custom-row .toggle input',function(){
-      console.log('adsasd')
-      let input = $(this)
-      const value = input.prop('checked')
-      let toggle = input.closest('.approved-toggle')
-      $.post( 
-        "{{url('lessons/users/toggle-approve')}}", 
-        { 
-          _token: '{{csrf_token()}}',
-          user : toggle.attr('data-user-id'),
-        }
-      )
-      .fail(function( data ) {
-        setTimeout(function(){
-          input.prop('checked',!value)
-      },200)
-      });
-    })
           modal.modal('show')
         }
       })
     }
-    
+      
     $(document).on('change','.lesson-users-modal .custom-row .toggle input',function(){
-      console.log('adsasd')
       let input = $(this)
       const value = input.prop('checked')
-      let toggle = input.closest('.approved-toggle')
+      let toggle = input.closest('.toggle')
       $.post( 
         "{{url('lessons/users/toggle-approve')}}", 
         { 
           _token: '{{csrf_token()}}',
-          user : toggle.attr('data-user-id'),
+          lesson_id : toggle.attr('data-lesson-id'),
+          user_id : toggle.attr('data-user-id'),
         }
       )
       .fail(function( data ) {
         setTimeout(function(){
           input.prop('checked',!value)
-      },200)
+        },200)
+      })
+      .done(function(data){
+        approvalsChanged = true;
       });
     })
-  
+    
+    $('.lesson-users-modal').on('hidden.bs.modal', function (e) {
+      if(approvalsChanged)
+        location.reload()
+    })
   </script>
 @endsection
 

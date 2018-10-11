@@ -66,9 +66,10 @@ class LessonController extends Controller
 	}
 	
 	public function toggleApprove(Request $request) {
-		$user = User::find($request->input('user',''));
-		$user->approved = !$user->approved;
-		$user->save();
+		$lesson = Lesson::where('id',$request->lesson_id)->first();
+		$user = $lesson->users()->where('users.id',$request->user_id)->first();
+		$user->pivot->approved = !$user->pivot->approved;
+		$user->pivot->save();
 		return $user;
 	}
 }
