@@ -9,9 +9,26 @@
   <div class="container">
     <div class="row">
       <div class="col-xs-12">
-        <h1>@if($lesson) Edit @else Create @endif Test</h1>
+        <h1>@if($test) Edit @else Create @endif Test</h1>
       </div>
-      <div class="col-md-9 col-md-offset-3" id="test-body">
+      <div class="sidebar-toolbar col-xs-3">
+        <h5>Actions</h5>
+        <div class="btn-group margin-bottom-15">
+          <a @if($test) href="{{url('tests/'.$test->id)}}" @else disabled @endif type="button" class="btn btn-default">
+            <i class="fa fa-eye"></i> Preview
+          </a>
+        </div>
+        <div class="btn-group margin-bottom-15">
+          <button type="button" id="save-btn" class="btn btn-primary">
+            <i class="fa fa-save"></i> Save
+          </button>
+        </div>
+  
+        <h5>Segments <span class="segment-amount">()</span> <div class="btn-group btn-group-sm margin-left-15" role="group"><button type="button" class="btn btn-default segment-filter-trigger" data-toggle="modal" data-target=".segment-filter-modal"><i class="fa fa-filter"></i> Filters</button></div></h5>
+        <div class="segments-wrap"></div>
+  
+      </div>
+      <div class="col-md-9" id="test-body">
         <div class="panel panel-default basics-wrap relative">
           <div class="order-wrap disabled">
             <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
@@ -21,7 +38,7 @@
           <div class="panel-heading">Basic Information</div>
           <div class="panel-body">
             <div class="col-md-4 row-margin-bottom">
-              <label>Scheduled for:</label>
+              <label>Scheduled at:</label>
               <?php 
                 $scheduled = null;
                 if($test && !is_null($test->scheduled_at))
@@ -81,23 +98,6 @@
           @endforeach
         @endif
       </div>
-    </div>
-    <div class="fixed-toolbar col-xs-2">
-      <h5>Actions</h5>
-      <div class="btn-group margin-bottom-15">
-        <a @if($test) href="{{url('tests/'.$test->id)}}" @else disabled @endif type="button" class="btn btn-default">
-          <i class="fa fa-eye"></i> Preview
-        </a>
-      </div>
-      <div class="btn-group margin-bottom-15">
-        <button type="button" id="save-btn" class="btn btn-primary">
-          <i class="fa fa-save"></i> Save
-        </button>
-      </div>
-
-      <h5>Segments <span class="segment-amount">()</span> <div class="btn-group btn-group-sm margin-left-15" role="group"><button type="button" class="btn btn-default segment-filter-trigger" data-toggle="modal" data-target=".segment-filter-modal"><i class="fa fa-filter"></i> Filters</button></div></h5>
-      <div class="segments-wrap"></div>
-
     </div>
   </div>
   <div class="modal fade segment-filter-modal" role="dialog">
@@ -183,7 +183,7 @@
         dataType: "json",
         data: data4filter,
         success: function(data){
-          $('.fixed-toolbar .segment-amount').text('('+data.length+')')
+          $('.sidebar-toolbar .segment-amount').text('('+data.length+')')
           let segmentsDOM = ''
           data.forEach(function(segment) {
             const btn_type = test_segment_ids.includes(segment.id) ? 'success' : 'default'
@@ -194,7 +194,7 @@
             segmentsDOM += '  </button>'
             segmentsDOM += '</div>'
           })
-          $('.fixed-toolbar .segments-wrap').html(segmentsDOM)
+          $('.sidebar-toolbar .segments-wrap').html(segmentsDOM)
           filter_modal.modal('hide');
         },
         error: function(err){
@@ -256,11 +256,11 @@
     function ChangeTestSegments(action,id){
       if(action == 'add'){
         test_segment_ids.push(parseInt(id))
-        $('.fixed-toolbar .segments-wrap .segment-id-'+id).removeClass('btn-default').addClass('btn-success')
+        $('.sidebar-toolbar .segments-wrap .segment-id-'+id).removeClass('btn-default').addClass('btn-success')
       } else if(action == 'remove'){
         test_segment_ids = test_segment_ids.filter(e => e !== id)
         $('#test-body .segment-wrap.segment-id-'+id).remove()
-        $('.fixed-toolbar .segments-wrap .segment-id-'+id).removeClass('btn-success').addClass('btn-default')
+        $('.sidebar-toolbar .segments-wrap .segment-id-'+id).removeClass('btn-success').addClass('btn-default')
         ReorderTestTasks()
       }
     }
@@ -305,12 +305,17 @@
       let test = new Test()
       test.UpdateSegments()
       console.log(test)
-      if(test.Validate()){
+      if(true){
         console.log('sendin')
         $.ajax({
           type: "POST",
           url: "{{url('tests/update')}}",
           data: {_token:"{{csrf_token()}}",...test},
+          error: function(data){
+            showValidatorErrors(data)
+            thisBtn.removeClass('disabled')
+            thisBtn.prop('disabled',false)
+          },
           success: function(data){
             thisBtn.removeClass('disabled')
             document.location = '/tests/'+data.id+'/edit';
@@ -333,8 +338,7 @@
     }
 
     Test.prototype.Validate = function(){
-      if(!this.lesson_id || !this.name|| this.segments.length == 0)
-        return false
+      
       return true
     }
     Test.prototype.UpdateBasics = function(){

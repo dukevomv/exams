@@ -24,6 +24,16 @@ class TestController extends Controller
 	}
 
 	public function update(Request $request) {
+		$this->validate($request, [
+      'lesson_id' 		=> 'required|exists:lessons,id',
+      'name' 					=> 'required|string',
+      'description' 	=> 'required|string',
+      'scheduled_at'	=> 'nullable|date_format:Y-m-d\TH:i',
+      'duration'			=> 'nullable|integer',
+      'tasks' 				=> 'array',
+      'tasks.*' 			=> 'required|integer|segments,id',
+    ]);
+    
 		$fields = $request->only(['lesson_id','name','description','scheduled_at','duration']);
 		if(array_key_exists('scheduled_at',$fields) && !is_null($fields['scheduled_at']))
 			$fields['scheduled_at'] = Carbon::createFromFormat('Y-m-d\TH:i',$fields['scheduled_at']);

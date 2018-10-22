@@ -48,7 +48,8 @@
             <tr>
               <th>Name</th>
               <th>Lesson</th>
-              <th>Scheduled for</th>
+              <th>Scheduled at</th>
+              <th>Duration</th>
               <th>Segments</th>
               <th>Status</th>
               <th>Action</th>
@@ -58,6 +59,7 @@
                 <td>{{$test->name}}</td>
                 <td>{{$test->lesson->name}}</td>
                 <td>{{$test->scheduled_at}}</td>
+                <td>@if(!is_null($test->duration)){{$test->duration}}'@endif</td>
                 <td>{{$test->segments_count}}</td>
                 <td>{{$test->status}}</td>
                 <td>

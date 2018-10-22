@@ -173,25 +173,20 @@
       thisBtn.prop('disabled',true)
       let segment = new Segment()
       segment.UpdateTasks()
-      if(segment.Validate){
-        console.log(segment)
-        $.ajax({
-          type: "POST",
-          url: "{{url('segments/update')}}",
-          data: {_token:"{{csrf_token()}}",...segment},
-          success: function(data){
-            thisBtn.removeClass('disabled')
-            document.location = '/segments/'+data.id+'/edit';
-          },
-          error: function(data){
-            showValidatorErrors(data)
-            thisBtn.removeClass('disabled')
-            thisBtn.prop('disabled',false)
-          },
-        })
-      } else {
-        $(this).removeClass('disabled')
-      }
+      $.ajax({
+        type: "POST",
+        url: "{{url('segments/update')}}",
+        data: {_token:"{{csrf_token()}}",...segment},
+        success: function(data){
+          thisBtn.removeClass('disabled')
+          document.location = '/segments/'+data.id+'/edit';
+        },
+        error: function(data){
+          showValidatorErrors(data)
+          thisBtn.removeClass('disabled')
+          thisBtn.prop('disabled',false)
+        },
+      })
     })
 
     var Segment = function Segment(){
@@ -203,9 +198,6 @@
       this.tasks       = []
     }
 
-    Segment.prototype.Validate = function(){
-      return false
-    }
     Segment.prototype.UpdateBasics = function(){
       return false
     }

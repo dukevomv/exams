@@ -54,15 +54,11 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 	});
 
 	Route::group(['prefix' => 'tests'], function () {
-		Route::get('/', 'TestController@index')->name('tests_index');
-		Route::get('{id}', 'TestController@preview');
-		Route::get('{id}/lobby', 'TestController@lobby');
-
 		//will proceed the statuses from /tests/id page 
 		// and will provide required fields for schedules and test
 		//draft -> published -> started -> finished -> graded 
 		//Route::post('{id}/proceed', 'TestController@proceed');
-
+		
 		//professors
 		Route::group(['namespace' => 'Professor','middleware' => 'can:customizeTests'], function () {
 			Route::get('create', 'TestController@updateView');
@@ -85,6 +81,9 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 			Route::get('{id}/live', 'TestController@live');
 			Route::post('{id}/live/start', 'TestController@live_start');
 		});
+		Route::get('/', 'TestController@index')->name('tests_index');
+		Route::get('{id}', 'TestController@preview');
+		Route::get('{id}/lobby', 'TestController@lobby');
 	});
 
 });
