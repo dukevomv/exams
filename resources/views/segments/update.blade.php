@@ -225,10 +225,10 @@
           description : element.find('.panel-body .task-title textarea').val(),
           points      : element.find('.panel-body .task-points input').val() != '' ? element.find('.panel-body .task-points input').val().trim() : 0,
         }
+        task.data = []
         switch(task_type) {
           case "rmc":
           case "cmc":
-            task.data = []
             element.find('.task-list .task-choice').each(function(i) {
               let choice = {
                 id            : $(this).find('input.choice-id').val().trim() != '' ? $(this).find('input.choice-id').val().trim() : null,
@@ -236,6 +236,12 @@
                 correct       : $(this).find('input.choice-correct').is(":checked") ? 1 : 0
               }
               if(choice.description != '')   task.data.push(choice)
+            })
+            break;
+          case "free_text":
+            task.data.push({
+              id          : element.find('.task-free-text input').val(),
+              description : element.find('.task-free-text textarea').val()
             })
             break;
           default:

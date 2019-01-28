@@ -16,7 +16,7 @@ class Test extends Model
   use Searchable;
   private $search=['name'];
 
-  public $fillable = ['lesson_id','name','description','scheduled_at','duration'];
+  public $fillable = ['lesson_id','name','description','scheduled_at','duration','status'];
   public function lesson() {
     return $this->BelongsTo(Lesson::class);
   }

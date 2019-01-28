@@ -30,36 +30,21 @@
       </div>
       <div class="col-md-9" id="test-body">
         <div class="panel panel-default basics-wrap relative">
-          <div class="order-wrap disabled">
-            <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
-            <div class="order-value">0</div>
-            <div class="order-trigger cursor-pointer" data-order-direction="down"><i class="fa fa-angle-down" aria-hidden="true"></i></div>
-          </div>
+          <input type="hidden" id="test-id" @if($test) value="{{$test->id}}" @endif>
+          
           <div class="panel-heading">Basic Information</div>
           <div class="panel-body">
-            <div class="col-md-4 row-margin-bottom">
-              <label>Scheduled at:</label>
-              <?php 
-                $scheduled = null;
-                if($test && !is_null($test->scheduled_at))
-                  $scheduled = Carbon\Carbon::parse($test->scheduled_at)->format('Y-m-d\TH:i');
-              ?>
-              <input type='datetime-local' class="form-control" id="test-scheduled" @if($scheduled) value="{{$scheduled}}" @endif/>
-            </div>
-            <div class="col-md-3 row-margin-bottom">
-              <label>Duration (mins):</label>
-              <input type="number" class="form-control" id="test-duration" placeholder="60" @if($test) value="{{$test->duration}}" @endif/>
-            </div>
             <div class="col-md-8 row-margin-bottom">
               <label>Name:</label>
               <input type="text" class="form-control" @if($test) value="{{$test->name}}" @endif id="test-name" placeholder="Test about HTML">
             </div>
-            <div class="col-md-3 row-margin-bottom">
-              <input type="hidden" id="test-id" @if($test) value="{{$test->id}}" @endif>
+            
+            <div class="col-md-4 row-margin-bottom">
               <label>Lesson:</label>
               <div class="btn-group dropdown-custom col-xs-12 no-padding">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  @if($test) {{$lessons->where('id', $test->lesson_id)->first()->name}} @else Select Lesson @endif <span class="caret"></span>
+                <button type="button" class="btn btn-default dropdown-toggle btn-block btn-dropdown-overflow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="btn-label">@if($test) {{$lessons->where('id', $test->lesson_id)->first()->name}} @else Select Lesson @endif</span>
+                  <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
                   <li class="@if(!$test) active @endif dropdown-value-default"><a href="#" data-dropdown-value="default">Select Lesson</a></li>
@@ -75,6 +60,41 @@
                 </select>
               </div>
             </div>
+            
+            <div class="col-md-4 row-margin-bottom">
+              <label>Scheduled at:</label>
+              <?php 
+                $scheduled = null;
+                if($test && !is_null($test->scheduled_at))
+                  $scheduled = Carbon\Carbon::parse($test->scheduled_at)->format('Y-m-d\TH:i');
+              ?>
+              <input type='datetime-local' class="form-control" id="test-scheduled" @if($scheduled) value="{{$scheduled}}" @endif/>
+            </div>
+            
+            <div class="col-md-4 row-margin-bottom">
+              <label>Duration (mins):</label>
+              <input type="number" class="form-control" id="test-duration" placeholder="60" @if($test) value="{{$test->duration}}" @endif/>
+            </div>
+            
+            <div class="col-md-4 row-margin-bottom">
+              <label>Status:</label>
+              <div class="btn-group dropdown-custom col-xs-12 no-padding">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  @if($test) {{ucfirst($test->status)}} @else Select Status @endif <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                  <li class="@if(!$test) active @endif dropdown-value-default"><a href="#" data-dropdown-value="default">Select Status</a></li>
+                  <li @if($test && $test->status == 'published') class="active" @endif><a href="#" data-dropdown-value="published">Published</a></li>
+                  <li @if($test && $test->status == 'draft') class="active" @endif><a href="#" data-dropdown-value="draft">Draft</a></li>
+                </ul>
+                <select class="hidden dropdown-select" id="test-status">
+                  <option value="default">Select Status</option>
+                  <option value="published"  @if($test && $test->status == 'published') selected @endif>Draft</option>
+                  <option value="draft"  @if($test && $test->status == 'draft') selected @endif>Published</option>
+                </select>
+              </div>
+            </div>
+            
             <div class="col-md-12">
               <label>Description:</label>
               <textarea type="text" class="form-control" id="test-description" placeholder="All you need to know about HTML...">@if($test){{$test->description}}@endif</textarea>
@@ -334,6 +354,7 @@
       this.scheduled_at = $('.basics-wrap #test-scheduled').val()
       this.duration     = $('.basics-wrap #test-duration').val()
       this.description  = $('.basics-wrap #test-description').val().trim()
+      this.status       = $('.basics-wrap #test-status').val()
       this.segments     = []
     }
 
@@ -362,7 +383,7 @@
       let parent    = $(this).closest('.dropdown-custom')
       parent.find('.dropdown-menu li.active').removeClass('active')
       parent.find('.dropdown-menu li.preactive').removeClass('preactive').addClass('active')
-      parent.find('.dropdown-toggle').html(valueUI+' '+iconDOM)
+      parent.find('.dropdown-toggle').html('<span class="btn-label">'+valueUI+'</span> '+iconDOM)
       parent.find('.dropdown-select').val(value)
     })
   </script>

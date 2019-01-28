@@ -63,7 +63,7 @@
                 <td>{{$test->scheduled_at}}</td>
                 <td>@if(!is_null($test->duration)){{$test->duration}}'@endif</td>
                 <td>{{$test->segments_count}}</td>
-                <td>{{$test->status}}</td>
+                <td>{{ucfirst($test->status)}}</td>
                 <td class="text-center">
                   @if(true)
                     <a href="{{url('tests/'.$test->id)}}" type="button" class="btn btn-primary btn-xs">

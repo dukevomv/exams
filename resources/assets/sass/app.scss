@@ -1,11 +1,11 @@
-// Fontawesome
-@import "node_modules/font-awesome/scss/font-awesome";
-
 // Variables
 @import "variables";
 
+// Fontawesome
+@import "~font-awesome/scss/font-awesome";
+
 // Bootstrap
-@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap";
 
 
 // assets
@@ -112,4 +112,21 @@ textarea{
   .trash-choice{
     padding: 7px;
     color:$brand-danger;
+  }
+  
+  .text-overflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .btn-dropdown-overflow {
+    text-align: left;
+    
+    .btn-label {
+      @extends .text-overflow;
+      display: inline-block;
+      vertical-align: middle;
+      width: 90%;
+    }
   }
