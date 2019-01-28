@@ -29,11 +29,13 @@
                 @endforeach
               </ul>
             </div>
+            @if (Auth::user()->role == 'professor')
             <div class="btn-group margin-left-15 pull-left">
               <a href="{{url('tests/create')}}" type="button" class="btn btn-primary" >
                 <i class="fa fa-plus"></i> Create
               </a>
             </div>
+            @endif
           </div>
           <div class="col-xs-3">
             @include('includes.assets.search-wrap', ['value'=>Request::input('search','')])
