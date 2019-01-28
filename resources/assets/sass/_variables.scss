@@ -23,10 +23,12 @@ $brand-student: #6dcc50;
 
 // Typography
 $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
-$font-family-sans-serif: "Raleway", sans-serif;
+$font-family-sans-serif: 'Open Sans', sans-serif;
+$font-family-base: 'Open Sans', sans-serif;
 $font-size-base: 14px;
 $line-height-base: 1.6;
 $text-color: #636b6f;
+$headings-font-weight: 700;
 
 // Navbar
 $navbar-default-bg: #fff;

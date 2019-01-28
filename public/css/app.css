@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Ubuntu:300,400,600);@charset "UTF-8";
+@charset "UTF-8";
 
 /*!
  *  Font Awesome 4.7.0 by @davegandy - http://fontawesome.io - @fontawesome
@@ -4455,7 +4455,7 @@ html {
 }
 
 body {
-  font-family: "Raleway", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-size: 14px;
   line-height: 1.6;
   color: #636b6f;
@@ -4567,7 +4567,7 @@ h6,
 .h5,
 .h6 {
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.1;
   color: inherit;
 }
@@ -10552,7 +10552,7 @@ button.close {
   position: absolute;
   z-index: 1070;
   display: block;
-  font-family: "Raleway", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: normal;
   letter-spacing: normal;
@@ -10686,7 +10686,7 @@ button.close {
   display: none;
   max-width: 276px;
   padding: 1px;
-  font-family: "Raleway", sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: normal;
   letter-spacing: normal;
@@ -11455,6 +11455,11 @@ button.close {
   transform: translateX(16px);
 }
 
+b,
+strong {
+  font-weight: 700;
+}
+
 .label-admin {
   background-color: #d088e1;
 }
@@ -11465,10 +11470,6 @@ button.close {
 
 .label-student {
   background-color: #6dcc50;
-}
-
-body {
-  font-family: Ubuntu;
 }
 
 textarea {

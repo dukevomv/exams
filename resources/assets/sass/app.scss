@@ -1,7 +1,3 @@
-
-// Fonts
-@import url("https://fonts.googleapis.com/css?family=Ubuntu:300,400,600");
-
 // Fontawesome
 @import "node_modules/font-awesome/scss/font-awesome";
 
@@ -15,6 +11,9 @@
 // assets
 @import "assets/toggle";
 
+b, strong {
+    font-weight: 700;
+}
 
 .label-admin {
     background-color: $brand-admin;
@@ -24,9 +23,6 @@
 }
 .label-student {
     background-color: $brand-student;
-}
-body{
-	font-family: Ubuntu;
 }
 
 textarea{
