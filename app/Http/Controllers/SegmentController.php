@@ -38,10 +38,12 @@ class SegmentController extends Controller
 	}
 
 	public function updateView($id = null, Request $request) {
+		// return view('segments')->with(['error'=>'Segment cannot be deleted.']);
 		$lessons = Lesson::approved()->get();
 		$segment = Segment::where('id',$id)->withTaskAnswers()->first();
 		if(!is_null($id) && is_null($segment))
 			return redirect('segments/create');
+			
 		return view('segments.update',['lessons'=>$lessons,'segment'=>$segment]);
 	}
 
@@ -65,6 +67,8 @@ class SegmentController extends Controller
 			if(isset($req_task['data']))
 				$task_details = $this->fillTaskDetails($task,$req_task['data']);
     }
+    
+    $request->session()->flash('success', 'Segment saved successfully!');
     
 		return $segment;
 	}
@@ -95,7 +99,8 @@ class SegmentController extends Controller
 	private function fillTaskDetails($task,$task_data){
 		$task_type_keys = [
 			'rmc' => ['description','points','correct'],
-			'cmc' => ['description','points','correct']
+			'cmc' => ['description','points','correct'],
+			'free_text' => ['description']
 		];
 		$details = [];
 		foreach($task_data as $option){
