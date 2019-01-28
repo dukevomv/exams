@@ -37,9 +37,7 @@
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
                     @if (Auth::guest())
-                        <li>
-                            <a href="{{ url('/home') }}">Home</a>
-                        </li>
+                        
                     @elseif(Auth::user()->role == 'admin')
                         <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
                             <a href="{{ url('/users') }}">Users</a>
