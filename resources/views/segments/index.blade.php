@@ -49,14 +49,14 @@
               <th>Name</th>
               <th>Lesson</th>
               <th>Tests</th>
-              <th>Action</th>
+              <th class="text-center">Action</th>
             </tr>
             @foreach($segments as $segment)
               <tr>
                 <td>{{$segment->title}}</td>
                 <td>{{$segment->lesson->name}}</td>
                 <td>{{$segment->tests_count}}</td>
-                <td>
+                <td class="text-center">
                   <a href="{{url('segments/'.$segment->id.'/preview')}}" type="button" class="btn btn-primary btn-xs">
                     <i class="fa fa-eye"></i>
                   </a>

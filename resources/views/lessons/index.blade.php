@@ -41,10 +41,10 @@
               <th>Code</th>
               @if(Auth::user()->role == 'admin')
                 <th>Approved</th>
-                <th>Actions</th>
+                <th class="text-center">Actions</th>
               @else
                 <th>Status</th>
-                <th>Approval</th>
+                <th class="text-center">Approval</th>
               @endif
             </tr>
             @foreach($lessons as $lesson)
@@ -70,7 +70,7 @@
                   @endif
                 @endif
                 </td>
-                <td>
+                <td class="text-center">
                   @if(Auth::user()->role == 'admin')
                     <button class="btn btn-{{$lesson->pending_users_count == 0 ? 'default': 'primary'}} btn-xs" onClick="InitLessonUserApprovalModal({{$lesson->id}})">
                       <i class="fa fa-users"></i>

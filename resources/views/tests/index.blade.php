@@ -54,7 +54,7 @@
               <th>Duration</th>
               <th>Segments</th>
               <th>Status</th>
-              <th>Action</th>
+              <th class="text-center">Action</th>
             </tr>
             @foreach($tests as $test)
               <tr>
@@ -64,7 +64,7 @@
                 <td>@if(!is_null($test->duration)){{$test->duration}}'@endif</td>
                 <td>{{$test->segments_count}}</td>
                 <td>{{$test->status}}</td>
-                <td>
+                <td class="text-center">
                   @if(true)
                     <a href="{{url('tests/'.$test->id)}}" type="button" class="btn btn-primary btn-xs">
                       <i class="fa fa-eye"></i>

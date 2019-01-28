@@ -35,12 +35,20 @@
             <i class="fa fa-plus"></i> Multiple Choice
           </button>
         </div>
+        <div class="btn-group margin-bottom-15">
+          <button type="button" class="btn btn-default task-type" data-task-type="free_text">
+            <i class="fa fa-plus"></i> Free Text
+          </button>
+        </div>
         <div class="hidden" id="tool-dom">
           <div class="task-dom" id="rmc-dom">
             @include('includes.form.segments.task_types.rmc',['fill'=>false])
           </div>
           <div class="task-dom" id="cmc-dom">
             @include('includes.form.segments.task_types.cmc',['fill'=>false])
+          </div>
+          <div class="task-dom" id="free_text-dom">
+            @include('includes.form.segments.task_types.free_text',['fill'=>false])
           </div>
         </div>
       </div>

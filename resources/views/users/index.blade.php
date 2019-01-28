@@ -42,14 +42,14 @@
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
-              <th>Approved</th>
+              <th class="text-center">Approved</th>
             </tr>
             @foreach($users as $user)
               <tr>
                 <td>{{$user->name}}</td>
                 <td>{{$user->email}}</td>
                 <td><span class="label label-{{$user->role}}">{{ucfirst($user->role)}}</span></td>
-                <td>
+                <td class="text-center">
                   @if($user->id != Auth::user()->id)
                     @include('includes.assets.toggle', [
                       'classes'=>['approved-toggle'],
