@@ -71,19 +71,17 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 			Route::post('delete', 'TestController@delete');
 
 
-			Route::get('{id}/start', 'TestController@start');
-			Route::get('{id}/finish', 'TestController@finish');
+			Route::post('{id}/start', 'TestController@start');
+			Route::post('{id}/finish', 'TestController@finish');
 		});
 
 		//students
 		Route::group(['namespace' => 'Student','middleware' => 'can:takeTests'], function () {
-			Route::get('{id}/register', 'TestController@register');
-			Route::get('{id}/live', 'TestController@live');
-			Route::post('{id}/live/start', 'TestController@live_start');
+			Route::post('{id}/register', 'TestController@register');
 		});
+		
 		Route::get('/', 'TestController@index')->name('tests_index');
 		Route::get('{id}', 'TestController@preview');
-		Route::get('{id}/lobby', 'TestController@lobby');
 	});
 
 });

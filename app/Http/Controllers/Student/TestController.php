@@ -17,28 +17,16 @@ class TestController extends Controller
 		$user_id = Auth::id();
 		$test = Test::where('id',$id)
 						->where('status','published')
-						->where('scheduled_at','>=',Carbon::now())
 						->with('users')
 						->first();
 		if(is_null($test))
 			return back()->with(['error'=>'You can not register to this test.']);
+		if(Carbon::parse($test->scheduled_at)->subMinutes(30)->gt(Carbon::now()))
+			return back()->with(['error'=>'You can not register to this test yet.']);
 		if($test->users->contains($user_id))
 			return back()->with(['error'=>'Already registered to this test.']);
 		$test->register();
-		return redirect('tests/'.$id.'/lobby');
-	}
-
-	public function live($id = null) {
-		$user_id = Auth::id();
-		$test = Test::where('id',$id)
-						->where('status','started')
-						->with(['user','segments'=>function($query){
-							$query->withTaskAnswers();
-						}])
-						->first();
-		if(is_null($test))
-			return redirect('tests')->with(['error'=>'The test is not live right now.']);
-		return view('tests.live',['test'=>$test]);
+		return redirect('tests/'.$id);
 	}
 
 	public function live_start($id = null) {

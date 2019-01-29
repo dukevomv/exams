@@ -10,6 +10,7 @@ use App\Models\Test;
 
 use Carbon\Carbon;
 use Log;
+use Auth;
 
 class TestController extends Controller
 {
@@ -23,6 +24,9 @@ class TestController extends Controller
 		if($request->input('search','') != '')
 			$tests->search($request->search);
 
+		if(Auth::user()->role == 'student')
+			$tests = $tests->where('status','!=','draft');
+			
 		$tests = $tests->paginate(10);
 		return view('tests.index',['tests'=>$tests,'lessons'=>$lessons]);
 	}

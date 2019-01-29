@@ -28,15 +28,15 @@ class TestController extends Controller
 
 	public function update(Request $request) {
 		$this->validate($request, [
-      'lesson_id' 		=> 'required|exists:lessons,id',
-      'name' 					=> 'required|string',
-      'description' 	=> 'required|string',
-      'status' 				=> 'required|string|in:draft,published',
-      'scheduled_at'	=> 'required_if:status,published|nullable|date_format:Y-m-d\TH:i|after:today',
-      'duration'			=> 'nullable|integer',
-      'tasks' 				=> 'array',
-      'tasks.*' 			=> 'required|integer|segments,id',
-    ]);
+	      'lesson_id' 		=> 'required|exists:lessons,id',
+	      'name' 					=> 'required|string',
+	      'description' 	=> 'required|string',
+	      'status' 				=> 'required|string|in:draft,published',
+	      'scheduled_at'	=> 'required_if:status,published|nullable|date_format:Y-m-d\TH:i|after:today',
+	      'duration'			=> 'nullable|integer',
+	      'tasks' 				=> 'array',
+	      'tasks.*' 			=> 'required|integer|segments,id',
+	    ]);
     
 		$fields = $request->only(['lesson_id','name','description','scheduled_at','duration','status']);
 		if(array_key_exists('scheduled_at',$fields) && !is_null($fields['scheduled_at']))
@@ -45,11 +45,11 @@ class TestController extends Controller
 		$test = Test::updateOrCreate(['id'=>$request->input('id',null)],$fields);
 		$ordered_segments = [];
 		$count = 1;
-    foreach($request->input('segments',[]) as $req_segment){
-			$ordered_segments[$req_segment] = ['position'=>$count];
-			$count++;
-    }
-    $test->segments()->sync($ordered_segments);
+	    foreach($request->input('segments',[]) as $req_segment){
+				$ordered_segments[$req_segment] = ['position'=>$count];
+				$count++;
+	    }
+	    $test->segments()->sync($ordered_segments);
 
 		return $test;
 	}
@@ -74,7 +74,7 @@ class TestController extends Controller
 		if(count($test->users) == 0)
 			return back()->with(['error'=>'This test require registered users to start.']);
 		$test->start();
-		return redirect('tests/'.$id.'/lobby');
+		return redirect('tests/'.$id);
 	}
 
 	public function finish($id = null) {
@@ -84,6 +84,6 @@ class TestController extends Controller
 		if(is_null($test))
 			return back()->with(['error'=>'You can not finish this test.']);
 		$test->finish();
-		return redirect('tests/'.$id.'/lobby');
+		return redirect('tests/'.$id);
 	}
 }

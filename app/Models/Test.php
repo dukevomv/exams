@@ -18,7 +18,7 @@ class Test extends Model
 
   public $fillable = ['lesson_id','name','description','scheduled_at','duration','status'];
   public function lesson() {
-    return $this->BelongsTo(Lesson::class);
+    return $this->belongsTo(Lesson::class);
   }
 
   public function segments() {
@@ -33,19 +33,30 @@ class Test extends Model
     return $this->belongsToMany(User::class)->where('user_id',Auth::id())->withTimestamps()->withPivot('status','grade');
   }
 
+  
+  public function started_by() {
+    return $this->belongsTo(User::class,'started_by_user');
+  }
+  
+  public function finished_by() {
+    return $this->belongsTo(User::class,'finished_by_user');
+  }
+  
   public function register() {
 		$this->users()->attach(Auth::id(), ['status' =>'registered']);
   }
-
+  
   public function start() {
 		$this->status = 'started';
 		$this->started_at = Carbon::now();
+		$this->started_by_user = Auth::id();
 		$this->save();
   }
 
   public function finish() {
 		$this->status = 'finished';
 		$this->finished_at = Carbon::now();
+		$this->started_by_user = Auth::id();
 		$this->save();
   }
 }
