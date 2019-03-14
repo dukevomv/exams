@@ -62,28 +62,35 @@ class TestController extends Controller
 		return back()->with(['success'=>'Test deleted successfully']);
 	}
 
-	public function start($id = null) {
+	public function start($id = null, Request $request) {
 		$test = Test::where('id',$id)
 						->where('status','published')
-						->with('users')
-						->first();
+						->with('users')->first();
+		
 		if(is_null($test))
 			return back()->with(['error'=>'You can not start this test.']);
 		if(!Carbon::parse($test->scheduled_at)->isToday())
 			return back()->with(['error'=>'This test can not start today.']);
-		if(count($test->users) == 0)
+		$registered_users = $test->users->filter(function ($value, $key) {return $value->pivot->status == 'registered';});
+		if(count($registered_users) == 0)
 			return back()->with(['error'=>'This test require registered users to start.']);
 		$test->start();
-		return redirect('tests/'.$id);
+		if($request->wantsJson())
+			return response()->json($test);
+		else
+			return redirect('tests/'.$id);
 	}
 
-	public function finish($id = null) {
+	public function finish($id = null, Request $request) {
 		$test = Test::where('id',$id)
 						->where('status','started')
 						->first();
 		if(is_null($test))
 			return back()->with(['error'=>'You can not finish this test.']);
 		$test->finish();
-		return redirect('tests/'.$id);
+		if($request->wantsJson())
+			return response()->json($test);
+		else
+			return redirect('tests/'.$id);
 	}
 }

@@ -10861,6 +10861,10 @@ textarea {
   margin-bottom: 30px;
 }
 
+.margin-top-30 {
+  margin-top: 30px;
+}
+
 .relative {
   position: relative;
 }
@@ -10944,4 +10948,22 @@ textarea {
   display: inline-block;
   vertical-align: middle;
   width: 90%;
+}
+
+.test-preview .sidebar .test-timer {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.test-preview .main {
+  padding-left: 30px;
+}
+
+.test-preview .main .test-description {
+  font-size: 18px;
+  font-weight: 300;
+  font-style: italic;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
 }

@@ -2,85 +2,119 @@
 
 @section('styles')
 <style>
-  .navbar{margin:0;}
-  .announcement-wrap{
-    height:350px;
-    padding:50px 0;
-    background:#003dff;
-  }
-  .announcement{
-    color:#fff;
-    font-size:30px;
-    text-align:center;
-  }
-  .announcement .icon .fa{
-    font-size:80px;
-    display:block;
-    margin:30px 0;
-  }
-  .specs{
-    padding: 25px 0;
-  }
-  .specs .spec-wrap{
-    margin: 25px 0;
-    text-align:center;
-  }
-  .specs .spec-wrap .value{
-    font-size: 20px;
-  }
+  
 </style>
 @endsection
 
 @section('content')
-  <div class="container-fluid">
-    <div class="row announcement-wrap">
-      <div class="announcement">
-        <div class="test-name"><i>{{$test->name}}</i></div>
-        <div class="icon"><i class="fa fa-spinner fa-pulse"></i></div>
-        <div class="description"></div>
+  <div class="container">
+    <div class="test-preview">
+      <div class="row">
+        <div class="sidebar col-xs-4">
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <h4>{{ $test->name }}</h4>
+            </div>
+            <div class="panel-body">
+              <ul class="list-group">
+                <li class="list-group-item">
+                  <p><strong>Lesson: </strong>{{ $test->lesson->name }}</p>
+                  <p><strong>Scheduled at: </strong>{{ !is_null($test->scheduled_at) ? $test->scheduled_at->format('d M, H:i') : '-'}}</p>
+                  <p><strong>Total duration: </strong>@if(!is_null($test->duration)){{$test->duration}}'@endif</p>
+                </li>
+                <li class="list-group-item">
+                  <div id="test-timer" class="test-timer"></div>
+                </li>
+              </ul>
+              
+              <div class="test-actions margin-top-30">
+                @if (Auth::user()->role == 'professor')
+                  <div class="margin-bottom-15 clearfix">
+                    @if ($test->status == 'published')
+                      <button type="button" class="btn btn-success" id="start-test">Start in 30"</button>
+                    @elseif ($test->status == 'started')
+                      <button type="button" class="btn btn-danger" id="finish-test">Finish in 30"</button>
+                    @endif
+                  </div>
+                @elseif (Auth::user()->role == 'student')
+                  <div class="margin-bottom-15 clearfix">
+                    @if(!isset($test->user_on_test))
+                      @if ($test->status == 'published')
+                        <form method="POST" action="{{URL::to('tests')}}/{{ $test->id }}/register">
+                          <input type="hidden" name="_token" value="{{csrf_token()}}">
+                          <button type="submit" class="btn btn-success" id="test-register">Register to Test</button>
+                        </form>
+                      @elseif ($test->status == 'started')
+                        <button type="submit" class="btn btn-deafult" id="test-register" disabled="disabled">Register to Test</button>
+                      @endif
+                    @elseif(isset($test->user_on_test) && $test->user_on_test->pivot->status == 'registered')
+                      @if ($test->status == 'published')
+                        <form method="POST" action="{{URL::to('tests')}}/{{ $test->id }}/leave" class="confirm-form" data-confirm-action="Leave" data-confirm-title="After leaving you will not be able to register again.">
+                          <input type="hidden" name="_token" value="{{csrf_token()}}">
+                          <button type="submit" class="btn btn-danger" id="test-leave">Leave Test</button>
+                        </form>
+                      @elseif ($test->status == 'started')
+                        <button type="button" class="btn btn-success">Submit Final</button>
+                        <button type="button" class="btn btn-warning pull-right">Save Changes </button>
+                      @endif
+                    @endif
+                  </div>
+                @endif
+              </div>
+            </div>
+          </div>
+          
+          @if (Auth::user()->role == 'student' && $test->status == 'started' && isset($test->user_on_test) && $test->user_on_test->pivot->status == 'registered')
+            <form method="POST" action="{{URL::to('tests')}}/{{ $test->id }}/leave" class="confirm-form" data-confirm-action="Leave" data-confirm-title="After leaving you will not be able to register again.">
+              <input type="hidden" name="_token" value="{{csrf_token()}}">
+              <button type="submit" class="btn btn-danger" id="test-leave">Leave Test</button>
+            </form>
+          @endif
+        </div>
+        
+        <div class="main col-xs-8">
+          <!-- started -->
+          @if (Auth::user()->role == 'student' && $test->status == 'started')  
+            <div id="test-student-segments">
+              <div class="test-description">
+                {{$test->description}}
+              </div>
+              <div class="panel-group">
+                @foreach($test->segments as $key=>$segment)
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title clearfix">
+                        <a data-toggle="collapse" href="#segment-id-{{$segment->id}}">{{$segment->title}} <small>({{count($segment->tasks)}} tasks)</small></a>
+                      </h4>
+                    </div>
+                    <div id="segment-id-{{$segment->id}}" class="panel-collapse collapse">
+                      <div class="panel-body">
+                        @foreach($segment->tasks as $task)
+                          @include('includes.preview.segments.task_types.'.$task->type, ['task' => $task])
+                        @endforeach
+                      </div>
+                    </div>
+                  </div>
+                @endforeach
+              </div>  
+            </div>
+           @elseif (Auth::user()->role == 'professor')
+            <div class="panel panel-default" id="test-registered-students">
+              <table class="table">
+                <tr>
+                  <th>Student Name</th>
+                  <th>Entered At</th>
+                  <th>Status</th>
+                  <th>Grade</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </table>
+            </div>
+          @endif
+        </div>
       </div>
-    </div>   
-    <!-- 
-    <i class="fa fa-inbox" aria-hidden="true"></i>
-    <i class="fa fa-graduation-cap" aria-hidden="true"></i>
-    <i class="fa fa-book" aria-hidden="true"></i>
-    <i class="fa fa-pie-chart" aria-hidden="true"></i>
-    
-    <i class="fa fa-paper-plane" aria-hidden="true"></i> 
-     -->
-
-    <div class="container">
-      <div class="col-xs-12 specs">
-        <div class="spec-wrap col-xs-12 col-sm-6 col-md-3">
-          <span class="title">Date</span><br>
-          <span class="value">{{Carbon\Carbon::parse($test->scheduled_at)->toFormattedDateString()}}</span>
-        </div>
-        <div class="spec-wrap col-xs-12 col-sm-6 col-md-3">
-          <span class="title">Start Time</span><br>
-          <span class="value">{{Carbon\Carbon::parse($test->scheduled_at)->format('H:i')}}</span>
-        </div>
-        <div class="spec-wrap col-xs-12 col-sm-6 col-md-3">
-          <span class="title">Duration</span><br>
-          <span class="value">{{$test->duration}}'</span>
-        </div>
-        <div class="spec-wrap col-xs-12 col-sm-6 col-md-3">
-          <span class="title">Finish Time</span><br>
-          <span class="value">{{Carbon\Carbon::parse($test->scheduled_at)->addMinutes($test->duration)->format('H:i')}}</span>
-        </div>
-        <hr class="col-xs-12">
-        <div class="spec-wrap col-xs-12 col-sm-6 col-md-4">
-          <span class="title">Professors</span><br>
-          <span class="value">2</span>
-        </div>
-        <div class="spec-wrap col-xs-12 col-sm-6 col-md-4">
-          <span class="title">Students</span><br>
-          <span class="value">45</span>
-        </div>
-        <div class="spec-wrap col-xs-12 col-sm-6 col-md-4">
-          <span class="title">Lesson</span><br>
-          <span class="value">{{$test->lesson->name}}</span>
-        </div>
-      </div>
+      
+      
     </div>
   </div>
 @endsection
@@ -88,72 +122,68 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/locale/en.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase.js"></script>
+  <script src="{{ asset('js/realtime.js') }}"></script>
   <script>
-    let test_name = '{{$test->name}}'
-    const announcements = {
-      professor : {
-        inFarFuture : ['This test will take place '],
-        inFuture : ['This test will take place '],
-        inCloseFuture : ['This test will start '],
-        happening : ['This test is currently taking place and will end '],
-        processing : ['This test took place '],
-        inPast : ['This test took place ']
-      }
-    }
-    const icons = {
-      inFarFuture   : ['<i class="fa fa-calendar" aria-hidden="true"></i>'],
-      inFuture      : ['<i class="fa fa-calendar" aria-hidden="true"></i>'],
-      inCloseFuture : ['<i class="fa fa-envelope" aria-hidden="true"></i>'],
-      happening     : ['<i class="fa fa-envelope-open" aria-hidden="true"></i>'],
-      processing    : ['<i class="fa fa-calculator" aria-hidden="true"></i>'],
-      inPast        : ['<i class="fa fa-calculator" aria-hidden="true"></i>']
-    }
-    //
-    let role = '{{Auth::user()->role}}'
-    let scheduled_at = '{{$test->scheduled_at}}'
-    let duration = parseInt('{{$test->duration}}')*60
-    let diff = moment().diff(moment(scheduled_at),'seconds')
-    setInterval(function(){
-      ++diff
-      AnnouncementUpdater()
-    },1000)
-
-    function TimelineGenerator(){
-      console.log(diff)
-      console.log(diff+duration)
-      if(diff < 0){
-        if(diff/(24*60*60) > 1)
-          return 'inFarFuture'
-        else if(diff/(15*60) > 1)
-          return 'inFuture'
-        else
-          return 'inCloseFuture'
-      } else if(diff-duration < 0){
-        return 'happening'
-      } else {
-        return 'inPast'
-      }
-    }
-    function AnnouncementUpdater(){
-      timeline = TimelineGenerator()
-      console.log(timeline)
-      let countdown = timeline == 'inPast' ? moment(scheduled_at).fromNow() : (timeline == 'happening' ? moment(scheduled_at).add(duration,'seconds').fromNow() : moment(scheduled_at).fromNow())
-      $('.announcement .icon').html(icons[timeline])
-      $('.announcement .description').html(announcements[role][timeline][0]+'<b>'+countdown+'</b>.')
-    }
-    /*console.log(moment(scheduled_at).format('dddd'))
-    let seconds_left = 59
-    let interval = setInterval(function(){
-      console.log(seconds_left)
-      --seconds_left
-      $('#timer').text(seconds_left >= 0 ? seconds_left : 0)
-      if(seconds_left < 0)
-        stopINterval(interval)
-    },1000)*/
-
-    function stopINterval(interval){
-      if(interval)
-        clearInterval(interval)
+    var current = {
+      user : {!! json_encode(Auth::user()) !!},
+      test : {!! json_encode($test) !!},
     }
   </script>
+  <script>
+  
+    $('#start-test').on('click',function(e){
+      $.post("{{URL::to('tests')}}/{{ $test->id }}/start",{_token:"{{csrf_token()}}"},function() {
+        $('#start-test').removeClass('btn-success').addClass('btn-default').prop('disabled',false)
+      });
+    })
+    $('#finish-test').on('click',function(e){
+      $.post("{{URL::to('tests')}}/{{ $test->id }}/finish",{_token:"{{csrf_token()}}"},function() {
+        $('#finish-test').removeClass('btn-danger').addClass('btn-default').prop('disabled',false)
+      });
+    })
+    
+    realtime.on('student.registered',function(student){
+      $("#test-registered-students .table").append('<tr data-id="'+student.id+'" class="student-'+student.id+'">\
+        <td>'+student.name+'</td>\
+        <td>'+student.registered_at+'</td>\
+        <td><span class="label label-warning">Registered</span></td>\
+        <td></td>\
+        <td></td>\
+      </tr>');
+    });
+    realtime.on('student.left',function(student){
+      $("#test-registered-students .table tr.student-"+student.id).remove(); 
+    });
+    
+    realtime.on('test.started',function(payload){
+      //todo get difference on seconds
+      if(current.user.role == 'student' && !current.test.user_on_test)
+        window.location.reload;
+      setTimerTo(30)
+      realtime.reloadOn(30);
+    });
+    
+    realtime.on('test.finished',function(payload){
+      setTimerTo(30)
+      realtime.reloadOn(30);
+    });
+    
+    var remaining_seconds = 0;
+    function setTimerTo(seconds){
+      remaining_seconds = seconds;
+      var minutes = Math.floor(seconds/60);
+      var seconds_left = seconds%60;
+      var now = '';
+      now = (minutes < 10 ? '0' : '')+minutes+':'+(seconds_left < 10 ? '0' : '')+seconds_left
+      $('#test-timer').text(now);
+    }
+    
+    var timer = setInterval(function(){
+      if(remaining_seconds > 0)
+        setTimerTo(--remaining_seconds);
+    },1000) 
+  </script>
+  <script src="{{ asset('js/test.js') }}"></script>
+
 @endsection

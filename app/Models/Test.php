@@ -10,13 +10,19 @@ use App\Models\Segments\Segment;
 use Auth;
 use Carbon\Carbon;
 
+use Kreait\Firebase\Firebase;
+use Kreait\Firebase\Configuration;
+
 use App\Traits\Searchable;
 class Test extends Model
 {
+    
   use Searchable;
-  private $search=['name'];
-
+  private $search = ['name'];
+  protected $appends = ['user_on_test'];
   public $fillable = ['lesson_id','name','description','scheduled_at','duration','status'];
+  protected $dates = ['scheduled_at','started_at','finished_at','graded_at'];
+  
   public function lesson() {
     return $this->belongsTo(Lesson::class);
   }
@@ -28,12 +34,11 @@ class Test extends Model
   public function users() {
     return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status','grade');
   }
-
+  
   public function user() {
     return $this->belongsToMany(User::class)->where('user_id',Auth::id())->withTimestamps()->withPivot('status','grade');
   }
 
-  
   public function started_by() {
     return $this->belongsTo(User::class,'started_by_user');
   }
@@ -42,21 +47,66 @@ class Test extends Model
     return $this->belongsTo(User::class,'finished_by_user');
   }
   
+  public function getUserOnTestAttribute() {
+		return $this->users()->where('user_id',Auth::id())->first();
+  }
+  
   public function register() {
+    $config = new Configuration();
+    $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
+    $firebase = new Firebase(env('FIREBASE_DB_URL'), $config);  
+    $student = Auth::user();
+    $firebase->update([
+      'name'=>$student->name,
+      'registered_at'=>Carbon::now()->toDateTimeString()
+    ],'tests/'.$this->id.'/students/'.$student->id);
+    
 		$this->users()->attach(Auth::id(), ['status' =>'registered']);
+  }
+  
+  public function leave() {
+    $config = new Configuration();
+    $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
+    $firebase = new Firebase(env('FIREBASE_DB_URL'), $config);
+    
+    $student = Auth::user();
+    
+    $firebase->delete('tests/'.$this->id.'/students/'.$student->id);
+    
+		$this->users()->updateExistingPivot($student->id,['status'=>'left']);
   }
   
   public function start() {
 		$this->status = 'started';
-		$this->started_at = Carbon::now();
+		$this->started_at = Carbon::now()->addSeconds(30);
 		$this->started_by_user = Auth::id();
+		
+    $config = new Configuration();
+    $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
+    $firebase = new Firebase(env('FIREBASE_DB_URL'), $config);
+    $student = Auth::user();
+    
+    $firebase->update([
+      'started_at'=>Carbon::now()->toDateTimeString()
+    ],'tests/'.$this->id);
+    
 		$this->save();
   }
 
   public function finish() {
 		$this->status = 'finished';
-		$this->finished_at = Carbon::now();
-		$this->started_by_user = Auth::id();
+		$this->finished_at = Carbon::now()->addSeconds(30);
+		$this->finished_by_user = Auth::id();
+		
+    $config = new Configuration();
+    $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
+    $firebase = new Firebase(env('FIREBASE_DB_URL'), $config);
+    $student = Auth::user();
+    
+    $firebase->update([
+      'finished_at'=>Carbon::now()->toDateTimeString()
+    ],'tests/'.$this->id);
+    
 		$this->save();
   }
 }

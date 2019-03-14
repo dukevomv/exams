@@ -19,5 +19,8 @@
     "lodash": "^4.17.10",
     "moment": "^2.22.2",
     "query-string": "^6.1.0"
+  },
+  "dependencies": {
+    "firebase": "^5.8.1"
   }
 }

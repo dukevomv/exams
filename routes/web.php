@@ -15,6 +15,7 @@ Route::get('/', 'HomeController@home');
 
 Auth::routes();
 
+Route::get('/now',function () {return \Carbon\Carbon::now();});
 Route::get('/settings', 'HomeController@settings');
 Route::post('/settings', 'HomeController@updateSettings')->middleware('auth');
 
@@ -68,9 +69,6 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 			Route::post('update', 'TestController@update');
 			Route::post('{id}/edit', 'TestController@update');
 
-			Route::post('delete', 'TestController@delete');
-
-
 			Route::post('{id}/start', 'TestController@start');
 			Route::post('{id}/finish', 'TestController@finish');
 		});
@@ -78,6 +76,10 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 		//students
 		Route::group(['namespace' => 'Student','middleware' => 'can:takeTests'], function () {
 			Route::post('{id}/register', 'TestController@register');
+			Route::post('{id}/leave', 'TestController@leave');
+			
+			Route::post('{id}/submit', 'TestController@submit');
+			Route::post('{id}/submit-final', 'TestController@submit_final');
 		});
 		
 		Route::get('/', 'TestController@index')->name('tests_index');

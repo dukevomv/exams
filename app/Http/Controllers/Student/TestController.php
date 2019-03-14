@@ -11,6 +11,8 @@ use App\Models\Test;
 use Carbon\Carbon;
 use Log;
 use Auth;
+
+
 class TestController extends Controller
 {
 	public function register($id = null) {
@@ -19,29 +21,52 @@ class TestController extends Controller
 						->where('status','published')
 						->with('users')
 						->first();
+						
 		if(is_null($test))
 			return back()->with(['error'=>'You can not register to this test.']);
 		if(Carbon::parse($test->scheduled_at)->subMinutes(30)->gt(Carbon::now()))
 			return back()->with(['error'=>'You can not register to this test yet.']);
 		if($test->users->contains($user_id))
 			return back()->with(['error'=>'Already registered to this test.']);
+			
 		$test->register();
-		return redirect('tests/'.$id);
+		return redirect('tests/'.$id)->with(['success'=>'Registered to this test.']);
 	}
 
-	public function live_start($id = null) {
+	public function leave($id = null) {
+		$user = Auth::user();
+		$test = Test::where('id',$id)
+						->where('status','published')
+						->whereHas('users',function($q) use ($user){
+							$q->where('user_id',$user->id)->where('status','registered');
+						})->first();
+		
+		if(is_null($test))
+			return back()->with(['error'=>'Cannot leave from this test.']);
+			
+		$test->leave();
+		return redirect('tests/'.$id)->with(['success'=>'Left the test.']);
+	}
+	
+	public function submit($id = null) {
+		$user_id = Auth::id();
+		$test = Test::where('id',$id)
+						->where('status','started') //TODO this for tests that just ended wont work (for the +30seconds)
+						->with('users')
+						->first();
+		if(is_null($test))
+			return back()->with(['error'=>'You can not register to this test.']);
+		return redirect('tests/'.$id);
+	}
+	
+	public function submit_final($id = null) {
 		$user_id = Auth::id();
 		$test = Test::where('id',$id)
 						->where('status','started')
-						->with(['user'])
+						->with('users')
 						->first();
 		if(is_null($test))
-			return redirect('tests')->with(['error'=>'The test is not live right now.']);
-		if($test->user[0]->pivot->status != 'registered')
-			return redirect('tests')->with(['error'=>'The test have already started for current user.']);
-		$test->user[0]->pivot->status = 'started';
-		$test->user[0]->pivot->started_at = Carbon::now();
-		$test->user[0]->pivot->save();
-		return response()->json(['success'=>true]);
+			return back()->with(['error'=>'You can not register to this test.']);
+		return redirect('tests/'.$id);
 	}
 }

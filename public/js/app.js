@@ -17158,6 +17158,8 @@ __webpack_require__(163);
 
 __webpack_require__(164);
 
+__webpack_require__(185);
+
 /***/ }),
 /* 134 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -48712,6 +48714,52 @@ window.showValidatorErrors = function (data) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 166 */,
+/* 167 */,
+/* 168 */,
+/* 169 */,
+/* 170 */,
+/* 171 */,
+/* 172 */,
+/* 173 */,
+/* 174 */,
+/* 175 */,
+/* 176 */,
+/* 177 */,
+/* 178 */,
+/* 179 */,
+/* 180 */,
+/* 181 */,
+/* 182 */,
+/* 183 */,
+/* 184 */,
+/* 185 */
+/***/ (function(module, exports) {
+
+
+var formToSubmit = false;
+var defaultTitle = 'Are you sure?';
+var defaultAction = 'Yes';
+$('form.confirm-form').submit(function (event) {
+	event.preventDefault();
+	formToSubmit = $(this);
+	var title = $(this).attr('data-confirm-title') != undefined ? $(this).attr('data-confirm-title') : defaultTitle;
+	var action = $(this).attr('data-confirm-action') != undefined ? $(this).attr('data-confirm-action') : defaultAction;
+	$('#confirm-modal .modal-body').html(title);
+	$('#confirm-modal .modal-footer .yes-confirm').html(action);
+	$('#confirm-modal').modal('show');
+});
+
+$('#confirm-modal button').on('click', function (event) {
+	if ($(this).hasClass('yes-confirm')) {
+		formToSubmit.off('submit');
+		formToSubmit.submit();
+	} else {
+		formToSubmit = false;
+	}
+});
 
 /***/ })
 /******/ ]);

@@ -101,16 +101,34 @@
     </nav>
     <div class="container wrap-for-banners">
       @if (session('success'))
-        <div class="alert alert-success">
+        <div class="alert alert-success alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           {{ session('success') }}
         </div>
       @elseif (session('error'))
-        <div class="alert alert-danger">
+        <div class="alert alert-danger alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           {{ session('error') }}
         </div>
       @endif
     </div>
     @yield('content')
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmLabel" id="confirm-modal">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="confirmLabel">Confirm</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <input type="hidden" class="form-to-submit"/>
+            <button type="button" class="btn btn-danger yes-confirm" data-dismiss="modal">Yes</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Scripts -->

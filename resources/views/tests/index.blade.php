@@ -52,7 +52,7 @@
               <th>Lesson</th>
               <th>Scheduled at</th>
               <th>Duration</th>
-              <th>Segments</th>
+              @if(Auth::user()->role == 'professor')<th>Segments</th>@endif
               <th>Status</th>
               <th class="text-center">Action</th>
             </tr>
@@ -60,9 +60,9 @@
               <tr>
                 <td>{{$test->name}}</td>
                 <td>{{$test->lesson->name}}</td>
-                <td>{{$test->scheduled_at}}</td>
+                <td>{{ !is_null($test->scheduled_at) ? $test->scheduled_at->format('d M, H:i') : '-'}}</td>
                 <td>@if(!is_null($test->duration)){{$test->duration}}'@endif</td>
-                <td>{{$test->segments_count}}</td>
+                @if(Auth::user()->role == 'professor')<td>{{$test->segments_count}}</td>@endif
                 <td>{{ucfirst($test->status)}}</td>
                 <td class="text-center">
                   @if(true)
@@ -70,7 +70,7 @@
                       <i class="fa fa-eye"></i>
                     </a>
                   @endif
-                  @if(in_array($test->status,['draft','published']))
+                  @if(in_array($test->status,['draft','published']) && Auth::user()->role == 'professor')
                     <a href="{{url('tests/'.$test->id.'/edit')}}" type="button" class="btn btn-success btn-xs">
                       <i class="fa fa-pencil"></i>
                     </a>
@@ -78,11 +78,6 @@
                   @if($test->status == 'draft')
                     <a href="{{url('tests/'.$test->id.'/delete')}}" type="button" class="btn btn-danger btn-xs">
                       <i class="fa fa-trash"></i>
-                    </a>
-                  @endif
-                  @if($test->status != 'draft')
-                    <a href="{{url('tests/'.$test->id.'/lobby')}}" type="button" class="btn btn-primary btn-xs">
-                      <i class="fa fa-users"></i>
                     </a>
                   @endif
                 </td>
