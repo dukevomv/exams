@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Segments\AnswerRmc;
 use App\Models\Segments\AnswerCmc;
 use App\Models\Segments\AnswerFreeText;
+use App\Models\Segments\AnswerCorrespondence;
 
 class Task extends Model
 {
@@ -36,7 +37,15 @@ class Task extends Model
     return $this->hasOne(AnswerFreeText::class,'task_id')->select('answers_free_text.*');
   }
   
+  public function correspondence(){
+    return $this->hasMany(AnswerCorrespondence::class,'task_id');
+  }
+  
+  public function correspondence_full(){
+    return $this->hasMany(AnswerCorrespondence::class,'task_id')->select('answers_correspondence.*');
+  }
+  
   public function scopeAnswers($query){
-    return $query->with(['rmc','cmc','free_text']);
+    return $query->with(['rmc','cmc','free_text','correspondence']);
 	}
 }

@@ -40,6 +40,16 @@
             <i class="fa fa-plus"></i> Free Text
           </button>
         </div>
+        <div class="btn-group margin-bottom-15">
+          <button type="button" class="btn btn-default task-type" data-task-type="correspondence">
+            <i class="fa fa-plus"></i> Correspondence
+          </button>
+        </div>
+        <div class="btn-group margin-bottom-15">
+          <button type="button" class="btn btn-default task-type" data-task-type="code">
+            <i class="fa fa-plus"></i> Code
+          </button>
+        </div>
         <div class="hidden" id="tool-dom">
           <div class="task-dom" id="rmc-dom">
             @include('includes.form.segments.task_types.rmc',['fill'=>false])
@@ -49,6 +59,12 @@
           </div>
           <div class="task-dom" id="free_text-dom">
             @include('includes.form.segments.task_types.free_text',['fill'=>false])
+          </div>
+          <div class="task-dom" id="correspondence-dom">
+            @include('includes.form.segments.task_types.correspondence',['fill'=>false])
+          </div>
+          <div class="task-dom" id="code-dom">
+            @include('includes.form.segments.task_types.code',['fill'=>false])
           </div>
         </div>
       </div>
@@ -242,6 +258,23 @@
             task.data.push({
               id          : element.find('.task-free-text input').val(),
               description : element.find('.task-free-text textarea').val()
+            })
+            break;
+          case "correspondence":
+            element.find('.task-list .task-choice').each(function(i) {
+              let choice = {
+                id            : $(this).find('input.choice-id').val().trim() != '' ? $(this).find('input.choice-id').val().trim() : null,
+                side_a        : $(this).find('input.side-a').val(),
+                side_b        : $(this).find('input.side-b').val()
+              }
+              if(choice.side_a != '' && choice.side_b != '')   task.data.push(choice)
+            })
+            break;
+          case "code":
+            //todo: fix this
+            task.data.push({
+              id          : element.find('.task-code input').val(),
+              description : element.find('.task-code textarea').val()
             })
             break;
           default:

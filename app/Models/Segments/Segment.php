@@ -33,9 +33,9 @@ class Segment extends Model
 	{
 		return $query->with(['tasks' => function($q) use($correct){
       if($correct)
-        $withs = ['rmc_full','cmc_full'];
+        $withs = ['rmc_full','cmc_full','correspondence_full'];
       else
-        $withs = ['rmc','cmc'];
+        $withs = ['rmc','cmc','correspondence'];
 			$q->with($withs)->orderBy('position');
 		}]);
 	}

@@ -2,6 +2,10 @@
 
 @section('styles')
   <style type="text/css">
+  .btn-dotted{
+    border-style: dashed;
+    color:#ccc;
+  }
   </style>
 @endsection
 
@@ -16,7 +20,7 @@
         @endforeach
       </div>
     </div>
-    <div class="fixed-toolbar col-xs-2">
+    <div class="fixed-toolbar col-xs-2 hidden">
       <h5>Actions</h5>
       <div class="btn-group margin-bottom-15">
         <a href="{{url('segments/'.$segment->id.'/edit')}}" class="btn btn-default">

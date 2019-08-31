@@ -49,15 +49,16 @@ class SegmentController extends Controller
 
 	public function update(Request $request) {
 		$this->validate($request, [
-      'lesson_id' 	=> 'required|exists:lessons,id',
-      'title' 			=> 'required|string',
-      'description' => 'required|string',
-      'tasks' 			=> 'array',
-      'tasks.*.type' 				=> 'required|string',
-      'tasks.*.points' 			=> 'required|integer|max:255',
+      'lesson_id' 			=> 'required|exists:lessons,id',
+      'title' 				=> 'required|string',
+      'description' 		=> 'required|string',
+      'tasks' 				=> 'array',
+      'tasks.*.type' 		=> 'required|string',
+      'tasks.*.points' 		=> 'required|integer|max:255',
       'tasks.*.description' => 'required|string',
-      'tasks.*.position' 		=> 'required|integer|max:255',
+      'tasks.*.position' 	=> 'required|integer|max:255',
     ]);
+    \Log::info($request->all());
 		$segment = Segment::updateOrCreate(['id'=>$request->input('id',null)],$request->only(['lesson_id','title','description']));
     foreach($request->input('tasks',[]) as $req_task){
 			$task = $segment->tasks()->updateOrCreate(
@@ -100,7 +101,9 @@ class SegmentController extends Controller
 		$task_type_keys = [
 			'rmc' => ['description','points','correct'],
 			'cmc' => ['description','points','correct'],
-			'free_text' => ['description']
+			'free_text' => ['description'],
+			'correspondence' => ['side_a','side_b'],
+			'code' => []//todo fix this as task
 		];
 		$details = [];
 		foreach($task_data as $option){
