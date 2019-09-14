@@ -11,33 +11,70 @@ It provides the ability to organize your users by role and authorize actions to 
 
 ## Running the Project
 
-#### Prerequisites
-* PHP 5.6
-* composer
-* Laravel 5.4
+
+### Prerequisites
+
+**Global**
 * MySQL
+* Firebase Project
+
+**Dockerized**
+* docker
+* bash
+
+**Non-dockerized**
+* PHP 5.6
+* Laravel 5.4
+* composer
 
 #### Setup 
 
-After cloning the project 
-* Create a new `.env` file `cp .env.example .env` and update the required values.
+After cloning the project create a new `.env` file `cp .env.example .env` and update the values mentioned below.
+
+* Create the database mentioned in `.env`
+    ```
+       DB_HOST=your_database_pub_host
+       DB_DATABASE=your_database_name
+       DB_USERNAME=your_database_user
+       DB_PASSWORD=your_database_pass
+    ```
+* Setup Firebase
+  - Create a [firebase](https://console.firebase.google.com) project
+  - Download the adminsdk auth json and store it in `resources/external/` directory.
+  
+  <figure class="video_container">
+    <video controls="true" allowfullscreen="true">
+      <source src="/guides/firebase/admin-sdk.mp4" type="video/mp4">
+    </video>
+  </figure>
+  
+  - Define the name of the file in your `.env` with the key `FIREBASE_AUTH_FILE`
+  - Define the name of your firebase url in the key `FIREBASE_DB_URL`
+  - Set up `MIX_*` values as well for the frontend's connection to realtime events.
+    ```
+        MIX_FIREBASE_API_KEY=Web API Key from 'Project Settings > General'
+        MIX_FIREBASE_AUTH_DOMAIN='your_firebase_identifier.firebaseapp.com'
+        MIX_FIREBASE_DATABASE_URL='https://your_firebase_identifier.firebaseio.com'
+        MIX_FIREBASE_PROJECT_ID='your_firebase_identifier'
+        MIX_FIREBASE_STORAGE_BUCKET='your_firebase_identifier.appspot.com'
+    ```
+  
+**dockerized**
+* Run `./docker.sh dev fresh` to create a fresh instance of the project. You can also pass an `EXPOSE_PORT` parameter to change default expose port.
+
+**Non-dockerized**
 * Initiallize `APP_KEY` WITH `php artisan key:generate`
 * Install project's php dependencies `composer install`
 * Give permissions `chmod -R 777 storage && chmod -R 777 bootstrap/cache`
-* Create the database mentioned in `.env`
-* Setup db tables `php artisan migrate`
-* Setup realtime with firebase
-  - Create a firebase project
-  - Include it's keys in your `.env`
-  - Download the adminsdk auth json and store it in `resources/external/` directory
-  - Define the name of the file in your `.env` with the key `FIREBASE_AUTH_FILE`
-  - Set up `MIX_*` values as well for the frontend's connection to realtime events.
+
+If your database is empty you will need to run the existing migrations to setup db tables 
+- **dockerized**:`./docker.sh dev artisan migrate`
+- **non-dockerized**:`php artisan migrate`
   
 #### Development
 
 Run `npm install` to install webpack dependencies and track your changes on `resources` files with `npm run watch-poll`.
 
-Run `php artisan serve` and visit the localhost url shown in the console.
 
 ## Architecture & Framework
 
