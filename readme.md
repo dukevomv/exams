@@ -41,13 +41,7 @@ After cloning the project create a new `.env` file `cp .env.example .env` and up
 * Setup Firebase
   - Create a [firebase](https://console.firebase.google.com) project
   - Download the adminsdk auth json and store it in `resources/external/` directory.
-  
-  <figure class="video_container">
-    <video controls="true" allowfullscreen="true">
-      <source src="/guides/firebase/admin-sdk.mp4" type="video/mp4">
-    </video>
-  </figure>
-  
+    ![Semantic description of image](guides/firebase/admin-sdk.gif "Admin SDK file")  
   - Define the name of the file in your `.env` with the key `FIREBASE_AUTH_FILE`
   - Define the name of your firebase url in the key `FIREBASE_DB_URL`
   - Set up `MIX_*` values as well for the frontend's connection to realtime events.
