@@ -19,7 +19,7 @@ class Test extends Model
     
   use Searchable;
   private $search = ['name'];
-  protected $appends = ['user_on_test'];
+  protected $appends = ['user_on_test','can_register','register_time'];
   public $fillable = ['lesson_id','name','description','scheduled_at','duration','status'];
   protected $dates = ['scheduled_at','started_at','finished_at','graded_at'];
   
@@ -49,6 +49,14 @@ class Test extends Model
   
   public function getUserOnTestAttribute() {
 		return $this->users()->where('user_id',Auth::id())->first();
+  }
+  
+  public function getRegisterTimeAttribute() {
+		return is_null($this->scheduled_at) ? $this->scheduled_at : Carbon::parse($this->scheduled_at)->subMinutes(30);
+  }
+  
+  public function getCanRegisterAttribute() {
+		return Carbon::now()->gte($this->register_time);
   }
   
   public function register() {

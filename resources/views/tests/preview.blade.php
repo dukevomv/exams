@@ -39,13 +39,11 @@
                 @elseif (Auth::user()->role == 'student')
                   <div class="margin-bottom-15 clearfix">
                     @if(!isset($test->user_on_test))
-                      @if ($test->status == 'published')
+                      @if (in_array($test->status,['published','started']))
                         <form method="POST" action="{{URL::to('tests')}}/{{ $test->id }}/register">
                           <input type="hidden" name="_token" value="{{csrf_token()}}">
-                          <button type="submit" class="btn btn-success" id="test-register">Register to Test</button>
+                          <button type="submit" class="btn btn-success" id="test-register" @if( !$test->can_register || $test->status == 'started')  disabled="disabled" @endif >Register to Test</button>
                         </form>
-                      @elseif ($test->status == 'started')
-                        <button type="submit" class="btn btn-deafult" id="test-register" disabled="disabled">Register to Test</button>
                       @endif
                     @elseif(isset($test->user_on_test) && $test->user_on_test->pivot->status == 'registered')
                       @if ($test->status == 'published')
@@ -53,7 +51,7 @@
                           <input type="hidden" name="_token" value="{{csrf_token()}}">
                           <button type="submit" class="btn btn-danger" id="test-leave">Leave Test</button>
                         </form>
-                      @elseif ($test->status == 'started')
+                      @elseif ($test->status == 'started' || ($test->status == 'finished' && !$timer['actual_time']))
                         <button type="button" class="btn btn-success">Submit Final</button>
                         <button type="button" class="btn btn-warning pull-right">Save Changes</button>
                       @endif
@@ -113,8 +111,6 @@
           @endif
         </div>
       </div>
-      
-      
     </div>
   </div>
 @endsection
@@ -126,15 +122,13 @@
   <script src="{{ asset('js/realtime.js') }}"></script>
   <script>
     var current = {
-      time: {
-        now : '{{$now}}',
-        remaining_seconds: {{$remaining_seconds}},
-        actual_time: {{$actual_time}},
-        seconds_gap: {{$seconds_gap}},
-      },
+      timer: {!! json_encode($timer) !!},
       user : {!! json_encode(Auth::user()) !!},
       test : {!! json_encode($test) !!},
+      now  : moment('{{$now}}'),
+      server_diff : moment().diff(moment('{{$now}}'),'seconds')
     }
+    console.log(current.timer)
   
     $('#start-test').on('click',function(e){
       $.post("{{URL::to('tests')}}/{{ $test->id }}/start",{_token:"{{csrf_token()}}"},function() {
@@ -161,34 +155,42 @@
     });
     
     realtime.on('test.started',function(payload){
-      //todo get difference on seconds
+      setTimerTo(current.timer.seconds_gap)
+      current.timer.running = true
+      realtime.reloadOn(current.timer.seconds_gap);
       if(current.user.role == 'student' && !current.test.user_on_test)
         window.location.reload;
     });
     
-    if(current.test.status == 'started'){
-        setTimerTo(current.time.remaining_seconds);
-        if(!current.time.actual_time);
-          realtime.reloadOn(current.time.remaining_seconds);
-    }
+    setTimerTo(current.timer.remaining_seconds);
+    //dont reload if test havent finished auto
+    if(!current.timer.actual_time);
+      realtime.reloadOn(current.timer.remaining_seconds);
     
     realtime.on('test.finished',function(payload){
-      setTimerTo(current.time.seconds_gap)
-      realtime.reloadOn(current.time.seconds_gap);
+      setTimerTo(current.timer.seconds_gap)
+      current.timer.running = true
+      realtime.reloadOn(current.timer.seconds_gap);
     });
     
     function setTimerTo(seconds){
-      current.time.remaining_seconds = seconds;
+      current.timer.remaining_seconds = seconds;
       var minutes = Math.floor(seconds/60);
+      var hours = Math.floor(minutes/60);
+      var minutes = minutes%60;
       var seconds_left = seconds%60;
       var now = '';
-      now = (minutes < 10 ? '0' : '')+minutes+':'+(seconds_left < 10 ? '0' : '')+seconds_left
+      now = (hours < 10 ? '0' : '')+hours+':'+(minutes < 10 ? '0' : '')+minutes+':'+(seconds_left < 10 ? '0' : '')+seconds_left
       $('#test-timer').text(now);
     }
-    
     var timer = setInterval(function(){
-      if(current.time.remaining_seconds > 0)
-        setTimerTo(--current.time.remaining_seconds);
+      if(current.timer.running)
+        if(current.timer.remaining_seconds > 0)
+          setTimerTo(--current.timer.remaining_seconds);
+      if(!current.test.can_register && moment().add(current.server_diff,'seconds').isAfter(current.test.register_time)){
+        current.test.can_register = true;
+        $('#test-register').prop('disabled',false);
+      }
     },1000) 
   </script>
   <script src="{{ asset('js/test.js') }}"></script>

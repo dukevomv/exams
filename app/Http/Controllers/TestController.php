@@ -35,21 +35,56 @@ class TestController extends Controller
 		$lessons = Lesson::approved()->get()->pluck('id')->all();
 		$test = Test::with('segments.tasks','users')->where('id',$id)->whereIn('lesson_id',$lessons)->first();
 		
-		$remaining_seconds = Carbon::now()->diffInSeconds(Carbon::parse($test->started_at));
 		$seconds_gap = 30;
-		$actual_time = false;
-		if($remaining_seconds>$seconds_gap){
-			$remaining_seconds = Carbon::now()->diffInSeconds(Carbon::parse($test->started_at)->addMinutes($test->duration)->addSeconds($seconds_gap));
-			$actual_time = true;
-		}
-		
-		
-		return view('tests.preview',[
-			'test'=>$test,
-			'now'=>Carbon::now()->toDateTimeString(),
-			'remaining_seconds' => $remaining_seconds,
-			'actual_time' => $actual_time,
+		$timer = [
+			'running' => false,
+			'remaining_seconds' => $test->duration*60,
+			'actual_time' => false,
 			'seconds_gap' => $seconds_gap
+		];
+		
+		$now = Carbon::now();
+		switch ($test->status) {
+			case 'started':
+				$timer['running']  = true;
+				$actually_started = Carbon::parse($test->started_at);
+				$button_pressed = $actually_started->copy()->subSeconds($seconds_gap);
+				$should_finish = $actually_started->copy()->addMinutes($test->duration);
+				if($now->gte($actually_started)){
+					$timer['actual_time']  = true;
+					if($now->lte($should_finish)){
+						$timer['remaining_seconds'] = $now->diffInSeconds($should_finish);
+					} else {
+						$timer['remaining_seconds'] = 0;
+						$timer['running']  = false;
+					}
+				} else {
+					$timer['remaining_seconds'] = $now->diffInSeconds($actually_started);
+				}
+				break;
+			case 'finished':
+				$timer['running']  = true;
+				$actually_finished = Carbon::parse($test->finished_at);
+				$button_pressed = $actually_finished->copy()->subSeconds($seconds_gap);
+				if($now->gte($actually_finished)){
+					$timer['remaining_seconds'] = 0;
+					$timer['running']  = false;
+				} else {
+					$timer['remaining_seconds'] = $now->diffInSeconds($actually_finished);
+					$timer['actual_time']  = false;
+				}
+				break;
+			case 'published':
+			case 'graded':
+			default:
+				// code...
+				break;
+		}
+		\Log::info($timer);
+		return view('tests.preview',[
+			'test' => $test,
+			'timer' => $timer,
+			'now' => Carbon::now(),
 		]);
 	}
 

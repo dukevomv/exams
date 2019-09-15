@@ -24,7 +24,7 @@ class TestController extends Controller
 						
 		if(is_null($test))
 			return back()->with(['error'=>'You can not register to this test.']);
-		if(Carbon::parse($test->scheduled_at)->subMinutes(30)->gt(Carbon::now()))
+		if(!$test->can_register)
 			return back()->with(['error'=>'You can not register to this test yet.']);
 		if($test->users->contains($user_id))
 			return back()->with(['error'=>'Already registered to this test.']);
