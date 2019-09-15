@@ -55,7 +55,7 @@
                         </form>
                       @elseif ($test->status == 'started')
                         <button type="button" class="btn btn-success">Submit Final</button>
-                        <button type="button" class="btn btn-warning pull-right">Save Changes </button>
+                        <button type="button" class="btn btn-warning pull-right">Save Changes</button>
                       @endif
                     @endif
                   </div>
@@ -126,11 +126,15 @@
   <script src="{{ asset('js/realtime.js') }}"></script>
   <script>
     var current = {
+      time: {
+        now : '{{$now}}',
+        remaining_seconds: {{$remaining_seconds}},
+        actual_time: {{$actual_time}},
+        seconds_gap: {{$seconds_gap}},
+      },
       user : {!! json_encode(Auth::user()) !!},
       test : {!! json_encode($test) !!},
     }
-  </script>
-  <script>
   
     $('#start-test').on('click',function(e){
       $.post("{{URL::to('tests')}}/{{ $test->id }}/start",{_token:"{{csrf_token()}}"},function() {
@@ -160,18 +164,21 @@
       //todo get difference on seconds
       if(current.user.role == 'student' && !current.test.user_on_test)
         window.location.reload;
-      setTimerTo(30)
-      realtime.reloadOn(30);
     });
+    
+    if(current.test.status == 'started'){
+        setTimerTo(current.time.remaining_seconds);
+        if(!current.time.actual_time);
+          realtime.reloadOn(current.time.remaining_seconds);
+    }
     
     realtime.on('test.finished',function(payload){
-      setTimerTo(30)
-      realtime.reloadOn(30);
+      setTimerTo(current.time.seconds_gap)
+      realtime.reloadOn(current.time.seconds_gap);
     });
     
-    var remaining_seconds = 0;
     function setTimerTo(seconds){
-      remaining_seconds = seconds;
+      current.time.remaining_seconds = seconds;
       var minutes = Math.floor(seconds/60);
       var seconds_left = seconds%60;
       var now = '';
@@ -180,8 +187,8 @@
     }
     
     var timer = setInterval(function(){
-      if(remaining_seconds > 0)
-        setTimerTo(--remaining_seconds);
+      if(current.time.remaining_seconds > 0)
+        setTimerTo(--current.time.remaining_seconds);
     },1000) 
   </script>
   <script src="{{ asset('js/test.js') }}"></script>

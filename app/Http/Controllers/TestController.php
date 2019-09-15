@@ -35,9 +35,22 @@ class TestController extends Controller
 		$lessons = Lesson::approved()->get()->pluck('id')->all();
 		$test = Test::with('segments.tasks','users')->where('id',$id)->whereIn('lesson_id',$lessons)->first();
 		
-		// return $test;
+		$remaining_seconds = Carbon::now()->diffInSeconds(Carbon::parse($test->started_at));
+		$seconds_gap = 30;
+		$actual_time = false;
+		if($remaining_seconds>$seconds_gap){
+			$remaining_seconds = Carbon::now()->diffInSeconds(Carbon::parse($test->started_at)->addMinutes($test->duration)->addSeconds($seconds_gap));
+			$actual_time = true;
+		}
 		
-		return view('tests.preview',['test'=>$test]);
+		
+		return view('tests.preview',[
+			'test'=>$test,
+			'now'=>Carbon::now()->toDateTimeString(),
+			'remaining_seconds' => $remaining_seconds,
+			'actual_time' => $actual_time,
+			'seconds_gap' => $seconds_gap
+		]);
 	}
 
 	public function lobby($id = null) {
