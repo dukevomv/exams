@@ -69,6 +69,7 @@ class TestController extends Controller
 				if($now->gte($actually_finished)){
 					$timer['remaining_seconds'] = 0;
 					$timer['running']  = false;
+					$timer['actual_time']  = true;
 				} else {
 					$timer['remaining_seconds'] = $now->diffInSeconds($actually_finished);
 					$timer['actual_time']  = false;
@@ -80,7 +81,6 @@ class TestController extends Controller
 				// code...
 				break;
 		}
-		\Log::info($timer);
 		return view('tests.preview',[
 			'test' => $test,
 			'timer' => $timer,

@@ -48,25 +48,31 @@ class TestController extends Controller
 		return redirect('tests/'.$id)->with(['success'=>'Left the test.']);
 	}
 	
-	public function submit($id = null) {
+	public function submit(Request $request, $id = null) {
+		$this->validate($request, [
+	      'segments' 				=> 'required|array',
+	      'segments.*.tasks' 		=> 'required|array',
+	      'segments.*.tasks.*.type' => 'required|string',
+	    ]);
 		$user_id = Auth::id();
 		$test = Test::where('id',$id)
-						->where('status','started') //TODO this for tests that just ended wont work (for the +30seconds)
+						->where('status','started') //TODO this for tests that just ended wont work ()
 						->with('users')
 						->first();
 		if(is_null($test))
 			return back()->with(['error'=>'You can not register to this test.']);
-		return redirect('tests/'.$id);
-	}
-	
-	public function submit_final($id = null) {
-		$user_id = Auth::id();
-		$test = Test::where('id',$id)
-						->where('status','started')
-						->with('users')
-						->first();
-		if(is_null($test))
-			return back()->with(['error'=>'You can not register to this test.']);
+			
+		$segment = Segment::updateOrCreate(['id'=>$request->input('id',null)],$request->only(['lesson_id','title','description']));
+	    foreach($request->input('tasks',[]) as $req_task){
+				$task = $segment->tasks()->updateOrCreate(
+					['id'=>isset($req_task['id']) ? $req_task['id'] : null],
+					array_only($req_task,['type','position','description','points'])
+				);
+				if(isset($req_task['data']))
+					$task_details = $this->fillTaskDetails($task,$req_task['data']);
+	    }
+    
+    
 		return redirect('tests/'.$id);
 	}
 }
