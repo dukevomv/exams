@@ -2,7 +2,9 @@
 
 @section('styles')
 <style>
-  
+  .test-timer.alarm{
+    color:#c75e71;
+  }
 </style>
 @endsection
 
@@ -51,9 +53,9 @@
                           <input type="hidden" name="_token" value="{{csrf_token()}}">
                           <button type="submit" class="btn btn-danger" id="test-leave">Leave Test</button>
                         </form>
-                      @elseif ($test->status == 'started' || ($test->status == 'finished' && !$timer['actual_time']))
-                        <button type="button" class="btn btn-success">Submit Final</button>
-                        <button type="button" class="btn btn-warning pull-right">Save Changes</button>
+                      @elseif (($test->status == 'started' && $timer['actual_time']) || ($test->status == 'finished' && !$timer['actual_time']))
+                        <button type="button" onClick="saveTest(true)" class="btn btn-success">Submit Final</button>
+                        <button type="button" onClick="saveTest()" class="btn btn-warning pull-right">Save Changes</button>
                       @endif
                     @endif
                   </div>
@@ -72,7 +74,7 @@
         
         <div class="main col-xs-8">
           <!-- started -->
-          @if (Auth::user()->role == 'student' && $test->status == 'started')  
+          @if (Auth::user()->role == 'student' && $test->status == 'started'  && $timer['actual_time'])  
             <div id="test-student-segments">
               <div class="test-description">
                 {{$test->description}}
@@ -86,7 +88,7 @@
                       </h4>
                     </div>
                     <div id="segment-id-{{$segment->id}}" class="panel-collapse collapse">
-                      <div class="panel-body">
+                      <div class="panel-body segment-tasks-wrap">
                         @foreach($segment->tasks as $task)
                           @include('includes.preview.segments.task_types.'.$task->type, ['task' => $task])
                         @endforeach
@@ -121,77 +123,149 @@
   <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase.js"></script>
   <script src="{{ asset('js/realtime.js') }}"></script>
   <script>
-    var current = {
-      timer: {!! json_encode($timer) !!},
-      user : {!! json_encode(Auth::user()) !!},
-      test : {!! json_encode($test) !!},
-      now  : moment('{{$now}}'),
-      server_diff : moment().diff(moment('{{$now}}'),'seconds')
-    }
-    console.log(current.timer)
-  
-    $('#start-test').on('click',function(e){
-      $.post("{{URL::to('tests')}}/{{ $test->id }}/start",{_token:"{{csrf_token()}}"},function() {
-        $('#start-test').removeClass('btn-success').addClass('btn-default').prop('disabled',false)
-      });
-    })
-    $('#finish-test').on('click',function(e){
-      $.post("{{URL::to('tests')}}/{{ $test->id }}/finish",{_token:"{{csrf_token()}}"},function() {
-        $('#finish-test').removeClass('btn-danger').addClass('btn-default').prop('disabled',false)
-      });
-    })
-    
-    realtime.on('student.registered',function(student){
-      $("#test-registered-students .table").append('<tr data-id="'+student.id+'" class="student-'+student.id+'">\
-        <td>'+student.name+'</td>\
-        <td>'+student.registered_at+'</td>\
-        <td><span class="label label-warning">Registered</span></td>\
-        <td></td>\
-        <td></td>\
-      </tr>');
-    });
-    realtime.on('student.left',function(student){
-      $("#test-registered-students .table tr.student-"+student.id).remove(); 
-    });
-    
-    realtime.on('test.started',function(payload){
-      setTimerTo(current.timer.seconds_gap)
-      current.timer.running = true
-      realtime.reloadOn(current.timer.seconds_gap);
-      if(current.user.role == 'student' && !current.test.user_on_test)
-        window.location.reload;
-    });
-    
-    setTimerTo(current.timer.remaining_seconds);
-    //dont reload if test havent finished auto
-    if(!current.timer.actual_time);
-      realtime.reloadOn(current.timer.remaining_seconds);
-    
-    realtime.on('test.finished',function(payload){
-      setTimerTo(current.timer.seconds_gap)
-      current.timer.running = true
-      realtime.reloadOn(current.timer.seconds_gap);
-    });
-    
-    function setTimerTo(seconds){
-      current.timer.remaining_seconds = seconds;
-      var minutes = Math.floor(seconds/60);
-      var hours = Math.floor(minutes/60);
-      var minutes = minutes%60;
-      var seconds_left = seconds%60;
-      var now = '';
-      now = (hours < 10 ? '0' : '')+hours+':'+(minutes < 10 ? '0' : '')+minutes+':'+(seconds_left < 10 ? '0' : '')+seconds_left
-      $('#test-timer').text(now);
-    }
-    var timer = setInterval(function(){
-      if(current.timer.running)
-        if(current.timer.remaining_seconds > 0)
-          setTimerTo(--current.timer.remaining_seconds);
-      if(!current.test.can_register && moment().add(current.server_diff,'seconds').isAfter(current.test.register_time)){
-        current.test.can_register = true;
-        $('#test-register').prop('disabled',false);
+    //timer part
+    //{
+      var current = {
+        timer: {!! json_encode($timer) !!},
+        user : {!! json_encode(Auth::user()) !!},
+        test : {!! json_encode($test) !!},
+        now  : moment('{{$now}}'),
+        server_diff : moment().diff(moment('{{$now}}'),'seconds')
       }
-    },1000) 
+    
+      $('#start-test').on('click',function(e){
+        $.post("{{URL::to('tests')}}/{{ $test->id }}/start",{_token:"{{csrf_token()}}"},function() {
+          $('#start-test').removeClass('btn-success').addClass('btn-default').prop('disabled',false)
+        });
+      })
+      $('#finish-test').on('click',function(e){
+        $.post("{{URL::to('tests')}}/{{ $test->id }}/finish",{_token:"{{csrf_token()}}"},function() {
+          $('#finish-test').removeClass('btn-danger').addClass('btn-default').prop('disabled',false)
+        });
+      })
+      
+      realtime.on('student.registered',function(student){
+        $("#test-registered-students .table").append('<tr data-id="'+student.id+'" class="student-'+student.id+'">\
+          <td>'+student.name+'</td>\
+          <td>'+student.registered_at+'</td>\
+          <td><span class="label label-warning">Registered</span></td>\
+          <td></td>\
+          <td></td>\
+        </tr>');
+      });
+      realtime.on('student.left',function(student){
+        $("#test-registered-students .table tr.student-"+student.id).remove(); 
+      });
+      
+      realtime.on('test.started',function(payload){
+        setTimerTo(current.timer.seconds_gap)
+        current.timer.running = true
+        realtime.reloadOn(current.timer.seconds_gap);
+        if(current.user.role == 'student' && !current.test.user_on_test)
+          window.location.reload;
+      });
+      
+      setTimerTo(current.timer.remaining_seconds);
+      //dont reload if test havent finished auto
+      if(!current.timer.actual_time);
+        realtime.reloadOn(current.timer.remaining_seconds);
+      
+      realtime.on('test.finished',function(payload){
+        setTimerTo(current.timer.seconds_gap)
+        current.timer.running = true
+        realtime.reloadOn(current.timer.seconds_gap);
+      });
+      
+      function setTimerTo(seconds){
+        current.timer.remaining_seconds = seconds;
+        var minutes = Math.floor(seconds/60);
+        var hours = Math.floor(minutes/60);
+        var minutes = minutes%60;
+        var seconds_left = seconds%60;
+        var now = '';
+        now = (hours < 10 ? '0' : '')+hours+':'+(minutes < 10 ? '0' : '')+minutes+':'+(seconds_left < 10 ? '0' : '')+seconds_left
+        $('#test-timer').text(now);
+        if(current.timer.actual_time)
+          $('#test-timer').removeClass('alarm');
+        else
+          $('#test-timer').addClass('alarm');
+      }
+      var timer = setInterval(function(){
+        if(current.timer.running)
+          if(current.timer.remaining_seconds > 0)
+            setTimerTo(--current.timer.remaining_seconds);
+        if(!current.test.can_register && moment().add(current.server_diff,'seconds').isAfter(current.test.register_time)){
+          current.test.can_register = true;
+          $('#test-register').prop('disabled',false);
+        }
+      },1000);
+      //}
+    
+    
+    //examination part
+    function saveTest(draft=true){
+      let tasks=[];
+      $("#test-student-segments .task-wrap").each(function(index) {
+        let task_type = $(this).attr('data-task-type')
+        tasks.push(GetTaskAnswers($(this),task_type))
+      });
+      
+      function GetDOMValue(element){
+        let data = {};
+        element.find('.task-value').each(function(i) {
+          if($(this).attr('data-value-prop')){
+            if($(this).attr('data-value-prop') == 'checked'){
+              data[$(this).attr('data-key')] = $(this).is(":checked") ? 1 : 0;
+            }
+          } else if($(this).attr('data-value')){
+            data[$(this).attr('data-key')] = $(this).attr('data-value');
+          }
+        });
+        return data;
+      }
+      function GetTaskAnswers(element, task_type){
+        let task = {
+          id          : element.prop('data-task-id'),
+          type        : task_type,
+        }
+        task.data = []
+        switch(task_type) {
+          case "rmc":
+          case "cmc":
+            element.find('.task-list .task-choice').each(function(i) {
+              let choice = GetDOMValue($(this));
+              task.data.push(choice);
+            })
+            break;
+          case "free_text":
+            task.data.push({
+              id          : element.find('.task-free-text input').val(),
+              description : element.find('.task-free-text textarea').val()
+            })
+            break;
+          case "correspondence":
+            element.find('.task-list .task-choice').each(function(i) {
+              let choice = {
+                id            : $(this).find('input.choice-id').val().trim() != '' ? $(this).find('input.choice-id').val().trim() : null,
+                side_a        : $(this).find('input.side-a').val(),
+                side_b        : $(this).find('input.side-b').val()
+              }
+              if(choice.side_a != '' && choice.side_b != '')   task.data.push(choice)
+            })
+            break;
+          case "code":
+            //todo: fix this
+            task.data.push({
+              id          : element.find('.task-code input').val(),
+              description : element.find('.task-code textarea').val()
+            })
+            break;
+          default:
+            //code block
+        }
+        return task
+      }
+    }
   </script>
   <script src="{{ asset('js/test.js') }}"></script>
 
