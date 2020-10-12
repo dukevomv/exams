@@ -2,5 +2,7 @@ PROJECT_FRAMEWORK: laravel
 EXPOSE_PORT: 44001
 PROJECT_PREFIX: exams
 CONTAINER_WORKDIR: /var/www/html
+START_COMMAND: composer install --no-interaction --prefer-dist && php artisan migrate && php artisan db:seed
+FRESH_COMMAND: rm -rf vendor && chmod -R 777 storage && chmod -R 777 bootstrap/cache
 CONTAINER_DB_CONNECTIONS:
   - mysql
