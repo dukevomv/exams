@@ -26,10 +26,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('Kreait\Firebase\Firebase',function($app){
+        $this->app->singleton(Firebase::class,function($app){
             $config = new Configuration();
-            $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
+            $config->setAuthConfigFile(env('FIREBASE_AUTH_FILE'));
             return new Firebase(env('FIREBASE_DB_URL'), $config);            
         });
+
+        $this->app->alias(Firebase::class, 'firebase');
     }
 }

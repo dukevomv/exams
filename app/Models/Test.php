@@ -60,9 +60,7 @@ class Test extends Model
   }
   
   public function register() {
-    $config = new Configuration();
-    $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
-    $firebase = new Firebase(env('FIREBASE_DB_URL'), $config);  
+      $firebase = app('firebase');
     $student = Auth::user();
     $firebase->update([
       'name'=>$student->name,
@@ -73,9 +71,7 @@ class Test extends Model
   }
   
   public function leave() {
-    $config = new Configuration();
-    $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
-    $firebase = new Firebase(env('FIREBASE_DB_URL'), $config);
+      $firebase = app('firebase');
     
     $student = Auth::user();
     
@@ -88,10 +84,8 @@ class Test extends Model
 		$this->status = 'started';
 		$this->started_at = Carbon::now()->addSeconds(30);
 		$this->started_by_user = Auth::id();
-		
-    $config = new Configuration();
-    $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
-    $firebase = new Firebase(env('FIREBASE_DB_URL'), $config);
+
+      $firebase = app('firebase');
     $student = Auth::user();
     
     $firebase->update([
@@ -105,10 +99,8 @@ class Test extends Model
 		$this->status = 'finished';
 		$this->finished_at = Carbon::now()->addSeconds(30);
 		$this->finished_by_user = Auth::id();
-		
-    $config = new Configuration();
-    $config->setAuthConfigFile(resource_path(env('FIREBASE_AUTH_FILE')));
-    $firebase = new Firebase(env('FIREBASE_DB_URL'), $config);
+
+      $firebase = app('firebase');
     $student = Auth::user();
     
     $firebase->update([
