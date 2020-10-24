@@ -32,11 +32,11 @@ class Test extends Model
   }
 
   public function users() {
-    return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status','grade');
+    return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status','answers','grade');
   }
   
   public function user() {
-    return $this->belongsToMany(User::class)->where('user_id',Auth::id())->withTimestamps()->withPivot('status','grade');
+    return $this->belongsToMany(User::class)->where('user_id',Auth::id())->withTimestamps()->withPivot('status','answers','grade');
   }
 
   public function started_by() {
@@ -79,6 +79,31 @@ class Test extends Model
     
 		$this->users()->updateExistingPivot($student->id,['status'=>'left']);
   }
+
+    public function getStudentsAnswers($userID, $final = false) {
+        //'test_user.answers'
+        return $this->users()->where('user_id',$userID)->select();
+    }
+
+    public function saveStudentsAnswers($userID,array $answers, $final = false) {
+        return $this->users()->updateExistingPivot($userID,$this->getAnswersFields($answers,$final));
+    }
+
+    private function getAnswersFields(array $answers, $final){
+      $field_data = 'answers';
+      $field_date = 'answered';
+
+        if(!$final){
+            $field_data .= '_draft';
+            $field_date .= '_draft';
+        }
+        $field_date .= '_at';
+
+        return [
+          $field_data => json_encode($answers),
+          $field_date => Carbon::now()
+        ];
+    }
   
   public function start() {
 		$this->status = 'started';

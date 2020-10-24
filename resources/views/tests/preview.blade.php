@@ -203,14 +203,19 @@
     
     
     //examination part
-    function saveTest(draft=true){
+    function saveTest(final=true){
       console.log('saving')
-      let tasks=[];
+      let answers=[];
       $("#test-student-segments .task-wrap").each(function(index) {
         let task_type = $(this).attr('data-task-type')
-        tasks.push(GetTaskAnswers($(this),task_type))
+        answers.push(GetTaskAnswers($(this),task_type))
       });
-      console.log(tasks)
+
+      $.post("{{URL::to('tests')}}/{{ $test->id }}/submit",{final: final?1:0,answers,_token:"{{csrf_token()}}"},function() {
+        console.log('answers',answers)
+      });
+
+
       
       function GetDOMValue(element){
         let data = {};
