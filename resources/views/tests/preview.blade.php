@@ -28,7 +28,6 @@
                   <div id="test-timer" class="test-timer"></div>
                 </li>
               </ul>
-              
               <div class="test-actions margin-top-30">
                 @if (Auth::user()->role == 'professor')
                   <div class="margin-bottom-15 clearfix">
@@ -203,8 +202,7 @@
     
     
     //examination part
-    function saveTest(final=true){
-      console.log('saving')
+    function saveTest(final=false){
       let answers=[];
       $("#test-student-segments .task-wrap").each(function(index) {
         let task_type = $(this).attr('data-task-type')

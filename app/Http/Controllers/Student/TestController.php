@@ -50,11 +50,13 @@ class TestController extends Controller
 	
 	public function submit(Request $request, $id = null) {
 		$this->validate($request, [
-	      'answers' 				=> 'required|array',
-	      'answers.*.id' 		=> 'required',
+	      'answers' => 'required|array',
+	      'answers.*.id' => 'required',
 	      'answers.*.type' => 'required|string',
           'final' => 'required|integer|in:0,1'
 	    ]);
+
+        \Log::info('submit'.($request->final));
 		$test = Test::where('id',$id)
 						->where('status','started') //TODO this for tests that just ended wont work ()
 						->with('users')

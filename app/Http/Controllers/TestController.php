@@ -33,8 +33,9 @@ class TestController extends Controller
 
 	public function preview($id = null, Request $request) {
 		$lessons = Lesson::approved()->get()->pluck('id')->all();
-		$test = Test::with('segments.tasks','users')->where('id',$id)->whereIn('lesson_id',$lessons)->first();
-		
+		$test = Test::with('segments.tasks','users','user')->where('id',$id)->whereIn('lesson_id',$lessons)->first();
+
+        $test->mergeAnswersToTest();
 		$seconds_gap = 30;
 		$timer = [
 			'running' => false,

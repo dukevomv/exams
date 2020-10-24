@@ -22,7 +22,7 @@ class Test extends Model
   protected $appends = ['user_on_test','can_register','register_time'];
   public $fillable = ['lesson_id','name','description','scheduled_at','duration','status'];
   protected $dates = ['scheduled_at','started_at','finished_at','graded_at'];
-  
+
   public function lesson() {
     return $this->belongsTo(Lesson::class);
   }
@@ -32,11 +32,45 @@ class Test extends Model
   }
 
   public function users() {
-    return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status','answers','grade');
+    return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status');
+  }
+
+  public function mergeAnswersToTest(){
+      $field = 'answers';
+      $this->draft = false;
+      if($this->user[0]->pivot->answered_at < $this->user[0]->pivot->answered_draft_at){
+          $field .= '_draft';
+          $this->draft = true;
+      }
+      $answers = $this->user[0]->pivot->{$field};
+
+      for($s=0; $s<count($this->segments);$s++){
+          for($t=0; $t<count($this->segments[$s]->tasks);$t++){
+              foreach ($answers as $answer) {
+                  if($this->segments[$s]->tasks[$t]->id == $answer['id']){
+                      switch ($this->segments[$s]->tasks[$t]->type){
+                          case 'cmc':
+                          case 'rmc':
+                            for($c=0; $c<count($this->segments[$s]->tasks[$t]->{$answer['type']});$c++){
+                                foreach($answer['data'] as $answeredChoice){
+                                    if($answeredChoice['id'] == $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->id)
+                                        $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->selected = $answeredChoice['correct'];
+                                }
+                              }
+                              break;
+                          default:
+                              //code
+                      }
+                  }
+              }
+          }
+      }
+
+      return $this;
   }
   
   public function user() {
-    return $this->belongsToMany(User::class)->where('user_id',Auth::id())->withTimestamps()->withPivot('status','answers','grade');
+    return $this->belongsToMany(User::class)->where('user_id',Auth::id())->withTimestamps()->withPivot('status','answers','answers_draft','answered_draft_at','answered_at','grade')->using('App\Models\TestUser');
   }
 
   public function started_by() {
@@ -86,18 +120,21 @@ class Test extends Model
     }
 
     public function saveStudentsAnswers($userID,array $answers, $final = false) {
-        return $this->users()->updateExistingPivot($userID,$this->getAnswersFields($answers,$final));
+      \Log::info('save'.($final ? 1:0));
+        return $this->users()->updateExistingPivot($userID,$this->constructAnswersFields($answers,$final));
     }
 
-    private function getAnswersFields(array $answers, $final){
+    private function constructAnswersFields(array $answers, $final){
       $field_data = 'answers';
       $field_date = 'answered';
 
+        \Log::info('constructAnswersFields'.($final ? 1:0));
         if(!$final){
             $field_data .= '_draft';
             $field_date .= '_draft';
         }
         $field_date .= '_at';
+        \Log::info($field_data);
 
         return [
           $field_data => json_encode($answers),
