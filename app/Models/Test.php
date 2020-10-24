@@ -43,23 +43,25 @@ class Test extends Model
           $this->draft = true;
       }
       $answers = $this->user[0]->pivot->{$field};
-
-      for($s=0; $s<count($this->segments);$s++){
-          for($t=0; $t<count($this->segments[$s]->tasks);$t++){
-              foreach ($answers as $answer) {
-                  if($this->segments[$s]->tasks[$t]->id == $answer['id']){
-                      switch ($this->segments[$s]->tasks[$t]->type){
-                          case 'cmc':
-                          case 'rmc':
-                            for($c=0; $c<count($this->segments[$s]->tasks[$t]->{$answer['type']});$c++){
-                                foreach($answer['data'] as $answeredChoice){
-                                    if($answeredChoice['id'] == $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->id)
-                                        $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->selected = $answeredChoice['correct'];
-                                }
-                              }
-                              break;
-                          default:
-                              //code
+      if($answers) {
+          for ($s = 0; $s < count($this->segments); $s++) {
+              for ($t = 0; $t < count($this->segments[$s]->tasks); $t++) {
+                  foreach ($answers as $answer) {
+                      if ($this->segments[$s]->tasks[$t]->id == $answer['id']) {
+                          switch ($this->segments[$s]->tasks[$t]->type) {
+                              case 'cmc':
+                              case 'rmc':
+                                  for ($c = 0; $c < count($this->segments[$s]->tasks[$t]->{$answer['type']}); $c++) {
+                                      foreach ($answer['data'] as $answeredChoice) {
+                                          if ($answeredChoice['id'] == $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->id) {
+                                              $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->selected = $answeredChoice['correct'];
+                                          }
+                                      }
+                                  }
+                                  break;
+                              default:
+                                  //code
+                          }
                       }
                   }
               }

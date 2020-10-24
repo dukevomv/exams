@@ -53,8 +53,8 @@
                           <button type="submit" class="btn btn-danger" id="test-leave">Leave Test</button>
                         </form>
                       @elseif (($test->status == 'started' && $timer['actual_time']) || ($test->status == 'finished' && !$timer['actual_time']))
-                        <button type="button" onClick="saveTest(true)" class="btn btn-success">Submit Final</button>
-                        <button type="button" onClick="saveTest()" class="btn btn-warning pull-right">Save Changes</button>
+                        <button type="button" onClick="saveTest(true)" class="btn btn-success" id="test-save">Submit  @if($test->draft) (1) @endif</button>
+                        <button type="button" onClick="saveTest()" class="btn btn-warning pull-right" id="test-save-draft">Save Changes</button>
                       @endif
                     @endif
                   </div>
@@ -210,7 +210,7 @@
       });
 
       $.post("{{URL::to('tests')}}/{{ $test->id }}/submit",{final: final?1:0,answers,_token:"{{csrf_token()}}"},function() {
-        console.log('answers',answers)
+          $('#test-save').text('Submit'+(final?'':' (1)'))
       });
 
 
