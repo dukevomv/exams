@@ -1,4 +1,4 @@
-<div class="panel panel-default task-wrap relative" data-task-type="correspondence">
+<div class="panel panel-default task-wrap relative" data-task-type="correspondence" data-task-id="{{$task->id}}">
   <?php
     $sides = ['a'=>[],'b'=>[]];
   ?>

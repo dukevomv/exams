@@ -1,5 +1,5 @@
 <?php $rmc_name = 'unique-rmc-'.$task->id;?>
-<div class="panel panel-default task-wrap relative" data-task-type="rmc">
+<div class="panel panel-default task-wrap relative" data-task-type="rmc" data-task-id="{{$task->id}}">
   <div class="panel-heading">{{$task->description}} <span class="pull-right">{{$task->points}} pts</span></div>
   <div class="panel-body">
     <div class="task-list">

@@ -204,11 +204,13 @@
     
     //examination part
     function saveTest(draft=true){
+      console.log('saving')
       let tasks=[];
       $("#test-student-segments .task-wrap").each(function(index) {
         let task_type = $(this).attr('data-task-type')
         tasks.push(GetTaskAnswers($(this),task_type))
       });
+      console.log(tasks)
       
       function GetDOMValue(element){
         let data = {};
@@ -225,7 +227,7 @@
       }
       function GetTaskAnswers(element, task_type){
         let task = {
-          id          : element.prop('data-task-id'),
+          id          : element.attr('data-task-id'),
           type        : task_type,
         }
         task.data = []
