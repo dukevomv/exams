@@ -36,6 +36,8 @@ class Test extends Model
   }
 
   public function mergeAnswersToTest(){
+      if(count($this->user) == 0)
+          return $this;
       $field = 'answers';
       $this->draft = false;
       if($this->user[0]->pivot->answered_at < $this->user[0]->pivot->answered_draft_at){

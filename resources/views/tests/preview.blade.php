@@ -212,8 +212,6 @@
       $.post("{{URL::to('tests')}}/{{ $test->id }}/submit",{final: final?1:0,answers,_token:"{{csrf_token()}}"},function() {
           $('#test-save').text('Submit'+(final?'':' (1)'))
       });
-
-
       
       function GetDOMValue(element){
         let data = {};
