@@ -70,8 +70,8 @@
                           <button type="submit" class="btn btn-danger" id="test-leave">Leave Test</button>
                         </form>
                       @elseif (($test->status == 'started' && $timer['actual_time']) || ($test->status == 'finished' && !$timer['actual_time']))
-                        <button type="button" onClick="saveTest(true)" class="btn btn-success" id="test-save">Submit  @if($test->draft) (1) @endif</button>
-                        <button type="button" onClick="saveTest()" class="btn btn-warning pull-right" id="test-save-draft">Save as Draft</button>
+                        <button type="button" onClick="saveTest(true)" class="btn btn-success" id="test-save" @if(!$test->draft) disabled @endif>Submit  @if($test->draft) (1) @endif</button>
+                        <button type="button" onClick="saveTest()" class="btn btn-warning pull-right" id="test-save-draft" disabled>Save as Draft</button>
                       @endif
                     @endif
                   </div>
@@ -129,6 +129,11 @@
   <script>
 
     $('body').scrollspy({ target: '#segment-list' })
+
+    $('.task-value').on('change',function(){
+      toggleButton($('#test-save'),'enable');
+      toggleButton($('#test-save-draft'),'enable');
+    })
 
     //timer part
     //{
@@ -208,7 +213,21 @@
       },1000);
       //}
     
-    
+    function toggleButton(button,action,title=''){
+      switch(action){
+        case 'disable':
+          button.prop('disabled',true);
+          break;
+        case 'enable':
+          button.prop('disabled',false);
+          break;
+        default:
+          //code
+      }
+      if(title !== '')
+        button.text(title);
+    }
+
     //examination part
     function saveTest(final=false){
       let answers=[];
@@ -219,7 +238,12 @@
       });
 
       $.post("{{URL::to('tests')}}/{{ $test->id }}/submit",{final: final?1:0,answers,_token:"{{csrf_token()}}"},function() {
-          $('#test-save').text('Submit'+(final?'':' (1)'))
+        toggleButton($('#test-save'),'enable','Submit'+(final?'':' (1)'));
+        toggleButton($('#test-save-draft'),'disable');
+
+        if(final){
+          toggleButton($('#test-save'),'disable');
+        }
       });
       
       function GetDOMValue(element){
