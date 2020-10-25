@@ -54,7 +54,7 @@
                         </form>
                       @elseif (($test->status == 'started' && $timer['actual_time']) || ($test->status == 'finished' && !$timer['actual_time']))
                         <button type="button" onClick="saveTest(true)" class="btn btn-success" id="test-save">Submit  @if($test->draft) (1) @endif</button>
-                        <button type="button" onClick="saveTest()" class="btn btn-warning pull-right" id="test-save-draft">Save Changes</button>
+                        <button type="button" onClick="saveTest()" class="btn btn-warning pull-right" id="test-save-draft">Save as Draft</button>
                       @endif
                     @endif
                   </div>
@@ -204,6 +204,7 @@
     //examination part
     function saveTest(final=false){
       let answers=[];
+
       $("#test-student-segments .task-wrap").each(function(index) {
         let task_type = $(this).attr('data-task-type')
         answers.push(GetTaskAnswers($(this),task_type))
@@ -231,20 +232,17 @@
           id          : element.attr('data-task-id'),
           type        : task_type,
         }
-        task.data = []
         switch(task_type) {
           case "rmc":
           case "cmc":
+            task.data = []
             element.find('.task-list .task-choice').each(function(i) {
               let choice = GetDOMValue($(this));
               task.data.push(choice);
             })
             break;
           case "free_text":
-            task.data.push({
-              id          : element.find('.task-free-text input').val(),
-              description : element.find('.task-free-text textarea').val()
-            })
+            task.data = element.find('textarea').val();
             break;
           case "correspondence":
             element.find('.task-list .task-choice').each(function(i) {

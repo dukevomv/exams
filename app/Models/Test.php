@@ -61,6 +61,9 @@ class Test extends Model
                                       }
                                   }
                                   break;
+                              case 'free_text':
+                                  $this->segments[$s]->tasks[$t]->answer = $answer['data'];
+                                  break;
                               default:
                                   //code
                           }
@@ -119,12 +122,10 @@ class Test extends Model
   }
 
     public function getStudentsAnswers($userID, $final = false) {
-        //'test_user.answers'
         return $this->users()->where('user_id',$userID)->select();
     }
 
     public function saveStudentsAnswers($userID,array $answers, $final = false) {
-      \Log::info('save'.($final ? 1:0));
         return $this->users()->updateExistingPivot($userID,$this->constructAnswersFields($answers,$final));
     }
 
@@ -132,13 +133,11 @@ class Test extends Model
       $field_data = 'answers';
       $field_date = 'answered';
 
-        \Log::info('constructAnswersFields'.($final ? 1:0));
         if(!$final){
             $field_data .= '_draft';
             $field_date .= '_draft';
         }
         $field_date .= '_at';
-        \Log::info($field_data);
 
         return [
           $field_data => json_encode($answers),
