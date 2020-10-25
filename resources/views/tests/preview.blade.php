@@ -5,6 +5,13 @@
   .test-timer.alarm{
     color:#c75e71;
   }
+  .fixed-toolbar{
+    margin-top: 70px;
+    max-width:350px;
+  }
+  #test-student-segments{
+    position:relative;
+  }
 </style>
 @endsection
 
@@ -12,7 +19,17 @@
   <div class="container">
     <div class="test-preview">
       <div class="row">
-        <div class="sidebar col-xs-4">
+        <div class="sidebar col-xs-5 fixed-toolbar">
+          <h3>
+            {{$test->description}}
+          </h3>
+          @if (Auth::user()->role == 'student' && $test->status == 'started'  && $timer['actual_time'])
+          <div id="segment-list" class="list-group">
+            @foreach($test->segments as $key=>$segment)
+              <a class="list-group-item list-group-item-action" href="#list-segment-id-{{$segment->id}}">{{$segment->title}} <small>({{count($segment->tasks)}} tasks)</small></a>
+            @endforeach
+          </div>
+          @endif
           <div class="panel panel-info">
             <div class="panel-heading">
               <h4>{{ $test->name }}</h4>
@@ -71,31 +88,19 @@
           @endif
         </div>
         
-        <div class="main col-xs-8">
+        <div class="main col-xs-8 pull-right">
           <!-- started -->
           @if (Auth::user()->role == 'student' && $test->status == 'started'  && $timer['actual_time'])  
-            <div id="test-student-segments">
-              <div class="test-description">
-                {{$test->description}}
-              </div>
-              <div class="panel-group">
-                @foreach($test->segments as $key=>$segment)
-                  <div class="panel panel-default">
-                    <div class="panel-heading">
-                      <h4 class="panel-title clearfix">
-                        <a data-toggle="collapse" href="#segment-id-{{$segment->id}}">{{$segment->title}} <small>({{count($segment->tasks)}} tasks)</small></a>
-                      </h4>
-                    </div>
-                    <div id="segment-id-{{$segment->id}}" class="panel-collapse collapse">
-                      <div class="panel-body segment-tasks-wrap">
-                        @foreach($segment->tasks as $task)
-                          @include('includes.preview.segments.task_types.'.$task->type, ['task' => $task])
-                        @endforeach
-                      </div>
-                    </div>
-                  </div>
-                @endforeach
-              </div>  
+            <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0" >
+              @foreach($test->segments as $key=>$segment)
+                <div class="segment-tasks-wrap" id="list-segment-id-{{$segment->id}}">
+                  <h4 class="clearfix">{{$segment->title}}</h4>
+                  @foreach($segment->tasks as $task)
+                    @include('includes.preview.segments.task_types.'.$task->type, ['task' => $task])
+                  @endforeach
+                  <hr>
+                </div>
+              @endforeach
             </div>
            @elseif (Auth::user()->role == 'professor')
             <div class="panel panel-default" id="test-registered-students">
@@ -122,6 +127,9 @@
   <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase.js"></script>
   <script src="{{ asset('js/realtime.js') }}"></script>
   <script>
+
+    $('body').scrollspy({ target: '#segment-list' })
+
     //timer part
     //{
       var current = {
