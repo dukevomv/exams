@@ -9,6 +9,9 @@
             <input type="checkbox" class="task-value" data-key="correct" data-value-prop="checked" id="task-{{$task->id}}-choice-{{$choice->id}}" @if($choice->selected) checked @endif class="autosave-field choice-correct set-unique-val">
             <span>{{$choice->description}}</span>
           </label>
+          @if($choice->selected)
+            @include('includes.preview.segments.task_points', ['value' =>round($task->points/count($task->cmc),2),'correct' => ($choice->correct == 1)])
+          @endif
         </div>
       @endforeach
     </div>
