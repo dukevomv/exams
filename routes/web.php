@@ -71,6 +71,8 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 
 			Route::post('{id}/start', 'TestController@start');
 			Route::post('{id}/finish', 'TestController@finish');
+
+            Route::get('{id}/users/{userId}', 'TestController@userPreview');
 		});
 
 		//students

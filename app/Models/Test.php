@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use App\Models\User;
 use App\Models\Lesson;
 use App\Models\Segments\Segment;
+use Illuminate\Database\Eloquent\Model;
 use Auth;
 use Carbon\Carbon;
 
@@ -27,6 +26,22 @@ class Test extends Model
     return $this->belongsTo(Lesson::class);
   }
 
+    /**
+     * @return $this
+     */
+    public function calculatePoints(){
+        for($i=0;$i<count($this->segments->tasks);$i++){
+            $this->segments->tasks[$i]->calculatePoints();
+        }
+        return $this;
+    }
+
+    public function scopeWithSegmentTaskAnswers($query,$correct = false)
+    {
+        return $query->with(['segments' =>function($q) use($correct){
+            $q->withTaskAnswers($correct);
+        }]);
+    }
   public function segments() {
     return $this->belongsToMany(Segment::class)->orderBy('position','asc')->withTimestamps();
   }
@@ -34,17 +49,30 @@ class Test extends Model
   public function users() {
     return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status');
   }
+    public function user() {
+        return $this->getUserById(Auth::id());
+    }
 
-  public function mergeAnswersToTest(){
-      if(count($this->user) == 0)
+    public function getUserById($userId) {
+        return $this->belongsToMany(User::class)->where('user_id',$userId)->withTimestamps()->withPivot('status','answers','answers_draft','answered_draft_at','answered_at','grade')->using('App\Models\TestUser');
+    }
+
+    public function getUser($userId) {
+        return $this->getUserById($userId)->first();
+    }
+
+    public function mergeMyAnswersToTest(){
+        return $this->mergeUserAnswersToTest(Auth::id());
+    }
+
+  public function mergeUserAnswersToTest($id) {
+      $user = $this->getUser($id);
+      if(is_null($user))
           return $this;
       $field = 'answers';
       $this->draft = false;
-      if($this->user[0]->pivot->answered_at < $this->user[0]->pivot->answered_draft_at){
-          $field .= '_draft';
-          $this->draft = true;
-      }
-      $answers = $this->user[0]->pivot->{$field};
+
+      $answers = $user->pivot->{$field};
       if($answers) {
           for ($s = 0; $s < count($this->segments); $s++) {
               for ($t = 0; $t < count($this->segments[$s]->tasks); $t++) {
@@ -75,10 +103,7 @@ class Test extends Model
 
       return $this;
   }
-  
-  public function user() {
-    return $this->belongsToMany(User::class)->where('user_id',Auth::id())->withTimestamps()->withPivot('status','answers','answers_draft','answered_draft_at','answered_at','grade')->using('App\Models\TestUser');
-  }
+
 
   public function started_by() {
     return $this->belongsTo(User::class,'started_by_user');

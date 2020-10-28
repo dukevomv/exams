@@ -1,0 +1,1 @@
+<span class="pull-right label @if($correct) label-success @else label-danger @endif">{{$value}}</span>

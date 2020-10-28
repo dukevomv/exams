@@ -93,4 +93,20 @@ class TestController extends Controller
 		else
 			return redirect('tests/'.$id);
 	}
+
+    public function userPreview($id,$userId, Request $request) {
+        $test = Test::where('id',$id)->with('users')->withSegmentTaskAnswers()->first();
+
+        $test->mergeUserAnswersToTest($userId);
+        //$test->calculatePoints();
+//                    ->whereHas('user', function($q) use($userId){
+//            $q->where('users.id',$userId);
+//        })
+//        if(is_null($test))
+//            return back()->with(['error'=>'You can see this test.']);
+
+        return view('tests.user_preview',[
+            'test' => $test,
+        ]);
+    }
 }
