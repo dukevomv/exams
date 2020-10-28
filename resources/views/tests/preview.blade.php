@@ -12,6 +12,9 @@
   #test-student-segments{
     position:relative;
   }
+  .main-panel{
+    margin-top:80px;
+  }
 </style>
 @endsection
 
@@ -88,7 +91,7 @@
           @endif
         </div>
         
-        <div class="main col-xs-8 pull-right">
+        <div class="main col-xs-8 pull-right main-panel">
           <!-- started -->
           @if (Auth::user()->role == 'student' && $test->status == 'started'  && $timer['actual_time'])  
             <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0" >
@@ -217,9 +220,11 @@
       switch(action){
         case 'disable':
           button.prop('disabled',true);
+          button.addClass('btn-default');
           break;
         case 'enable':
           button.prop('disabled',false);
+          button.removeClass('btn-default');
           break;
         default:
           //code

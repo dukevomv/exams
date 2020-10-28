@@ -30,3 +30,22 @@
     @endforeach
   </div>
 </div>
+
+<script>
+//https://jqueryui.com/droppable/
+  function ReorderSegmentTasks(){
+    $("#segment-body .task-wrap").each(function(index) {
+      $(this).find('.order-wrap .order-value').text(index+1)
+    })
+    $(document).find(".task-wrap .panel-body .task-list").sortable({
+      appendTo: document.body,
+      cursor: "move",
+      items: "> .task-choice",
+      placeholder: "choice-placeholder",
+      opacity: 0.5,
+      handle: '.choice-handle',
+      update: function( event, ui ) {}
+    });
+  }
+
+</script>
