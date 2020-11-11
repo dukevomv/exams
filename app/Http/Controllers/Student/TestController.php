@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
+use App\Services\TestServiceInterface;
 use Illuminate\Http\Request;
 
 use App\Models\Segments\Segment;
@@ -15,6 +16,12 @@ use Auth;
 
 class TestController extends Controller
 {
+    protected $service;
+    public function __construct(TestServiceInterface $service)
+    {
+        $this->service = $service;
+    }
+
 	public function register($id = null) {
 		$user_id = Auth::id();
 		$test = Test::where('id',$id)

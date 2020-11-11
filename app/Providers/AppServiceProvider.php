@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\TestService;
+use App\Services\TestServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 use Kreait\Firebase\Firebase;
@@ -26,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+
+        $this->app->bind(TestServiceInterface::class, TestService::class);
+
         $this->app->singleton(Firebase::class,function($app){
             $config = new Configuration();
             $config->setAuthConfigFile(env('FIREBASE_AUTH_FILE'));

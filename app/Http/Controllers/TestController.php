@@ -1,41 +1,40 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Controllers\Controller;
+use App\Enums\General;
+use App\Services\TestServiceInterface;
 use Illuminate\Http\Request;
-
-use App\Models\Segments\Segment;
 use App\Models\Lesson;
 use App\Models\Test;
-
 use Carbon\Carbon;
 use Log;
 use Auth;
 
 class TestController extends Controller
 {
+    protected $service;
+
+    public function __construct(TestServiceInterface $service) {
+        $this->service = $service;
+    }
+
 	public function index(Request $request) {
-		$lessons 	= Lesson::approved()->get();
-		$tests = Test::withCount('segments')->whereIn('lesson_id',$lessons->pluck('id')->all());
+		$lessons = Lesson::approved()->get();
+		$filters = $request->only(['search','lesson']);
+		$filters['paginate'] = General::DEFAULT_PAGINATION;
 
-		if($request->input('lesson','') != '')
-			$tests->where('lesson_id',$request->lesson);
-		
-		if($request->input('search','') != '')
-			$tests->search($request->search);
-
-		if(Auth::user()->role == 'student')
-			$tests = $tests->where('status','!=','draft');
-			
-		$tests = $tests->paginate(10);
-		return view('tests.index',['tests'=>$tests,'lessons'=>$lessons]);
+		return view('tests.index',[
+		    'tests' => $this->service->get($filters),
+            'lessons' => $lessons
+        ]);
 	}
 
 	public function preview($id = null, Request $request) {
-		$lessons = Lesson::approved()->get()->pluck('id')->all();
-		$test = Test::with('segments.tasks','users','user')->where('id',$id)->whereIn('lesson_id',$lessons)->first();
-
+		$test = $this->service->fetchById($id);
         $test->mergeMyAnswersToTest();
+
+        //todo
+        //$test = $this->service->calculateTimer($id);
 		$seconds_gap = 30;
 		$timer = [
 			'running' => false,

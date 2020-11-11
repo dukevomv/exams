@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 
-use App\Models\Segments\Segment;
+use App\Services\TestServiceInterface;
 use App\Models\Lesson;
 use App\Models\Test;
 
@@ -14,6 +14,12 @@ use Log;
 
 class TestController extends Controller
 {
+    protected $service;
+    public function __construct(TestServiceInterface $service)
+    {
+        $this->service = $service;
+    }
+
 	public function updateView($id = null, Request $request) {
 		$lessons = Lesson::approved()->get();
 		$test = Test::where('id',$id)->with(['segments'=>function($q){
@@ -95,15 +101,9 @@ class TestController extends Controller
 	}
 
     public function userPreview($id,$userId, Request $request) {
-        $test = Test::where('id',$id)->with('users')->withSegmentTaskAnswers()->first();
-
-        $test->mergeUserAnswersToTest($userId);
-        //$test->calculatePoints();
-//                    ->whereHas('user', function($q) use($userId){
-//            $q->where('users.id',$userId);
-//        })
-//        if(is_null($test))
-//            return back()->with(['error'=>'You can see this test.']);
+        //$test = Test::where('id',$id)->with('users')->withSegmentTaskAnswers()->first();
+        $test = $this->service->fetchById($id);
+        $test = $this->service->calculateUserPoints($test,$userId);
 
         return view('tests.user_preview',[
             'test' => $test,
