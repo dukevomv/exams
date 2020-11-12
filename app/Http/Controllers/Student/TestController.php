@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Student;
+
 use App\Http\Controllers\Controller;
 use App\Services\TestServiceInterface;
 use Illuminate\Http\Request;
@@ -13,65 +14,69 @@ use Carbon\Carbon;
 use Log;
 use Auth;
 
+class TestController extends Controller {
 
-class TestController extends Controller
-{
     protected $service;
-    public function __construct(TestServiceInterface $service)
-    {
+
+    public function __construct(TestServiceInterface $service) {
         $this->service = $service;
     }
 
-	public function register($id = null) {
-		$user_id = Auth::id();
-		$test = Test::where('id',$id)
-						->where('status','published')
-						->with('users')
-						->first();
-						
-		if(is_null($test))
-			return back()->with(['error'=>'You can not register to this test.']);
-		if(!$test->can_register)
-			return back()->with(['error'=>'You can not register to this test yet.']);
-		if($test->users->contains($user_id))
-			return back()->with(['error'=>'Already registered to this test.']);
-			
-		$test->register();
-		return redirect('tests/'.$id)->with(['success'=>'Registered to this test.']);
-	}
+    public function register($id = null) {
+        $user_id = Auth::id();
+        $test = Test::where('id', $id)
+                    ->where('status', 'published')
+                    ->with('users')
+                    ->first();
 
-	public function leave($id = null) {
-		$user = Auth::user();
-		$test = Test::where('id',$id)
-						->where('status','published')
-						->whereHas('users',function($q) use ($user){
-							$q->where('user_id',$user->id)->where('status','registered');
-						})->first();
-		
-		if(is_null($test))
-			return back()->with(['error'=>'Cannot leave from this test.']);
-			
-		$test->leave();
-		return redirect('tests/'.$id)->with(['success'=>'Left the test.']);
-	}
-	
-	public function submit(Request $request, $id = null) {
-		$this->validate($request, [
-	      'answers' => 'required|array',
-	      'answers.*.id' => 'required',
-	      'answers.*.type' => 'required|string',
-          'final' => 'required|integer|in:0,1'
-	    ]);
+        if (is_null($test)) {
+            return back()->with(['error' => 'You can not register to this test.']);
+        }
+        if (!$test->can_register) {
+            return back()->with(['error' => 'You can not register to this test yet.']);
+        }
+        if ($test->users->contains($user_id)) {
+            return back()->with(['error' => 'Already registered to this test.']);
+        }
 
-		$test = Test::where('id',$id)
-						->where('status','started') //TODO this for tests that just ended wont work ()
-						->with('users')
-						->first();
-		if(is_null($test))
-			return back()->with(['error'=>'You can not submit to this test.']);
+        $test->register();
+        return redirect('tests/' . $id)->with(['success' => 'Registered to this test.']);
+    }
 
-		$test->saveStudentsAnswers(Auth::id(),$request->answers,$request->final == 1);
+    public function leave($id = null) {
+        $user = Auth::user();
+        $test = Test::where('id', $id)
+                    ->where('status', 'published')
+                    ->whereHas('users', function ($q) use ($user) {
+                        $q->where('user_id', $user->id)->where('status', 'registered');
+                    })->first();
 
-		return redirect('tests/'.$id);
-	}
+        if (is_null($test)) {
+            return back()->with(['error' => 'Cannot leave from this test.']);
+        }
+
+        $test->leave();
+        return redirect('tests/' . $id)->with(['success' => 'Left the test.']);
+    }
+
+    public function submit(Request $request, $id = null) {
+        $this->validate($request, [
+            'answers'        => 'required|array',
+            'answers.*.id'   => 'required',
+            'answers.*.type' => 'required|string',
+            'final'          => 'required|integer|in:0,1',
+        ]);
+
+        $test = Test::where('id', $id)
+                    ->where('status', 'started') //TODO this for tests that just ended wont work ()
+                    ->with('users')
+                    ->first();
+        if (is_null($test)) {
+            return back()->with(['error' => 'You can not submit to this test.']);
+        }
+
+        $test->saveStudentsAnswers(Auth::id(), $request->answers, $request->final == 1);
+
+        return redirect('tests/' . $id);
+    }
 }
