@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TaskType;
 use App\Enums\TestStatus;
 use App\Models\Segments\Segment;
 use App\Traits\Searchable;
@@ -79,8 +80,8 @@ class Test extends Model {
                     foreach ($answers as $answer) {
                         if ($this->segments[$s]->tasks[$t]->id == $answer['id']) {
                             switch ($this->segments[$s]->tasks[$t]->type) {
-                                case 'cmc':
-                                case 'rmc':
+                                case TaskType::CMC:
+                                case TaskType::RMC:
                                     for ($c = 0; $c < count($this->segments[$s]->tasks[$t]->{$answer['type']}); $c++) {
                                         foreach ($answer['data'] as $answeredChoice) {
                                             if ($answeredChoice['id'] == $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->id) {
@@ -89,7 +90,7 @@ class Test extends Model {
                                         }
                                     }
                                     break;
-                                case 'free_text':
+                                case TaskType::FREE_TEXT:
                                     $this->segments[$s]->tasks[$t]->answer = $answer['data'];
                                     break;
                                 default:

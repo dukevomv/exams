@@ -2,6 +2,7 @@
 
 namespace App\Models\Segments;
 
+use App\Enums\TaskType;
 use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model {
@@ -41,6 +42,6 @@ class Task extends Model {
     }
 
     public function scopeAnswers($query) {
-        return $query->with(['rmc', 'cmc', 'free_text', 'correspondence']);
+        return $query->with([TaskType::RMC,TaskType::CMC,TaskType::FREE_TEXT,TaskType::CORRESPONDENCE]);
     }
 }

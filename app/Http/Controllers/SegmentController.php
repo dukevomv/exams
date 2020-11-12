@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Enums\TaskType;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -98,11 +99,11 @@ class SegmentController extends Controller
 
 	private function fillTaskDetails($task,$task_data){
 		$task_type_keys = [
-			'rmc' => ['description','points','correct'],
-			'cmc' => ['description','points','correct'],
-			'free_text' => ['description'],
-			'correspondence' => ['side_a','side_b'],
-			'code' => []//todo fix this as task
+            TaskType::RMC => ['description','points','correct'],
+            TaskType::CMC => ['description','points','correct'],
+            TaskType::FREE_TEXT => ['description'],
+            TaskType::CORRESPONDENCE => ['side_a','side_b'],
+            TaskType::CODE => []//todo fix this as task
 		];
 		$details = [];
 		foreach($task_data as $option){

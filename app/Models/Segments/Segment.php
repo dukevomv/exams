@@ -2,10 +2,10 @@
 
 namespace App\Models\Segments;
 
+use App\Enums\TaskType;
 use App\Models\Lesson;
 use App\Models\Test;
 use App\Traits\Searchable;
-use Illuminate\Database\Eloquent\Model;
 
 class Segment extends Model {
 
@@ -29,9 +29,9 @@ class Segment extends Model {
     public function scopeWithTaskAnswers($query, $correct = false) {
         return $query->with(['tasks' => function ($q) use ($correct) {
             if ($correct) {
-                $withs = ['rmc_full', 'cmc_full', 'correspondence_full'];
+                $withs = [TaskType::RMC.'_full', TaskType::CMC.'_full', TaskType::CORRESPONDENCE.'_full'];
             } else {
-                $withs = ['rmc', 'cmc', 'correspondence'];
+                $withs = [TaskType::RMC, TaskType::CMC, TaskType::CORRESPONDENCE];
             }
             $q->with($withs)->orderBy('position');
         },
