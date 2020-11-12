@@ -25,9 +25,9 @@ class TestTimerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testTimerOnPublishedIsFreezed() {}
-    public function testTimerStartedInPreperationSeconds() {}
-    public function testTimerStartedSubstractsFromDuration() {}
-    public function testTimerFinishedInPreperationSeconds() {}
-    public function testTimerFinishedIsFreezed() {}
+    public function testTimerOnPublishedIsFrozen() {}
+    public function testTimerStartedInPreparationSeconds() {}
+    public function testTimerStartedSubtractsFromDuration() {}
+    public function testTimerFinishedInPreparationSeconds() {}
+    public function testTimerFinishedIsFrozen() {}
 }
