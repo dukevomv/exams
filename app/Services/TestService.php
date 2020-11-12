@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\TestStatus;
 use App\Enums\UserRole;
 use App\Models\Lesson;
 use App\Models\Test;
@@ -33,7 +34,7 @@ class TestService implements TestServiceInterface {
 
         switch (Auth::user()->role) {
             case UserRole::STUDENT:
-                $tests->where('status', '!=', 'draft');
+                $tests->where('status', '!=', TestStatus::DRAFT);
                 break;
             default:
                 break;
@@ -63,7 +64,7 @@ class TestService implements TestServiceInterface {
 
         $now = Carbon::now();
         switch ($test->status) {
-            case 'started':
+            case TestStatus::STARTED:
                 $timer['running'] = true;
                 $actually_started = Carbon::parse($test->started_at);
                 $button_pressed = $actually_started->copy()->subSeconds($seconds_gap);
@@ -80,7 +81,7 @@ class TestService implements TestServiceInterface {
                     $timer['remaining_seconds'] = $now->diffInSeconds($actually_started);
                 }
                 break;
-            case 'finished':
+            case TestStatus::FINISHED:
                 $timer['running'] = true;
                 $actually_finished = Carbon::parse($test->finished_at);
                 $button_pressed = $actually_finished->copy()->subSeconds($seconds_gap);
@@ -93,8 +94,6 @@ class TestService implements TestServiceInterface {
                     $timer['actual_time'] = false;
                 }
                 break;
-            case 'published':
-            case 'graded':
             default:
                 // code...
                 break;

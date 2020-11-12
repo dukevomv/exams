@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\TestStatus;
 use App\Http\Controllers\Controller;
-use App\Services\TestServiceInterface;
-use Illuminate\Http\Request;
-
-use App\Models\Segments\Segment;
-use App\Models\Lesson;
 use App\Models\Test;
-
-use Carbon\Carbon;
-use Log;
+use App\Services\TestServiceInterface;
 use Auth;
+use Illuminate\Http\Request;
+use Log;
 
 class TestController extends Controller {
 
@@ -25,7 +21,7 @@ class TestController extends Controller {
     public function register($id = null) {
         $user_id = Auth::id();
         $test = Test::where('id', $id)
-                    ->where('status', 'published')
+                    ->where('status', TestStatus::PUBLISHED)
                     ->with('users')
                     ->first();
 
@@ -46,7 +42,7 @@ class TestController extends Controller {
     public function leave($id = null) {
         $user = Auth::user();
         $test = Test::where('id', $id)
-                    ->where('status', 'published')
+                    ->where('status', TestStatus::PUBLISHED)
                     ->whereHas('users', function ($q) use ($user) {
                         $q->where('user_id', $user->id)->where('status', 'registered');
                     })->first();
@@ -68,7 +64,7 @@ class TestController extends Controller {
         ]);
 
         $test = Test::where('id', $id)
-                    ->where('status', 'started') //TODO this for tests that just ended wont work ()
+                    ->where('status', TestStatus::STARTED) //TODO this for tests that just ended wont work ()
                     ->with('users')
                     ->first();
         if (is_null($test)) {

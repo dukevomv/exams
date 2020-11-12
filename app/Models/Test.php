@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TestStatus;
 use App\Models\Segments\Segment;
 use App\Traits\Searchable;
 use Auth;
@@ -62,6 +63,7 @@ class Test extends Model {
         return $this->mergeUserAnswersToTest(Auth::id());
     }
 
+    //todo make this a TestService method
     public function mergeUserAnswersToTest($id) {
         $user = $this->getUser($id);
         if (is_null($user)) {
@@ -169,7 +171,7 @@ class Test extends Model {
     }
 
     public function start() {
-        $this->status = 'started';
+        $this->status = TestStatus::STARTED;
         $this->started_at = Carbon::now()->addSeconds(30);
         $this->started_by_user = Auth::id();
 
@@ -184,7 +186,7 @@ class Test extends Model {
     }
 
     public function finish() {
-        $this->status = 'finished';
+        $this->status = TestStatus::FINISHED;
         $this->finished_at = Carbon::now()->addSeconds(30);
         $this->finished_by_user = Auth::id();
 
