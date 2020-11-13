@@ -2,9 +2,7 @@
 
 namespace App\Models\Segments;
 
-use Illuminate\Database\Eloquent\Model;
-
-class AnswerCmc extends Model {
+class AnswerCmc extends HiddenAnswer {
 
     protected $table    = 'answers_cmc';
     public    $fillable = ['description', 'correct'];

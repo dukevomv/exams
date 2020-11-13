@@ -6,6 +6,7 @@ use App\Enums\TaskType;
 use App\Models\Lesson;
 use App\Models\Test;
 use App\Traits\Searchable;
+use Illuminate\Database\Eloquent\Model;
 
 class Segment extends Model {
 
@@ -26,15 +27,9 @@ class Segment extends Model {
         return $this->hasMany(Task::class)->orderBy('position', 'asc');
     }
 
-    public function scopeWithTaskAnswers($query, $correct = false) {
-        return $query->with(['tasks' => function ($q) use ($correct) {
-            if ($correct) {
-                $withs = [TaskType::RMC.'_full', TaskType::CMC.'_full', TaskType::CORRESPONDENCE.'_full'];
-            } else {
-                $withs = [TaskType::RMC, TaskType::CMC, TaskType::CORRESPONDENCE];
-            }
-            $q->with($withs)->orderBy('position');
-        },
-        ]);
+    public function scopeWithTaskAnswers($query) {
+        return $query->with(['tasks' => function ($q) {
+            $q->with([TaskType::RMC, TaskType::CMC, TaskType::CORRESPONDENCE])->orderBy('position');
+        }]);
     }
 }

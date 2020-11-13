@@ -33,9 +33,9 @@ class Test extends Model {
         return $this;
     }
 
-    public function scopeWithSegmentTaskAnswers($query, $correct = false) {
-        return $query->with(['segments' => function ($q) use ($correct) {
-            $q->withTaskAnswers($correct);
+    public function scopeWithSegmentTaskAnswers($query) {
+        return $query->with(['segments' => function ($q) {
+            $q->withTaskAnswers();
         },
         ]);
     }
