@@ -15,7 +15,7 @@
         {{$b}}
       </a>
     @endforeach
-    <span class="pull-right">{{$task->points}} pts</span>
+    @include('includes.preview.segments.task_points', ['total' => $task->points])
   </div>
   <div class="panel-body">
     @foreach($sides['a'] as $a)

@@ -1,5 +1,5 @@
 <div class="panel panel-default task-wrap relative" data-task-type="cmc" data-task-id="{{$task->id}}">
-  <div class="panel-heading">{{$task->description}} <span class="pull-right">{{$task->points}} pts</span></div>
+  <div class="panel-heading">{{$task->description}} @include('includes.preview.segments.task_points', ['given' =>$task->given_points,'total' => $task->points])</div>
   <div class="panel-body">
     <div class="task-list">
       @foreach($task->cmc as $choice)
@@ -9,9 +9,7 @@
             <input type="checkbox" class="task-value" data-key="correct" data-value-prop="checked" id="task-{{$task->id}}-choice-{{$choice->id}}" @if($choice->selected) checked @endif class="autosave-field choice-correct set-unique-val">
             <span>{{$choice->description}}</span>
           </label>
-          @if($choice->selected)
-            @include('includes.preview.segments.task_points', ['value' =>round($task->points/count($task->cmc),2),'correct' => ($choice->correct == 1)])
-          @endif
+          @include('includes.preview.segments.task_answer', ['value' =>$choice->given_points,'correct' => ($choice->correct == $choice->selected)])
         </div>
       @endforeach
     </div>
