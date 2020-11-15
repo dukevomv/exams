@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\TaskType;
 use App\Enums\TestStatus;
 use App\Enums\UserRole;
 use App\Models\Lesson;
@@ -44,12 +45,70 @@ class TestService implements TestServiceInterface {
     }
 
     public function fetchById($id) {
-        return Test::with('segments.tasks', 'users', 'user')->where('id', $id)->whereIn('lesson_id', $this->getApprovedLessonIds())->firstOrFail();
+        return Test::with('segments.tasks', 'users', 'user')
+                   ->where('id', $id)
+                   ->whereIn('lesson_id', $this->getApprovedLessonIds())
+                   ->withSegmentTaskAnswers()
+                   ->firstOrFail();
     }
+
 
     public function calculateUserPoints(Test $test, $userId) {
         $test->mergeUserAnswersToTest($userId);
-        //todo calculate points based on correct answers and user's answers
+
+        for ($s = 0; $s < count($test->segments); $s++) {
+            for ($t = 0; $t < count($test->segments[$s]->tasks); $t++) {
+                $type = $test->segments[$s]->tasks[$t]->type;
+                $points = $test->segments[$s]->tasks[$t]->points;
+                $given_points = 0;
+                switch ($type) {
+                    case TaskType::RMC:
+                        //FULL points are given if correct option is selected
+                        //0 points are given if any wrong option is selected
+                        for ($o = 0; $o < count($test->segments[$s]->tasks[$t]->{$type}); $o++) {
+                            $isCorrect = $test->segments[$s]->tasks[$t]->{$type}[$o]->correct == 1;
+                            $isSelected = $test->segments[$s]->tasks[$t]->{$type}[$o]->selected == 1;
+                            if ($isCorrect && $isSelected) {
+                                $given_points = $points;
+                                break;
+                            }
+                        }
+                        break;
+                    case TaskType::CMC:
+                        //FULL points are given if only all correct options are selected
+                        //0 points are given if all options are selected
+                        //formula = ( correct_selected_options * (points/total_correct_options) ) - ( wrong_selected_options * (points/total_wrong_options) )
+                        //with no negative results
+                        //this happens in order to 'punish' those who select all options regardless of correct/wrong
+
+                        $count = count($test->segments[$s]->tasks[$t]->{$type});
+                        $correctCount = $test->segments[$s]->tasks[$t]->{$type}->filter(function ($value, $key) {
+                                return $value->correct == 1;
+                            })->count();
+                        $wrongCount = $count - $correctCount;
+
+                        $precision = 100;
+
+                        //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
+                        $correctPoints = ($correctCount == 0 ? 0 : round(+$precision * ($points/$correctCount))); //Positive multiplied with precision and rounded
+                        $wrongPoints   = (  $wrongCount == 0 ? 0 : round(-$precision * ($points/$wrongCount)));   //Negative in order to subtract from positive points
+
+                        for ($o = 0; $o < count($test->segments[$s]->tasks[$t]->{$type}); $o++) {
+                            $isCorrect = $test->segments[$s]->tasks[$t]->{$type}[$o]->correct == 1;
+                            $isSelected = $test->segments[$s]->tasks[$t]->{$type}[$o]->selected == 1;
+                            if ($isSelected) {
+                                $option_points = $isCorrect ? $correctPoints : $wrongPoints;
+                                $given_points += $option_points;
+                                $test->segments[$s]->tasks[$t]->{$type}[$o]->given_points = $option_points/$precision;
+                            }
+                        }
+                        $given_points = $given_points/$precision;
+                        break;
+                }
+                //Making sure no negative grading will be applied to the task
+                $test->segments[$s]->tasks[$t]->given_points = $given_points < 0 ? 0 : $given_points;
+            }
+        }
         return $test;
     }
 
