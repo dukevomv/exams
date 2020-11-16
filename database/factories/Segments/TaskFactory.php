@@ -18,10 +18,9 @@ $factory->define(App\Models\Segments\Task::class, function (Faker\Generator $fak
             return factory(\App\Models\Segments\Segment::class)->create()->id;
         },
         'type' => $faker->randomElement(App\Enums\TaskType::values()),
-        'title' => $faker->name,
         'description' => $faker->text,
         'position' => 0,
-        'points' => $faker->randomDigit,
+        'points' => $faker->numberBetween(1,50),
     ];
 });
 
@@ -32,3 +31,23 @@ foreach(App\Enums\TaskType::values() as $type){
         ];
     });
 }
+
+$factory->define(App\Models\Segments\AnswerCmc::class, function (Faker\Generator $faker) {
+    return [
+        'task_id' => function () {
+            return factory(\App\Models\Segments\Task::class)->create()->id;
+        },
+        'description' => $faker->text,
+        'correct' => $faker->boolean,
+    ];
+});
+
+$factory->define(App\Models\Segments\AnswerRmc::class, function (Faker\Generator $faker) {
+    return [
+        'task_id' => function () {
+            return factory(\App\Models\Segments\Task::class)->create()->id;
+        },
+        'description' => $faker->text,
+        'correct' => $faker->boolean,
+    ];
+});
