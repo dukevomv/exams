@@ -33,12 +33,11 @@ class TestController extends Controller {
 
     public function preview($id, Request $request) {
         $test = $this->service->fetchById($id);
-        $test->mergeMyAnswersToTest();
 
         $timer = $this->service->calculateTimer($test);
 
         return view('tests.preview', [
-            'test'  => $test,
+            'test'  => $this->service->prepareForUser($test),
             'timer' => $timer,
             'now'   => Carbon::now(),
         ]);

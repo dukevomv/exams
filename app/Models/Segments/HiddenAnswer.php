@@ -11,7 +11,8 @@ class HiddenAnswer extends Model {
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
-        if(Auth::user()->role != UserRole::STUDENT){
+        $user = Auth::user();
+        if(!is_null($user) && $user->role != UserRole::STUDENT){
             $this->makeVisible($this->hidden);
         }
     }

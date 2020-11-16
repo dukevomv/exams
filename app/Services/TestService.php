@@ -163,4 +163,15 @@ class TestService implements TestServiceInterface {
     private function getApprovedLessonIds() {
         return Lesson::approved()->get()->pluck('id')->all();
     }
+
+    public function prepareForUser(Test $test){
+        switch (Auth::user()->role){
+            case UserRole::STUDENT:
+                $test = $test->mergeMyAnswersToTest();
+                break;
+        }
+        //todo make this a resource since you have hidden fields and you dont want them in your results
+        //hidden is returned in payload but it needs to be serialized in order not to be included ->toArray()
+        return $test;
+    }
 }
