@@ -16,12 +16,14 @@ class TestBuilderTest extends TestCase {
 
     public function testBuilderCreatesSegmentWithTasksAndOptions() {
         $test = TestBuilder::instance()->withSegmentTasks([
-            TaskType::CMC => [
+            [
+                'type'        => TaskType::CMC,
                 'points'      => 3,
                 'description' => 'Odd numbers?',
                 'options'     => 4,
             ],
-            TaskType::RMC => [
+            [
+                'type'        => TaskType::RMC,
                 'points'      => 13,
                 'description' => 'Choose numbers',
                 'options'     => 5,
@@ -45,23 +47,27 @@ class TestBuilderTest extends TestCase {
 
     public function testBuilderCreateMultipleSegments() {
         $test = TestBuilder::instance()->withSegmentTasks([
-            TaskType::CMC => [
+            [
+                'type'        => TaskType::CMC,
                 'points'      => 3,
                 'description' => 'Odd numbers?',
                 'options'     => 4,
             ],
-            TaskType::RMC => [
+            [
+                'type'        => TaskType::RMC,
                 'points'      => 13,
                 'description' => 'Choose numbers',
                 'options'     => 5,
             ],
         ])->withSegmentTasks([
-            TaskType::CMC => [
+            [
+                'type'        => TaskType::CMC,
                 'points'      => 4,
                 'description' => 'Second Odd numbers?',
                 'options'     => 5,
             ],
-            TaskType::RMC => [
+            [
+                'type'        => TaskType::RMC,
                 'points'      => 14,
                 'description' => 'Second Choose numbers',
                 'options'     => 6,

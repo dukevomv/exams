@@ -82,8 +82,8 @@ class TestBuilder extends ModelBuilder {
         $position = 1;
         foreach ($this->segments as $seg) {
             $builder = SegmentBuilder::instance()->inLesson($test->lesson_id);
-            foreach ($seg as $type => $task) {
-                $builder->withTask($type, $task);
+            foreach ($seg as $task) {
+                $builder->withTask($task['type'],$task);
             }
             $position++;
             $ordered_segments[$builder->build()->id] = ['position' => $position];
