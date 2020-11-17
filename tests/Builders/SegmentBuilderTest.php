@@ -107,4 +107,26 @@ class SegmentBuilderTest extends TestCase {
             $this->assertDatabaseHas('answers_cmc', array_merge($option, ['task_id' => $task->id]));
         }
     }
+
+    public function testBuilderAppendsTaskIdsOnCreation() {
+        $taskData = [
+            'points'      => 4,
+            'description' => 'Test desc',
+            'options'     => [
+                ['description' => 'abc', 'correct' => false],
+                ['description' => '123', 'correct' => true],
+                ['description' => 'ABC', 'correct' => false],
+            ],
+        ];
+
+        $builder = SegmentBuilder::instance()->withCMCTask($taskData);
+        $builder->build();
+
+        foreach ($builder->getTasks() as $t) {
+            $this->assertArrayHasKey('id', $t);
+            foreach ($t['options'] as $o) {
+                $this->assertArrayHasKey('id', $t);
+            }
+        }
+    }
 }
