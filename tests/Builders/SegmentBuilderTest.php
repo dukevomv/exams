@@ -75,13 +75,14 @@ class SegmentBuilderTest extends TestCase {
         $this->assertDatabaseHas('segments', ['id' => $segment->id]);
         $this->assertEquals(1, $segment->tasks()->count());
         $task = $segment->tasks()->get()[0];
-        $this->assertDatabaseHas('tasks', array_merge(Arr::only($taskData,['points','description']),['id' => $task->id]));
+        $this->assertDatabaseHas('tasks', array_merge(Arr::only($taskData, ['points', 'description',
+        ]), ['id' => $task->id]));
         $this->assertEquals(5, $task->cmc()->count());
-        foreach($taskData['options'] as $option => $correct){
+        foreach ($taskData['options'] as $option => $correct) {
             $this->assertDatabaseHas('answers_cmc', [
-                'task_id' => $task->id,
+                'task_id'     => $task->id,
                 'description' => $option,
-                'correct' => $correct,
+                'correct'     => $correct,
             ]);
         }
     }
@@ -100,10 +101,10 @@ class SegmentBuilderTest extends TestCase {
         $this->assertDatabaseHas('segments', ['id' => $segment->id]);
         $this->assertEquals(1, $segment->tasks()->count());
         $task = $segment->tasks()->get()[0];
-        $this->assertDatabaseHas('tasks',['id' => $task->id]);
+        $this->assertDatabaseHas('tasks', ['id' => $task->id]);
         $this->assertEquals(3, $task->cmc()->count());
-        foreach($taskData['options'] as $option){
-            $this->assertDatabaseHas('answers_cmc', array_merge($option,['task_id' => $task->id]));
+        foreach ($taskData['options'] as $option) {
+            $this->assertDatabaseHas('answers_cmc', array_merge($option, ['task_id' => $task->id]));
         }
     }
 }

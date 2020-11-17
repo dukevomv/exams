@@ -16,7 +16,7 @@ class SegmentBuilder extends ModelBuilder {
 
     private $tasks = [];
 
-    public function getTasks(){
+    public function getTasks() {
         return $this->tasks;
     }
 
@@ -113,7 +113,7 @@ class SegmentBuilder extends ModelBuilder {
                         $finalOptions = factory($answerClass[$type], $this->faker->numberBetween(2, 10))->create($commons)->toArray();
                     } elseif (is_integer($this->tasks[$t]['options'])) {
                         //if options is a number, create that many options and ensure its more than 1
-                        $amount = (integer) $this->tasks[$t]['options'];
+                        $amount = (integer)$this->tasks[$t]['options'];
                         $amount = ($amount <= 1) ? 2 : $amount;
                         $finalOptions = factory($answerClass[$type], $amount)->create($commons)->toArray();
                     } elseif (count($this->tasks[$t]['options']) > 0) {

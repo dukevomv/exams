@@ -102,11 +102,24 @@ class TestBuilderTest extends TestCase {
         $this->assertEquals(14, $segs[1]->tasks()->get()[1]->points);
     }
 
-    public function testBuilderAddsUserWithDefaultStatus() {}
-    public function testBuilderAddsUserWithRegisteredStatus() {}
-    public function testBuilderAddsUserWithLeftStatus() {}
-    public function testBuilderAddsMultipleUsersWithStatus() {}
-    public function testBuilderAddsUserAnswersInPivot() {}
-    public function testBuilderAddsMultipleUserAnswersInPivot() {}
-    public function testBuilderAddsMultipleSegmentsWithUserAnswers() {}
+    public function testBuilderAddsUserWithDefaultStatus() {
+    }
+
+    public function testBuilderAddsUserWithRegisteredStatus() {
+    }
+
+    public function testBuilderAddsUserWithLeftStatus() {
+    }
+
+    public function testBuilderAddsMultipleUsersWithStatus() {
+    }
+
+    public function testBuilderAddsUserAnswersInPivot() {
+    }
+
+    public function testBuilderAddsMultipleUserAnswersInPivot() {
+    }
+
+    public function testBuilderAddsMultipleSegmentsWithUserAnswers() {
+    }
 }
