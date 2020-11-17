@@ -64,6 +64,38 @@ class TestBuilder extends ModelBuilder {
         return $this;
     }
 
+    /**
+     * Adds segment with tasks on test creation
+     * Receives array of tasks containing their details in associative array.
+     *
+     * eg. [
+     *       [
+     *           'type'         => TaskType::CMC,
+     *           'points'       => 5,
+     *           'description'  => 'only animals',
+     *           'options'      => [                //Options can also be an integer or associative array
+     *               'car'      => false,
+     *               'dog'      => true,
+     *               'cat'      => true,
+     *               'listen'   => false,
+     *               'foot'     => false,
+     *           ],
+     *           'answers'      => [
+     *             $studentId => [                  //Will add user if not exists and submits answers below
+     *               'car'      => true,
+     *               'dog'      => true,
+     *               'cat'      => true,
+     *               'listen'   => true,
+     *               'foot'     => true,
+     *             ],
+     *           ],
+     *       ],
+     *   ]
+     *
+     * @param array $tasks
+     *
+     * @return $this
+     */
     public function withSegmentTasks($tasks = []) {
         $this->segments[] = $tasks;
         return $this;
@@ -71,6 +103,7 @@ class TestBuilder extends ModelBuilder {
 
     /**
      * Adds user with status on test.
+     *
      * @param $userId
      * @param string $status Defaults to 'registered'
      *
