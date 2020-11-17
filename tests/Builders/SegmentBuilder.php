@@ -16,6 +16,10 @@ class SegmentBuilder extends ModelBuilder {
 
     private $tasks = [];
 
+    public function getTasks(){
+        return $this->tasks;
+    }
+
     /**
      * @param null $type
      * @param array $values
@@ -80,18 +84,19 @@ class SegmentBuilder extends ModelBuilder {
 
     private function buildTasks(Segment $segment) {
         $position = 0;
-        foreach ($this->tasks as $taskData) {
-            $type = $taskData['type'];
+        for ($t = 0; $t < count($this->tasks); $t++) {
+            $type = $this->tasks[$t]['type'];
             $task = factory(Task::class)
                 ->states([$type])
                 ->create(
                     array_merge(
-                        Arr::only($taskData, ['description', 'points']),
+                        Arr::only($this->tasks[$t], ['description', 'points']),
                         [
                             'segment_id' => $segment->id,
                             'position'   => $position,
                         ]
                     ));
+            $this->tasks[$t]['id'] = $task->id;
             $position++;
 
             switch ($type) {
@@ -102,27 +107,31 @@ class SegmentBuilder extends ModelBuilder {
                         TaskType::RMC => AnswerRmc::class,
                     ];
                     $commons = ['task_id' => $task->id];
-                    if (!Arr::has($taskData, 'options')) {
-                        //if options is a number, create that many options
-                        factory($answerClass[$type], $this->faker->numberBetween(1, 10))->create($commons);
-                    } elseif (is_integer($taskData['options'])) {
-                        //if options is a number, create that many options
-                        factory($answerClass[$type], $taskData['options'])->create($commons);
-                    } elseif (count($taskData['options']) > 0) {
+                    $finalOptions = [];
+                    if (!Arr::has($this->tasks[$t], 'options')) {
+                        //if options doesnt exist create random amount of options
+                        $finalOptions = factory($answerClass[$type], $this->faker->numberBetween(2, 10))->create($commons)->toArray();
+                    } elseif (is_integer($this->tasks[$t]['options'])) {
+                        //if options is a number, create that many options and ensure its more than 1
+                        $amount = (integer) $this->tasks[$t]['options'];
+                        $amount = ($amount <= 1) ? 2 : $amount;
+                        $finalOptions = factory($answerClass[$type], $amount)->create($commons)->toArray();
+                    } elseif (count($this->tasks[$t]['options']) > 0) {
                         //if options is an array
-                        foreach ($taskData['options'] as $optionKey => $option) {
+                        foreach ($this->tasks[$t]['options'] as $optionKey => $option) {
                             if (is_integer($optionKey) && (isset($option['description']) || isset($option['correct']))) {
                                 //$optionKey is array with associative array in $option
-                                factory($answerClass[$type])->create(array_merge($commons, $option));
+                                $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, $option))->toArray();
                             } elseif (is_bool($option)) {
                                 //$optionKey is the option description with correct boolean in $option
-                                factory($answerClass[$type])->create(array_merge($commons, [
+                                $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, [
                                     'description' => $optionKey,
                                     'correct'     => $option,
-                                ]));
+                                ]))->toArray();
                             }
                         }
                     }
+                    $this->tasks[$t]['options'] = $finalOptions;
                     break;
                 default:
             }

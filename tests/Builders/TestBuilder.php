@@ -2,10 +2,12 @@
 
 namespace Tests\Builders;
 
+use App\Enums\TaskType;
 use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Models\Test;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Tests\Builders\Traits\AddsLessonId;
 
 /**
@@ -102,15 +104,15 @@ class TestBuilder extends ModelBuilder {
     }
 
     /**
-     * Adds user with status on test.
+     * Adds user on test (pivot).
      *
      * @param $userId
-     * @param string $status Defaults to 'registered'
+     * @param array $pivot Pivot data, Defaults to ['status'=>'registered']
      *
      * @return $this
      */
-    public function withUser($userId, $status = TestUserStatus::REGISTERED) {
-        $this->users[] = ['user_id' => $userId, 'status' => $status];
+    public function withUser($userId, $pivot = ['status' => TestUserStatus::REGISTERED]) {
+        $this->users[$userId] = $pivot;
         return $this;
     }
 
@@ -123,8 +125,9 @@ class TestBuilder extends ModelBuilder {
         $test = factory(Test::class)->create($attrs);
         $this->buildSegments($test);
 
-        //todo  make below subscribed users
-        //$person->departments()->attach(Arr::pluck($this->departments, 'id'));
+        foreach ($this->users as $userId => $pivot) {
+            $test->users()->attach($userId, Arr::only($pivot, ['status', 'answers']));
+        }
 
         return $test;
     }
@@ -133,14 +136,66 @@ class TestBuilder extends ModelBuilder {
         $ordered_segments = [];
         $position = 1;
         foreach ($this->segments as $seg) {
+            $hasAnswers = false;
             $builder = SegmentBuilder::instance()->inLesson($test->lesson_id);
             foreach ($seg as $task) {
                 $builder->withTask($task['type'], $task);
+                if (!$hasAnswers && Arr::has($task, 'answers')) {
+                    $hasAnswers = true;
+                }
             }
             $position++;
-            $ordered_segments[$builder->build()->id] = ['position' => $position];
+            $segment = $builder->build();
+            $ordered_segments[$segment->id] = ['position' => $position];
+            if ($hasAnswers) {
+                //Get Segment tasks with populated Ids by SegmentBuilder
+                $segmentTasks = $builder->getTasks();
+                foreach ($segmentTasks as $task) {
+                    if (Arr::has($task, 'answers')) {
+                        $TaskAnswerData = ['id' => $task['id'], 'type' => $task['type']];
+                        foreach ($task['answers'] as $studentId => $answer) {
+                            switch ($task['type']) {
+                                case TaskType::CMC:
+                                case TaskType::RMC:
+                                    $TaskAnswerData['data'] = [];
+                                    foreach ($task['options'] as $profOption) {
+                                        foreach ($answer as $studentOptionKey => $studentOptionValue) {
+                                            //todo be able to parse associative, only correct answers, different answers payload
+                                            if ($studentOptionKey == $profOption['description']) {
+                                                //when key is the same with option's description
+                                                $TaskAnswerData['data'][] = [
+                                                    'id'      => $profOption['id'],
+                                                    'correct' => $studentOptionValue,
+                                                ];
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case TaskType::CORRESPONDENCE:
+                                case TaskType::FREE_TEXT:
+                                    //todo implement answers for all types
+                                default:
+                            }
+
+                            if (!isset($this->users[$studentId])) {
+                                $this->withUser($studentId);
+                            }
+                            if (!isset($this->users[$studentId]['task_answers'])) {
+                                $this->users[$studentId]['task_answers'] = [];
+                            }
+                            $this->users[$studentId]['task_answers'][] = $TaskAnswerData;
+                        }
+                    }
+                }
+            }
         }
         $test->segments()->sync($ordered_segments);
+        foreach ($this->users as $uid => $payload) {
+            if (Arr::has($payload, 'task_answers')) {
+                $this->users[$uid]['answers'] = json_encode($payload['task_answers']);
+                unset($this->users[$uid]['task_answers']);
+            }
+        }
         return $test;
     }
 }
