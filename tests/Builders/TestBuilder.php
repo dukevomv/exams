@@ -3,15 +3,22 @@
 namespace Tests\Builders;
 
 use App\Enums\TestStatus;
+use App\Enums\TestUserStatus;
 use App\Models\Test;
 use Carbon\Carbon;
 use Tests\Builders\Traits\AddsLessonId;
 
+/**
+ * Class TestBuilder
+ *
+ * @package Tests\Builders
+ */
 class TestBuilder extends ModelBuilder {
 
     use AddsLessonId;
 
     private $segments = [];
+    private $users    = [];
 
     /**
      * @param null $date
@@ -63,6 +70,18 @@ class TestBuilder extends ModelBuilder {
     }
 
     /**
+     * Adds user with status on test.
+     * @param $userId
+     * @param string $status Defaults to 'registered'
+     *
+     * @return $this
+     */
+    public function withUser($userId, $status = TestUserStatus::REGISTERED) {
+        $this->users[] = ['user_id' => $userId, 'status' => $status];
+        return $this;
+    }
+
+    /**
      * @return Test
      */
     public function build() {
@@ -83,7 +102,7 @@ class TestBuilder extends ModelBuilder {
         foreach ($this->segments as $seg) {
             $builder = SegmentBuilder::instance()->inLesson($test->lesson_id);
             foreach ($seg as $task) {
-                $builder->withTask($task['type'],$task);
+                $builder->withTask($task['type'], $task);
             }
             $position++;
             $ordered_segments[$builder->build()->id] = ['position' => $position];
