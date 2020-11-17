@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\TaskType;
 use App\Enums\TestStatus;
+use App\Enums\TestUserStatus;
 use App\Models\Segments\Segment;
 use App\Traits\Searchable;
 use Auth;
@@ -134,7 +135,7 @@ class Test extends Model {
             'registered_at' => Carbon::now()->toDateTimeString(),
         ], 'tests/' . $this->id . '/students/' . $student->id);
 
-        $this->users()->attach(Auth::id(), ['status' => 'registered']);
+        $this->users()->attach(Auth::id(), ['status' => TestUserStatus::REGISTERED]);
     }
 
     public function leave() {
@@ -144,7 +145,7 @@ class Test extends Model {
 
         $firebase->delete('tests/' . $this->id . '/students/' . $student->id);
 
-        $this->users()->updateExistingPivot($student->id, ['status' => 'left']);
+        $this->users()->updateExistingPivot($student->id, ['status' => TestUserStatus::LEFT]);
     }
 
     public function getStudentsAnswers($userID, $final = false) {
