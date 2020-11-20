@@ -75,7 +75,7 @@
 @endsection
 
 @section('scripts')
-<script>  
+<script type="text/javascript">
   $('.approved-toggle input').on('change',function(){
     let input = $(this)
     const value = input.prop('checked')

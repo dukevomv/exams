@@ -3,8 +3,8 @@ const testsURL = baseURL+'/tests/'
 $('body').scrollspy({ target: '#segment-list' })
 
 $('.task-value').on('change',function(){
-  toggleButton($('#test-save'),'enable');
-  toggleButton($('#test-save-draft'),'enable');
+  testUtils.toggleButton($('#save-test'),'enable');
+  testUtils.toggleButton($('#save-draft-test'),'enable');
 })
 
 $('#start-test').on('click',function(e){
@@ -18,7 +18,18 @@ $('#finish-test').on('click',function(e){
   });
 })
 
-function toggleButton(button,action,title=''){
+
+//todo these are not working
+// - saving test and reloading
+// - difference with draft and publish is crooked
+$('#save-test').on('click',function(e){
+  testUtils.saveTest()
+});
+$('#save-draft-test').on('click',function(e){
+  testUtils.saveTest(true)
+});
+
+testUtils.toggleButton = function(button,action,title=''){
   switch(action){
     case 'disable':
       button.prop('disabled',true);
@@ -35,7 +46,7 @@ function toggleButton(button,action,title=''){
     button.text(title);
 }
 
-function saveTest(final=false){
+testUtils.saveTest = function(final= false){
   let answers=[];
 
   $("#test-student-segments .task-wrap").each(function(index) {
@@ -44,11 +55,11 @@ function saveTest(final=false){
   });
 
   $.post(testsURL+testData.test.id+'/'+'submit',{final: final?1:0,answers,_token:CSRF},function() {
-    toggleButton($('#test-save'),'enable','Submit'+(final?'':' (1)'));
-    toggleButton($('#test-save-draft'),'disable');
+    testUtils.toggleButton($('#save-test'),'enable','Submit'+(final?'':' (1)'));
+    testUtils.toggleButton($('#save-draft-test'),'disable');
 
     if(final){
-      toggleButton($('#test-save'),'disable');
+      testUtils.toggleButton($('#save-test'),'disable');
     }
   });
 
@@ -93,7 +104,7 @@ function saveTest(final=false){
         })
         break;
       case "code":
-        //todo: fix this
+        //todo: fix code task type input
         task.data.push({
           id          : element.find('.task-code input').val(),
           description : element.find('.task-code textarea').val()

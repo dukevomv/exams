@@ -90,8 +90,8 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('js/test.js') }}"></script>
-    <script>
+    <script type="text/javascript" src="{{ asset('js/test.js') }}"></script>
+    <script type="text/javascript">
       testData.test = {!! json_encode($test) !!};
     </script>
 @endsection

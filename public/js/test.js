@@ -265,8 +265,8 @@ var testsURL = baseURL + '/tests/';
 $('body').scrollspy({ target: '#segment-list' });
 
 $('.task-value').on('change', function () {
-  toggleButton($('#test-save'), 'enable');
-  toggleButton($('#test-save-draft'), 'enable');
+  testUtils.toggleButton($('#save-test'), 'enable');
+  testUtils.toggleButton($('#save-draft-test'), 'enable');
 });
 
 $('#start-test').on('click', function (e) {
@@ -280,7 +280,17 @@ $('#finish-test').on('click', function (e) {
   });
 });
 
-function toggleButton(button, action) {
+//todo these are not working
+// - saving test and reloading
+// - difference with draft and publish is crooked
+$('#save-test').on('click', function (e) {
+  testUtils.saveTest();
+});
+$('#save-draft-test').on('click', function (e) {
+  testUtils.saveTest(true);
+});
+
+testUtils.toggleButton = function (button, action) {
   var title = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
 
   switch (action) {
@@ -296,9 +306,9 @@ function toggleButton(button, action) {
     //code
   }
   if (title !== '') button.text(title);
-}
+};
 
-function saveTest() {
+testUtils.saveTest = function () {
   var final = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
   var answers = [];
@@ -309,11 +319,11 @@ function saveTest() {
   });
 
   $.post(testsURL + testData.test.id + '/' + 'submit', { final: final ? 1 : 0, answers: answers, _token: CSRF }, function () {
-    toggleButton($('#test-save'), 'enable', 'Submit' + (final ? '' : ' (1)'));
-    toggleButton($('#test-save-draft'), 'disable');
+    testUtils.toggleButton($('#save-test'), 'enable', 'Submit' + (final ? '' : ' (1)'));
+    testUtils.toggleButton($('#save-draft-test'), 'disable');
 
     if (final) {
-      toggleButton($('#test-save'), 'disable');
+      testUtils.toggleButton($('#save-test'), 'disable');
     }
   });
 
@@ -358,7 +368,7 @@ function saveTest() {
         });
         break;
       case "code":
-        //todo: fix this
+        //todo: fix code task type input
         task.data.push({
           id: element.find('.task-code input').val(),
           description: element.find('.task-code textarea').val()
@@ -369,7 +379,7 @@ function saveTest() {
     }
     return task;
   }
-}
+};
 
 /***/ }),
 
@@ -400,7 +410,6 @@ $(".choice-side-b a").click(function (e) {
   var taskAnswersAndElements = getCorrespondenceTaskAnswersAndElements(taskId);
   var taskAnswers = {};
   Object.keys(taskAnswersAndElements).forEach(function (a) {
-    //todo this will also replace the newly added!!!
     if (taskAnswersAndElements[a].value === sideB) {
       taskAnswersAndElements[a].element.val('');
     }

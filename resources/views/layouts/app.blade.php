@@ -15,7 +15,7 @@
     @yield('styles')
 </head>
 <body>
-<script>
+<script type="text/javascript">
   window.CSRF = "{{csrf_token()}}";
   window.baseURL = "{{URL::to('/')}}";
   window.userData = null;
@@ -147,10 +147,7 @@
         </div>
     </div>
 </div>
-<!-- Scripts -->
-<!-- todo the below scripts are at the end for blade views to be loadeded- surely there should be other in init that define basic non-blade required for html to use them on load-->
-
-<script src="{{ asset('js/app.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
 @yield('scripts')
 
 </body>

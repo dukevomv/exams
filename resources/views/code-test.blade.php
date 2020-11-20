@@ -16,7 +16,7 @@
 @endsection
 
 @section('scripts')
-  <script>
+  <script type="text/javascript">
     $('#run').on('click',function(){
       let script = $('#execute').val()
       let results = eval('('+script+')')

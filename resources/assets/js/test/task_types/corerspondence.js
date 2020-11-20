@@ -22,7 +22,6 @@ $(".choice-side-b a").click(function (e) {
   let taskAnswersAndElements = getCorrespondenceTaskAnswersAndElements(taskId);
   let taskAnswers = {};
   Object.keys(taskAnswersAndElements).forEach(a => {
-    //todo this will also replace the newly added!!!
     if (taskAnswersAndElements[a].value === sideB) {
       taskAnswersAndElements[a].element.val('');
     }

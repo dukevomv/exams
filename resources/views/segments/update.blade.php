@@ -227,6 +227,7 @@
       })
       this.tasks = tasks
 
+      //todo the below  seems as a duplicate - ensure it is not
       function GetTaskDetails(element, task_type){
         let task = {
           id          : element.find('.panel-body input.task-id').val().trim() != '' ? element.find('.panel-body input.task-id').val().trim() : null,

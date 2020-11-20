@@ -72,11 +72,11 @@
                                                     </button>
                                                 </form>
                                             @elseif (($test->status == 'started' && $timer['actual_time']) || ($test->status == 'finished' && !$timer['actual_time']))
-                                                <button type="button" onClick="saveTest(true)" class="btn btn-success"
-                                                        id="test-save" @if(!$test->draft) disabled @endif>
+                                                <button type="button" class="btn btn-success"
+                                                        id="save-test" @if(!$test->draft) disabled @endif>
                                                     Submit @if($test->draft) (1) @endif</button>
-                                                <button type="button" onClick="saveTest()"
-                                                        class="btn btn-warning pull-right" id="test-save-draft"
+                                                <button type="button"
+                                                        class="btn btn-warning pull-right" id="save-draft-test"
                                                         disabled>Save as Draft
                                                 </button>
                                             @endif
@@ -146,8 +146,8 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('js/test.js') }}"></script>
-    <script>
+    <script type="text/javascript" src="{{ asset('js/test.js') }}"></script>
+    <script type="text/javascript">
       testData.test = {!! json_encode($test) !!};
       testData.timer = {!! json_encode($timer) !!};
       testData.now = moment('{{$now}}');

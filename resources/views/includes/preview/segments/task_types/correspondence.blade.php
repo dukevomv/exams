@@ -12,7 +12,7 @@
     foreach($sides['a'] as $a){
         $answers[$a] = null;
     }
-    //todo make the answers prefilled
+    //NEXT: todo make the answers prefilled in task values and selections on load
 
 @endphp
 
