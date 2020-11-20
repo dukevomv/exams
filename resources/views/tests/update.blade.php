@@ -1,10 +1,5 @@
 @extends('layouts.app')
 
-@section('styles')
-  <style type="text/css">
-  </style>
-@endsection
-
 @section('content')
   <div class="container">
     <div class="row">
@@ -174,7 +169,6 @@
 @endsection
 
 @section('scripts')
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
   <script type="text/javascript">
     const basic_url = "{{url('/')}}"
     let test_segment_ids = @if($test) {!! json_encode($test->segments->pluck('id')->all()) !!}; @else []; @endif

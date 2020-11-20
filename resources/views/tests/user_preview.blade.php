@@ -1,23 +1,5 @@
 @extends('layouts.app')
 
-@section('styles')
-<style>
-  .test-timer.alarm{
-    color:#c75e71;
-  }
-  .fixed-toolbar{
-    margin-top: 70px;
-    max-width:350px;
-  }
-  #test-student-segments{
-    position:relative;
-  }
-  .main-panel{
-    margin-top:80px;
-  }
-</style>
-@endsection
-
 @section('content')
   <div class="container">
     <div class="test-preview">
@@ -80,7 +62,7 @@
               </div>
             </div>
           </div>
-          
+
           @if (Auth::user()->role == 'student' && $test->status == 'started' && isset($test->user_on_test) && $test->user_on_test->pivot->status == 'registered')
             <form method="POST" action="{{URL::to('tests')}}/{{ $test->id }}/leave" class="confirm-form" data-confirm-action="Leave" data-confirm-title="After leaving you will not be able to register again.">
               <input type="hidden" name="_token" value="{{csrf_token()}}">
@@ -88,15 +70,14 @@
             </form>
           @endif
         </div>
-        
+
         <div class="main col-xs-8 pull-right main-panel">
             <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0" >
               @foreach($test->segments as $key=>$segment)
                 <div class="segment-tasks-wrap" id="list-segment-id-{{$segment->id}}">
                   <h4 class="clearfix">{{$segment->title}}</h4>
                   @foreach($segment->tasks as $task)
-
-                    @include('includes.preview.segments.task_types.'.$task->type, ['task' => $task])
+                    @include('includes.preview.segments.task_view_panel', ['task' => $task])
                   @endforeach
                   <hr>
                 </div>
@@ -109,114 +90,8 @@
 @endsection
 
 @section('scripts')
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/locale/en.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase.js"></script>
-  <script src="{{ asset('js/realtime.js') }}"></script>
-  <script>
-
-    $('body').scrollspy({ target: '#segment-list' })
-
-      $('#start-test').on('click',function(e){
-        $.post("{{URL::to('tests')}}/{{ $test->id }}/start",{_token:"{{csrf_token()}}"},function() {
-          $('#start-test').removeClass('btn-success').addClass('btn-default').prop('disabled',false)
-        });
-      })
-      $('#finish-test').on('click',function(e){
-        $.post("{{URL::to('tests')}}/{{ $test->id }}/finish",{_token:"{{csrf_token()}}"},function() {
-          $('#finish-test').removeClass('btn-danger').addClass('btn-default').prop('disabled',false)
-        });
-      })
-
-    function toggleButton(button,action,title=''){
-      switch(action){
-        case 'disable':
-          button.prop('disabled',true);
-          button.addClass('btn-default');
-          break;
-        case 'enable':
-          button.prop('disabled',false);
-          button.removeClass('btn-default');
-          break;
-        default:
-          //code
-      }
-      if(title !== '')
-        button.text(title);
-    }
-
-    //examination part
-    function saveTest(final=false){
-      let answers=[];
-
-      $("#test-student-segments .task-wrap").each(function(index) {
-        let task_type = $(this).attr('data-task-type')
-        answers.push(GetTaskAnswers($(this),task_type))
-      });
-
-      $.post("{{URL::to('tests')}}/{{ $test->id }}/submit",{final: final?1:0,answers,_token:"{{csrf_token()}}"},function() {
-        toggleButton($('#test-save'),'enable','Submit'+(final?'':' (1)'));
-        toggleButton($('#test-save-draft'),'disable');
-
-        if(final){
-          toggleButton($('#test-save'),'disable');
-        }
-      });
-      
-      function GetDOMValue(element){
-        let data = {};
-        element.find('.task-value').each(function(i) {
-          if($(this).attr('data-value-prop')){
-            if($(this).attr('data-value-prop') == 'checked'){
-              data[$(this).attr('data-key')] = $(this).is(":checked") ? 1 : 0;
-            }
-          } else if($(this).attr('data-value')){
-            data[$(this).attr('data-key')] = $(this).attr('data-value');
-          }
-        });
-        return data;
-      }
-      function GetTaskAnswers(element, task_type){
-        let task = {
-          id          : element.attr('data-task-id'),
-          type        : task_type,
-        }
-        switch(task_type) {
-          case "rmc":
-          case "cmc":
-            task.data = []
-            element.find('.task-list .task-choice').each(function(i) {
-              let choice = GetDOMValue($(this));
-              task.data.push(choice);
-            })
-            break;
-          case "free_text":
-            task.data = element.find('textarea').val();
-            break;
-          case "correspondence":
-            element.find('.task-list .task-choice').each(function(i) {
-              let choice = {
-                id            : $(this).find('input.choice-id').val().trim() != '' ? $(this).find('input.choice-id').val().trim() : null,
-                side_a        : $(this).find('input.side-a').val(),
-                side_b        : $(this).find('input.side-b').val()
-              }
-              if(choice.side_a != '' && choice.side_b != '')   task.data.push(choice)
-            })
-            break;
-          case "code":
-            //todo: fix this
-            task.data.push({
-              id          : element.find('.task-code input').val(),
-              description : element.find('.task-code textarea').val()
-            })
-            break;
-          default:
-            //code block
-        }
-        return task
-      }
-    }
-  </script>
-  <script src="{{ asset('js/test.js') }}"></script>
-
+    <script src="{{ asset('js/test.js') }}"></script>
+    <script>
+      testData.test = {!! json_encode($test) !!};
+    </script>
 @endsection

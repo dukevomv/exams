@@ -161,44 +161,45 @@
 @endsection
 
 @section('scripts')
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
   <script type="text/javascript">
-    var basic_url = "{{url('lessons')}}";
     var approvalsChanged = false
-    
+
+    let modals = {
+      lessonUsers: $('.lesson-users-modal'),
+      lessonUpdate: $('.lesson-update-modal'),
+    }
+
     function InitUpdateLessonModal(id=null){
-      var editableFields = ['id','name','gunet_code','semester'];
-      var modal = $('.lesson-update-modal')
+      const editableFields = ['id','name','gunet_code','semester'];
       if(id == null){
-        modal.find('span.action-update').addClass('hidden')
-        modal.find('span.action-create').removeClass('hidden')
+        modals.lessonUpdate.find('span.action-update').addClass('hidden')
+        modals.lessonUpdate.find('span.action-create').removeClass('hidden')
         $.each( editableFields, function(key,val) {
-          modal.find('input[name="'+val+'"]').val('')
+          modals.lessonUpdate.find('input[name="'+val+'"]').val('')
         });
-        modal.modal('show')
+        modals.lessonUpdate.modal('show')
       } else {
-        modal.find('span.action-create').addClass('hidden')
-        modal.find('span.action-update').removeClass('hidden')
+        modals.lessonUpdate.find('span.action-create').addClass('hidden')
+        modals.lessonUpdate.find('span.action-update').removeClass('hidden')
         $.ajax({
           type: "GET",
-          url: basic_url+'/'+id,
+          url: baseURL+'lessons/'+id,
           success: function(data){
             $.each( editableFields, function(key,val) {
-              modal.find('input[name="'+val+'"]').val(data[val])
+              modals.lessonUpdate.find('input[name="'+val+'"]').val(data[val])
             });
-            modal.modal('show')
+            modals.lessonUpdate.modal('show')
           }
         })
       }
     }
     
     function InitLessonUserApprovalModal(id){
-      var modal = $('.lesson-users-modal')
       $.ajax({
         type: "GET",
-        url: basic_url+'/'+id+'/users',
+        url: baseURL+'lessons/'+id+'/users',
         success: function(data){
-          var table = modal.find('.modal-body table');
+          var table = modals.lessonUsers.find('.modal-body table');
           table.find('.custom-row').remove();
           $.each( data.users, function(key,value) {
             var row = '<tr class="custom-row">'
@@ -212,7 +213,7 @@
              row += '</tr>'
             table.append(row)
           });
-          modal.modal('show')
+          modals.lessonUsers.modal('show')
         }
       })
     }
@@ -221,10 +222,9 @@
       let input = $(this)
       const value = input.prop('checked')
       let toggle = input.closest('.toggle')
-      $.post( 
-        "{{url('lessons/users/toggle-approve')}}", 
+      $.post( baseURL+'lessons/users/toggle-approve',
         { 
-          _token: '{{csrf_token()}}',
+          _token: CSRF,
           lesson_id : toggle.attr('data-lesson-id'),
           user_id : toggle.attr('data-user-id'),
         }
@@ -238,8 +238,8 @@
         approvalsChanged = true;
       });
     })
-    
-    $('.lesson-users-modal').on('hidden.bs.modal', function (e) {
+
+    modals.lessonUsers.on('hidden.bs.modal', function (e) {
       if(approvalsChanged)
         location.reload()
     })

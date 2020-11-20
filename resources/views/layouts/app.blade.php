@@ -1,27 +1,36 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- CSRF Token -->
-  <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <title>{{ config('app.name', 'Laravel') }}</title>
-  
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=greek" rel="stylesheet">
-  <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-  @yield('styles')
+    <title>{{ config('app.name', 'Laravel') }}</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=greek" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    @yield('styles')
 </head>
 <body>
-  <div id="app">
+<script>
+  window.CSRF = "{{csrf_token()}}";
+  window.baseURL = "{{URL::to('/')}}";
+  window.userData = null;
+  @if(!Auth::guest())
+    window.userData =  {!! json_encode(Auth::user()) !!};
+    @endif
+</script>
+<div id="app">
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
 
                 <!-- Collapsed Hamburger -->
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#app-navbar-collapse">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#app-navbar-collapse">
                     <span class="sr-only">Toggle Navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -38,7 +47,7 @@
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
                     @if (Auth::guest())
-                        
+
                     @elseif(Auth::user()->role == 'admin')
                         <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
                             <a href="{{ url('/users') }}">Users</a>
@@ -74,8 +83,10 @@
                         <li><a href="{{ route('register') }}">Register</a></li>
                     @else
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                               <span class="label label-{{Auth::user()->role}}">{{ucfirst(Auth::user()->role)}}</span> {{ Auth::user()->name }} <span class="caret"></span>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-expanded="false">
+                                <span class="label label-{{Auth::user()->role}}">{{ucfirst(Auth::user()->role)}}</span> {{ Auth::user()->name }}
+                                <span class="caret"></span>
                             </a>
 
                             <ul class="dropdown-menu" role="menu">
@@ -83,12 +94,13 @@
                                 <li role="separator" class="divider"></li>
                                 <li>
                                     <a href="{{ route('logout') }}"
-                                        onclick="event.preventDefault();
+                                       onclick="event.preventDefault();
                                                  document.getElementById('logout-form').submit();">
                                         <i class="fa fa-sign-out"></i> Logout
                                     </a>
 
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                          style="display: none;">
                                         {{ csrf_field() }}
                                     </form>
                                 </li>
@@ -100,41 +112,46 @@
         </div>
     </nav>
     <div class="container wrap-for-banners">
-      @if (session('success'))
-        <div class="alert alert-success alert-dismissible" role="alert">
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          {{ session('success') }}
-        </div>
-      @elseif (session('error'))
-        <div class="alert alert-danger alert-dismissible" role="alert">
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          {{ session('error') }}
-        </div>
-      @endif
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                {{ session('success') }}
+            </div>
+        @elseif (session('error'))
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                {{ session('error') }}
+            </div>
+        @endif
     </div>
-    @yield('content')
+    <div class="content-wrap">
+        @yield('content')
+    </div>
     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmLabel" id="confirm-modal">
-      <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="confirmLabel">Confirm</h4>
-          </div>
-          <div class="modal-body"></div>
-          <div class="modal-footer">
-            <input type="hidden" class="form-to-submit"/>
-            <button type="button" class="btn btn-danger yes-confirm" data-dismiss="modal">Yes</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-          </div>
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="confirmLabel">Confirm</h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <input type="hidden" class="form-to-submit"/>
+                    <button type="button" class="btn btn-danger yes-confirm" data-dismiss="modal">Yes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
+<!-- Scripts -->
+<!-- todo the below scripts are at the end for blade views to be loadeded- surely there should be other in init that define basic non-blade required for html to use them on load-->
 
-  <!-- Scripts -->
-  <script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('js/app.js') }}"></script>
+@yield('scripts')
 
-  @yield('scripts')
-        
 </body>
 </html>
