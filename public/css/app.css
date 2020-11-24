@@ -10949,6 +10949,7 @@ textarea {
 }
 
 .test-preview .fixed-toolbar {
+  padding: 0 15px;
   margin-top: 70px;
   max-width: 350px;
 }

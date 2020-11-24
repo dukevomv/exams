@@ -116,8 +116,8 @@ class TestController extends Controller {
         $test = $this->service->fetchById($id);
         $test = $this->service->calculateUserPoints($test, $userId);
 
-        return view('tests.user_preview', [
-            'test' => $test,
+        return view('tests.preview', [
+            'test' => $this->service->prepareForUser($test),
         ]);
     }
 }

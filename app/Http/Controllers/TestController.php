@@ -34,13 +34,13 @@ class TestController extends Controller {
     public function preview($id, Request $request) {
         $test = $this->service->fetchById($id);
 
-        $timer = $this->service->calculateTimer($test);
+        $data = ['test' => $this->service->prepareForUser($test)];
+        if ($test->status !== TestStatus::GRADED) {
+            $data['timer'] = $this->service->calculateTimer($test);
+            $data['now'] = Carbon::now();
+        }
 
-        return view('tests.preview', [
-            'test'  => $this->service->prepareForUser($test),
-            'timer' => $timer,
-            'now'   => Carbon::now(),
-        ]);
+        return view('tests.preview', $data);
     }
 
     public function lobby($id = null) {

@@ -1,5 +1,6 @@
 
 testUtils.initiateTimer = function() {
+  $('.test-timer-wrap').removeClass('hidden');
   testUtils.setTimerTo(testData.timer.remaining_seconds);
   //dont reload if test havent finished auto
   if (!testData.timer.actual_time) ;
