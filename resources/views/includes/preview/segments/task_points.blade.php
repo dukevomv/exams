@@ -1,5 +1,5 @@
 @php
-    $ratio = (isset($given) && isset($total) && $total > 0) ? $given/$total : null;
+    $ratio = (!is_null($given) && isset($total) && $total > 0) ? $given/$total : null;
     $class = 'default';
 
     if(!is_null($ratio)){

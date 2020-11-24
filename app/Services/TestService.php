@@ -17,6 +17,8 @@ class TestService implements TestServiceInterface {
      * @var \App\Models\Test
      */
     private $test;
+    private $withUserAnswers = null;
+    private $withCalculatedUserPoints = null;
 
     public function __construct(Test $test) {
         $this->test = $test;
@@ -83,15 +85,15 @@ class TestService implements TestServiceInterface {
 
                         $count = count($test->segments[$s]->tasks[$t]->{$type});
                         $correctCount = $test->segments[$s]->tasks[$t]->{$type}->filter(function ($value, $key) {
-                                return $value->correct == 1;
-                            })->count();
+                            return $value->correct == 1;
+                        })->count();
                         $wrongCount = $count - $correctCount;
 
                         $precision = 100;
 
                         //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
-                        $correctPoints = ($correctCount == 0 ? 0 : round(+$precision * ($points/$correctCount))); //Positive multiplied with precision and rounded
-                        $wrongPoints   = (  $wrongCount == 0 ? 0 : round(-$precision * ($points/$wrongCount)));   //Negative in order to subtract from positive points
+                        $correctPoints = ($correctCount == 0 ? 0 : round(+$precision * ($points / $correctCount))); //Positive multiplied with precision and rounded
+                        $wrongPoints = ($wrongCount == 0 ? 0 : round(-$precision * ($points / $wrongCount)));   //Negative in order to subtract from positive points
 
                         for ($o = 0; $o < count($test->segments[$s]->tasks[$t]->{$type}); $o++) {
                             $isCorrect = $test->segments[$s]->tasks[$t]->{$type}[$o]->correct == 1;
@@ -99,10 +101,10 @@ class TestService implements TestServiceInterface {
                             if ($isSelected) {
                                 $option_points = $isCorrect ? $correctPoints : $wrongPoints;
                                 $given_points += $option_points;
-                                $test->segments[$s]->tasks[$t]->{$type}[$o]->given_points = $option_points/$precision;
+                                $test->segments[$s]->tasks[$t]->{$type}[$o]->given_points = $option_points / $precision;
                             }
                         }
-                        $given_points = $given_points/$precision;
+                        $given_points = $given_points / $precision;
                         break;
                 }
                 //Making sure no negative grading will be applied to the task
@@ -164,14 +166,120 @@ class TestService implements TestServiceInterface {
         return Lesson::approved()->get()->pluck('id')->all();
     }
 
-    public function prepareForUser(Test $test){
-        switch (Auth::user()->role){
+    public function prepareForUser(Test $test) {
+        switch (Auth::user()->role) {
             case UserRole::STUDENT:
                 $test = $test->mergeMyAnswersToTest();
                 break;
         }
         //todo make this a resource since you have hidden fields and you dont want them in your results
         //hidden is returned in payload but it needs to be serialized in order not to be included ->toArray()
-        return $test;
+        return $this->toArray($test);
+    }
+
+    private function toArray(Test $test) {
+        $initial = $test->toArray();
+        $final = [
+            'id'           => $test->id,
+            'name'         => $test->name,
+            'description'  => $test->description,
+            'status'       => $test->status,
+            'can_register' => $test->can_register,
+            'duration'     => $test->duration,
+            'lesson'       => $test->lesson->name,
+            'segments'     => $this->toArraySegments($test->segments),
+            'users'        => $this->toArrayUsers($test->users),
+            'scheduled_at' => (!is_null($test->scheduled_at) ? $test->scheduled_at->format('d M, H:i') : '-'),
+            'initial'      => $initial,
+        ];
+
+        //todo append student answers in tasks if tagged
+        //todo append correct answers in tasks if tagged
+
+        $userOnTest = $test->user_on_test;
+        if(Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
+            $final['current_user_status'] = $userOnTest->pivot->status;
+        }
+        return $final;
+    }
+
+    private function toArrayUsers($users) {
+        $data = [];
+        foreach ($users as $u) {
+            $data[] = [
+                'id'     => $u->id,
+                'name'   => $u->name,
+                'role'   => $u->role,
+                'status' => $u->pivot->status,
+            ];
+        }
+        return $data;
+    }
+
+    private function toArraySegments($segments) {
+        $data = [];
+        foreach ($segments as $s) {
+            $segment = [
+                'id'          => $s->id,
+                'title'       => $s->title,
+                'description' => $s->description,
+                'tasks'       => [],
+            ];
+            foreach ($s->tasks as $t) {
+                $task = [
+                    'id'          => $t->id,
+                    'type'        => $t->type,
+                    'position'    => $t->position,
+                    'description' => $t->description,
+                    'points'      => $t->points,
+                ];
+                //todo implement here append of student answers and correct answers
+                switch ($t->type){
+                    case TaskType::CMC:
+                    case TaskType::RMC:
+                        $choices = [];
+                        foreach($t->{$t->type}()->get() as $choice){
+                            $choiceData = [
+                                'id' => $choice->id,
+                                'description' => $choice->description,
+                            ];
+                            //todo append of student answers and correct answers if needed
+                            $choiceData['selected'] = false;
+                            $choiceData['correct'] = false;
+                            $choiceData['given_points'] = 0;
+                            $choices[] = $choiceData;
+                        }
+                        $task['choices'] = $choices;
+                        break;
+                    case TaskType::CORRESPONDENCE:
+                        $sides = ['a' => [], 'b' => []];
+                        foreach($t->{$t->type}()->get() as $choice){
+                            $sides['a'][] = $choice->side_a;
+                            $sides['b'][] = $choice->side_b;
+                        }
+                        shuffle($sides['b']);
+                        shuffle($sides['a']);
+
+                        $task['choices'] = $sides;
+
+                        //todo make the answers prefilled in task values and selections on load
+                        $answers = [];
+                        foreach($sides['a'] as $a){
+                            $answers[$a] = null;
+                        }
+                        $task['answers'] = $answers;
+                        break;
+                    case TaskType::FREE_TEXT:
+                        //todo make the answers prefilled in task answer on load
+                        $task['answer'] = '';
+                        break;
+                    default:
+                }
+                $segment['tasks'][] = $task;
+            }
+
+            $data[] = $segment;
+        }
+        return $data;
     }
 }
