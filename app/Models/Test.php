@@ -68,7 +68,7 @@ class Test extends Model {
     //todo make this a TestService method
     public function mergeUserAnswersToTest($id) {
         $user = $this->getUser($id);
-        if (is_null($user) || !in_array($this->status,[TestStatus::FINISHED,TestStatus::GRADED])) {
+        if (is_null($user) || !in_array($this->status, [TestStatus::FINISHED, TestStatus::GRADED])) {
             return $this;
         }
         $field = 'answers';
@@ -124,7 +124,7 @@ class Test extends Model {
     }
 
     public function getCanRegisterAttribute() {
-        return Carbon::now()->gte($this->register_time);
+        return Carbon::now()->gte($this->register_time) && $this->status == TestStatus::PUBLISHED;
     }
 
     public function register() {
