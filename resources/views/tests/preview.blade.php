@@ -6,9 +6,8 @@
             <div class="row">
                 @include('includes.preview.test.sidebar', ['test' => $test])
                 <div class="main col-xs-8 pull-right main-panel">
-                    <!-- started -->
                     @if ((Auth::user()->role == 'student' && $test['status'] == 'started'  && $timer['actual_time'])
-                        || (Auth::user()->role == 'professor' && in_array($test['status'],['finished','graded'])))
+                        || (Auth::user()->role == 'professor' && isset($forUser) && in_array($test['status'],['finished','graded'])))
                         <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0">
                             @foreach($test['segments'] as $segment)
                                 <div class="segment-tasks-wrap" id="list-segment-id-{{$segment['id']}}">

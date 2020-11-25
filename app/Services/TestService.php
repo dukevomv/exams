@@ -17,11 +17,33 @@ class TestService implements TestServiceInterface {
      * @var \App\Models\Test
      */
     private $test;
-    private $withUserAnswers = null;
-    private $withCalculatedUserPoints = null;
+    private $forUserId                   = null;
+    private $includeUserAnswers          = false;
+    private $includeCorrectAnswers       = false;
+    private $includeUserCalculatedPoints = false;
 
     public function __construct(Test $test) {
         $this->test = $test;
+    }
+
+    public function forUserId($userId) {
+        $this->forUserId = $userId;
+        return $this;
+    }
+
+    public function withCorrectAnswers() {
+        $this->includeCorrectAnswers = true;
+        return $this;
+    }
+
+    public function withUserAnswers() {
+        $this->includeUserAnswers = true;
+        return $this;
+    }
+
+    public function withUserCalculatedPoints() {
+        $this->includeUserCalculatedPoints = true;
+        return $this;
     }
 
     public function get(array $params = []) {
@@ -56,10 +78,15 @@ class TestService implements TestServiceInterface {
 
 
     public function calculateUserPoints(Test $test, $userId) {
-        $test->mergeUserAnswersToTest($userId);
+        $test = $this
+            ->forUserId($userId)
+            ->withCorrectAnswers()
+            ->withUserAnswers()
+            ->mergeUserAnswersToTest($test);
 
         for ($s = 0; $s < count($test->segments); $s++) {
             for ($t = 0; $t < count($test->segments[$s]->tasks); $t++) {
+                $calculative =  true;
                 $type = $test->segments[$s]->tasks[$t]->type;
                 $points = $test->segments[$s]->tasks[$t]->points;
                 $given_points = 0;
@@ -106,9 +133,16 @@ class TestService implements TestServiceInterface {
                         }
                         $given_points = $given_points / $precision;
                         break;
+                    case TaskType::CORRESPONDENCE:
+                        //todo be able to calculate grades for answers and correct sides
+                        break;
+                    default:
+                        $calculative = false;
+                        break;
                 }
                 //Making sure no negative grading will be applied to the task
-                $test->segments[$s]->tasks[$t]->given_points = $given_points < 0 ? 0 : $given_points;
+                if($calculative)
+                    $test->segments[$s]->tasks[$t]->given_points = $given_points < 0 ? 0 : $given_points;
             }
         }
         return $test;
@@ -166,16 +200,60 @@ class TestService implements TestServiceInterface {
         return Lesson::approved()->get()->pluck('id')->all();
     }
 
+    public function mergeUserAnswersToTest($test) {
+        $user = $test->getUser($this->forUserId);
+        if (is_null($user) || !in_array($test->status, [TestStatus::FINISHED, TestStatus::GRADED])) {
+            return $test;
+        }
+        $field = 'answers';
+        $test->draft = false;
+
+        $answers = $user->pivot->{$field};
+        if ($answers) {
+            for ($s = 0; $s < count($test->segments); $s++) {
+                for ($t = 0; $t < count($test->segments[$s]->tasks); $t++) {
+                    foreach ($answers as $answer) {
+                        if ($test->segments[$s]->tasks[$t]->id == $answer['id']) {
+                            switch ($test->segments[$s]->tasks[$t]->type) {
+                                case TaskType::CMC:
+                                case TaskType::RMC:
+                                    for ($c = 0; $c < count($test->segments[$s]->tasks[$t]->{$answer['type']}); $c++) {
+                                        foreach ($answer['data'] as $answeredChoice) {
+                                            if ($answeredChoice['id'] == $test->segments[$s]->tasks[$t]->{$answer['type']}[$c]->id) {
+                                                $test->segments[$s]->tasks[$t]->{$answer['type']}[$c]->selected = $answeredChoice['correct'];
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case TaskType::FREE_TEXT:
+                                    $test->segments[$s]->tasks[$t]->answer = $answer['data'];
+                                    break;
+                                case  TaskType::CORRESPONDENCE:
+                                    //todo add code here
+                                    break;
+                                default:
+                                    //code
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $test;
+    }
+
+
     public function prepareForUser(Test $test) {
         switch (Auth::user()->role) {
             case UserRole::STUDENT:
-                $test = $test->mergeMyAnswersToTest();
+                $test = $this->forUserId(Auth::id())->mergeUserAnswersToTest($test);
                 break;
         }
         //todo make this a resource since you have hidden fields and you dont want them in your results
         //hidden is returned in payload but it needs to be serialized in order not to be included ->toArray()
         return $this->toArray($test);
     }
+
 
     private function toArray(Test $test) {
         $initial = $test->toArray();
@@ -197,7 +275,7 @@ class TestService implements TestServiceInterface {
         //todo append correct answers in tasks if tagged
 
         $userOnTest = $test->user_on_test;
-        if(Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
+        if (Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
             $final['current_user_status'] = $userOnTest->pivot->status;
         }
         return $final;
@@ -233,19 +311,25 @@ class TestService implements TestServiceInterface {
                     'description' => $t->description,
                     'points'      => $t->points,
                 ];
-                //todo implement here append of student answers and correct answers
-                switch ($t->type){
+                if(isset($t->given_points)){
+                    $task['given_points'] = $t->given_points;
+                }
+                switch ($t->type) {
                     case TaskType::CMC:
                     case TaskType::RMC:
                         $choices = [];
-                        foreach($t->{$t->type}()->get() as $choice){
+                        foreach ($t->{$t->type} as $choice) {
                             $choiceData = [
-                                'id' => $choice->id,
+                                'id'          => $choice->id,
                                 'description' => $choice->description,
                             ];
-                            //todo append of student answers and correct answers if needed
-                            $choiceData['selected'] = false;
-                            $choiceData['correct'] = false;
+                            if ($this->includeUserAnswers) {
+                                $choiceData['selected'] = $choice->selected;
+                            }
+                            if ($this->includeCorrectAnswers) {
+                                $choiceData['correct'] = $choice->correct;
+                            }
+                            //todo add here the calculated results
                             $choiceData['given_points'] = 0;
                             $choices[] = $choiceData;
                         }
@@ -253,7 +337,7 @@ class TestService implements TestServiceInterface {
                         break;
                     case TaskType::CORRESPONDENCE:
                         $sides = ['a' => [], 'b' => []];
-                        foreach($t->{$t->type}()->get() as $choice){
+                        foreach ($t->{$t->type} as $choice) {
                             $sides['a'][] = $choice->side_a;
                             $sides['b'][] = $choice->side_b;
                         }
@@ -264,14 +348,16 @@ class TestService implements TestServiceInterface {
 
                         //todo make the answers prefilled in task values and selections on load
                         $answers = [];
-                        foreach($sides['a'] as $a){
+                        foreach ($sides['a'] as $a) {
                             $answers[$a] = null;
                         }
                         $task['answers'] = $answers;
                         break;
                     case TaskType::FREE_TEXT:
                         //todo make the answers prefilled in task answer on load
-                        $task['answer'] = '';
+                        if ($this->includeUserAnswers) {
+                            $task['answer'] = $t->answer;
+                        }
                         break;
                     default:
                 }

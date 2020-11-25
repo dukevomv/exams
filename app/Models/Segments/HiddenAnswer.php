@@ -13,7 +13,7 @@ class HiddenAnswer extends Model {
         parent::__construct($attributes);
         $user = Auth::user();
         if(is_null($user) || $user->role != UserRole::STUDENT){
-            $this->makeVisible($this->hidden);
+            //$this->makeVisible($this->hidden);
         }
     }
 }

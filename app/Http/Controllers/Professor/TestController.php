@@ -118,6 +118,7 @@ class TestController extends Controller {
 
         return view('tests.preview', [
             'test' => $this->service->prepareForUser($test),
+            'forUser' => true
         ]);
     }
 }

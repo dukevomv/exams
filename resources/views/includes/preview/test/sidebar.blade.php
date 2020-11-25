@@ -11,12 +11,14 @@
             </p>
             <p><strong>Total duration: </strong>{{$test['duration']}}
             </p>
+            <p><strong>Status: </strong>{{ucfirst($test['status'])}}
+            </p>
             <li class="list-group-item test-timer-wrap hidden">
                 <div id="test-timer" class="test-timer"></div>
             </li>
             <div class="test-actions margin-top-30">
                 @if (Auth::user()->role == 'professor')
-{{--                    todo add actions for grading and publishing grades for students--}}
+                    {{--                    todo add actions for grading and publishing grades for students--}}
                     <div class="margin-bottom-15 clearfix">
                         @if ($test['status'] == 'published')
                             <button type="button" class="btn btn-success" id="start-test">Start in 30"
@@ -50,7 +52,7 @@
                                         Test
                                     </button>
                                 </form>
-                            @elseif (($test['status'] == 'started' && $timer['actual_time']) || ($test->status == 'finished' && !$timer['actual_time']))
+                            @elseif (Auth::user()->role == 'student' && isset($timer) && (($test['status'] == 'started' && $timer['actual_time']) || ($test->status == 'finished' && !$timer['actual_time'])))
                                 <button type="button" class="btn btn-success"
                                         id="save-test" @if(!$test->draft) disabled @endif>
                                     Submit @if($test->draft) (1) @endif</button>
@@ -64,7 +66,7 @@
                 @endif
             </div>
         </div>
-        @if ($test['status'] == 'started'  && $timer['actual_time'])
+        @if (Auth::user()->role == 'student' && isset($timer) && $test['status'] == 'started'  && $timer['actual_time'])
             <div id="segment-list" class="list-group">
                 @foreach($test['segments'] as $segment)
                     <a class="list-group-item list-group-item-action"

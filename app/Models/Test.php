@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\TaskType;
 use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Models\Segments\Segment;
@@ -34,6 +33,11 @@ class Test extends Model {
         return $this;
     }
 
+    /**
+     * @param $query
+     *
+     * @return mixed
+     */
     public function scopeWithSegmentTaskAnswers($query) {
         return $query->with(['segments' => function ($q) {
             $q->withTaskAnswers();
@@ -60,52 +64,6 @@ class Test extends Model {
     public function getUser($userId) {
         return $this->getUserById($userId)->first();
     }
-
-    public function mergeMyAnswersToTest() {
-        return $this->mergeUserAnswersToTest(Auth::id());
-    }
-
-    //todo make this a TestService method
-    public function mergeUserAnswersToTest($id) {
-        $user = $this->getUser($id);
-        if (is_null($user) || !in_array($this->status, [TestStatus::FINISHED, TestStatus::GRADED])) {
-            return $this;
-        }
-        $field = 'answers';
-        $this->draft = false;
-
-        $answers = $user->pivot->{$field};
-        if ($answers) {
-            for ($s = 0; $s < count($this->segments); $s++) {
-                for ($t = 0; $t < count($this->segments[$s]->tasks); $t++) {
-                    foreach ($answers as $answer) {
-                        if ($this->segments[$s]->tasks[$t]->id == $answer['id']) {
-                            switch ($this->segments[$s]->tasks[$t]->type) {
-                                case TaskType::CMC:
-                                case TaskType::RMC:
-                                    for ($c = 0; $c < count($this->segments[$s]->tasks[$t]->{$answer['type']}); $c++) {
-                                        foreach ($answer['data'] as $answeredChoice) {
-                                            if ($answeredChoice['id'] == $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->id) {
-                                                $this->segments[$s]->tasks[$t]->{$answer['type']}[$c]->selected = $answeredChoice['correct'];
-                                            }
-                                        }
-                                    }
-                                    break;
-                                case TaskType::FREE_TEXT:
-                                    $this->segments[$s]->tasks[$t]->answer = $answer['data'];
-                                    break;
-                                default:
-                                    //code
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return $this;
-    }
-
 
     public function started_by() {
         return $this->belongsTo(User::class, 'started_by_user');
