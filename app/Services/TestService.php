@@ -76,7 +76,6 @@ class TestService implements TestServiceInterface {
                    ->firstOrFail();
     }
 
-
     public function calculateUserPoints(Test $test, $userId) {
         $test = $this
             ->forUserId($userId)
@@ -86,7 +85,7 @@ class TestService implements TestServiceInterface {
 
         for ($s = 0; $s < count($test->segments); $s++) {
             for ($t = 0; $t < count($test->segments[$s]->tasks); $t++) {
-                $calculative =  true;
+                $calculative = true;
                 $type = $test->segments[$s]->tasks[$t]->type;
                 $points = $test->segments[$s]->tasks[$t]->points;
                 $given_points = 0;
@@ -141,8 +140,9 @@ class TestService implements TestServiceInterface {
                         break;
                 }
                 //Making sure no negative grading will be applied to the task
-                if($calculative)
+                if ($calculative) {
                     $test->segments[$s]->tasks[$t]->given_points = $given_points < 0 ? 0 : $given_points;
+                }
             }
         }
         return $test;
@@ -229,6 +229,7 @@ class TestService implements TestServiceInterface {
                                     $test->segments[$s]->tasks[$t]->answer = $answer['data'];
                                     break;
                                 case  TaskType::CORRESPONDENCE:
+                                    \Log::info($answer);
                                     //todo add code here
                                     break;
                                 default:
@@ -263,6 +264,7 @@ class TestService implements TestServiceInterface {
             'description'  => $test->description,
             'status'       => $test->status,
             'can_register' => $test->can_register,
+            'user_on_test' => $test->user_on_test,
             'duration'     => $test->duration,
             'lesson'       => $test->lesson->name,
             'segments'     => $this->toArraySegments($test->segments),
@@ -276,7 +278,7 @@ class TestService implements TestServiceInterface {
 
         $userOnTest = $test->user_on_test;
         if (Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
-            $final['current_user_status'] = $userOnTest->pivot->status;
+            $final['current_user'] = $this->toArrayCurrentUser($userOnTest);
         }
         return $final;
     }
@@ -292,6 +294,24 @@ class TestService implements TestServiceInterface {
             ];
         }
         return $data;
+    }
+
+    private function toArrayCurrentUser($userOnTest) {
+        $hasDraft = false;
+        $lastSaved = null;
+        if(!is_null($userOnTest->pivot->answered_draft_at)){
+            $lastSaved = $userOnTest->pivot->answered_draft_at;
+            if(is_null($userOnTest->pivot->answered_at) || Carbon::parse($userOnTest->pivot->answered_at)->lt($userOnTest->pivot->answered_draft_at)){
+                $hasDraft = true;
+            } else {
+                $lastSaved = $userOnTest->pivot->answered_at;
+            }
+        }
+        return [
+            'status' => $userOnTest->pivot->status,
+            'has_draft' => $hasDraft,
+            'last_saved' => $lastSaved,
+        ];
     }
 
     private function toArraySegments($segments) {
@@ -311,7 +331,7 @@ class TestService implements TestServiceInterface {
                     'description' => $t->description,
                     'points'      => $t->points,
                 ];
-                if(isset($t->given_points)){
+                if (isset($t->given_points)) {
                     $task['given_points'] = $t->given_points;
                 }
                 switch ($t->type) {

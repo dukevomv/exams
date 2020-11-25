@@ -31,7 +31,7 @@
                     </div>
                 @elseif (Auth::user()->role == 'student')
                     <div class="margin-bottom-15 clearfix">
-                        @if(array_key_exists('current_user_status',$test))
+                        @if(!array_key_exists('current_user',$test))
                             @if (in_array($test['status'],['published','started']))
                                 <form method="POST"
                                       action="{{URL::to('tests')}}/{{ $test['id'] }}/register">
@@ -42,9 +42,9 @@
                                     </button>
                                 </form>
                             @endif
-                        @elseif(isset($test->user_on_test) && $test->user_on_test->pivot->status == 'registered')
+                        @elseif($test['current_user']['status'] == 'registered')
                             @if ($test['status'] == 'published')
-                                <form method="POST" action="{{URL::to('tests')}}/{{ $test->id }}/leave"
+                                <form method="POST" action="{{URL::to('tests')}}/{{ $test['id'] }}/leave"
                                       class="confirm-form" data-confirm-action="Leave"
                                       data-confirm-title="After leaving you will not be able to register again.">
                                     <input type="hidden" name="_token" value="{{csrf_token()}}">
@@ -52,10 +52,10 @@
                                         Test
                                     </button>
                                 </form>
-                            @elseif (Auth::user()->role == 'student' && isset($timer) && (($test['status'] == 'started' && $timer['actual_time']) || ($test->status == 'finished' && !$timer['actual_time'])))
+                            @elseif (Auth::user()->role == 'student' && isset($timer) && (($test['status'] == 'started' && $timer['actual_time']) || ($test['status'] == 'finished' && !$timer['actual_time'])))
                                 <button type="button" class="btn btn-success"
-                                        id="save-test" @if(!$test->draft) disabled @endif>
-                                    Submit @if($test->draft) (1) @endif</button>
+                                        id="save-test" @if(!$test['current_user']['has_draft']) disabled @endif>
+                                    Submit @if($test['current_user']['has_draft']) (1) @endif</button>
                                 <button type="button"
                                         class="btn btn-warning pull-right" id="save-draft-test"
                                         disabled>Save as Draft
