@@ -201,12 +201,19 @@ class TestService implements TestServiceInterface {
     }
 
     public function mergeUserAnswersToTest($test) {
+        //todo use one of UserOnTest Attribure and getuser
         $user = $test->getUser($this->forUserId);
-        if (is_null($user) || !in_array($test->status, [TestStatus::FINISHED, TestStatus::GRADED])) {
+        if (is_null($user)) {
             return $test;
         }
+
         $field = 'answers';
-        $test->draft = false;
+        if (Auth::user()->role === UserRole::STUDENT) {
+            $userData = $this->toArrayCurrentUser($user);
+            if ($userData['has_draft']) {
+                $field = 'answers_draft';
+            }
+        }
 
         $answers = $user->pivot->{$field};
         if ($answers) {
@@ -247,7 +254,7 @@ class TestService implements TestServiceInterface {
     public function prepareForUser(Test $test) {
         switch (Auth::user()->role) {
             case UserRole::STUDENT:
-                $test = $this->forUserId(Auth::id())->mergeUserAnswersToTest($test);
+                $test = $this->forUserId(Auth::id())->withUserAnswers()->mergeUserAnswersToTest($test);
                 break;
         }
         //todo make this a resource since you have hidden fields and you dont want them in your results
@@ -273,9 +280,6 @@ class TestService implements TestServiceInterface {
             'initial'      => $initial,
         ];
 
-        //todo append student answers in tasks if tagged
-        //todo append correct answers in tasks if tagged
-
         $userOnTest = $test->user_on_test;
         if (Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
             $final['current_user'] = $this->toArrayCurrentUser($userOnTest);
@@ -299,17 +303,17 @@ class TestService implements TestServiceInterface {
     private function toArrayCurrentUser($userOnTest) {
         $hasDraft = false;
         $lastSaved = null;
-        if(!is_null($userOnTest->pivot->answered_draft_at)){
+        if (!is_null($userOnTest->pivot->answered_draft_at)) {
             $lastSaved = $userOnTest->pivot->answered_draft_at;
-            if(is_null($userOnTest->pivot->answered_at) || Carbon::parse($userOnTest->pivot->answered_at)->lt($userOnTest->pivot->answered_draft_at)){
+            if (is_null($userOnTest->pivot->answered_at) || Carbon::parse($userOnTest->pivot->answered_at)->lt($userOnTest->pivot->answered_draft_at)) {
                 $hasDraft = true;
             } else {
                 $lastSaved = $userOnTest->pivot->answered_at;
             }
         }
         return [
-            'status' => $userOnTest->pivot->status,
-            'has_draft' => $hasDraft,
+            'status'     => $userOnTest->pivot->status,
+            'has_draft'  => $hasDraft,
             'last_saved' => $lastSaved,
         ];
     }

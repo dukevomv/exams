@@ -31,6 +31,10 @@ $(".choice-side-b a").click(function (e) {
   taskAnswers[sideA] = sideB
 
   fixSelectedOptionsInDropdown(taskId,taskAnswers);
+
+  //enable save buttons on change
+  testUtils.toggleButton($('#save-test'),'enable');
+  testUtils.toggleButton($('#save-draft-test'),'enable');
 });
 
 function fixSelectedOptionsInDropdown(taskId,taskAnswers) {

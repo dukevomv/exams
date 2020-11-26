@@ -283,12 +283,11 @@ $('#finish-test').on('click', function (e) {
 
 //todo these are not working
 // - saving test and reloading
-// - difference with draft and publish is crooked
 $('#save-test').on('click', function (e) {
-  testUtils.saveTest();
+  testUtils.saveTest(true);
 });
 $('#save-draft-test').on('click', function (e) {
-  testUtils.saveTest(true);
+  testUtils.saveTest();
 });
 
 testUtils.toggleButton = function (button, action) {
@@ -360,7 +359,9 @@ testUtils.saveTest = function () {
         task.data = element.find('textarea').val();
         break;
       case "correspondence":
-        element.find('.task-list .task-choice').each(function (i) {
+        console.log('11112121');
+        task.data = [];
+        element.find('.choice-wrap').each(function (i) {
           var choice = {
             side_a: $(this).find('input.side-a').val(),
             side_b: $(this).find('input.side-b').val()
@@ -420,6 +421,10 @@ $(".choice-side-b a").click(function (e) {
   taskAnswers[sideA] = sideB;
 
   fixSelectedOptionsInDropdown(taskId, taskAnswers);
+
+  //enable save buttons on change
+  testUtils.toggleButton($('#save-test'), 'enable');
+  testUtils.toggleButton($('#save-draft-test'), 'enable');
 });
 
 function fixSelectedOptionsInDropdown(taskId, taskAnswers) {

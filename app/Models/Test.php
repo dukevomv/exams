@@ -74,7 +74,7 @@ class Test extends Model {
     }
 
     public function getUserOnTestAttribute() {
-        return $this->users()->where('user_id', Auth::id())->first();
+        return $this->getUser(Auth::id());
     }
 
     public function getRegisterTimeAttribute() {
