@@ -364,37 +364,29 @@ class TestService implements TestServiceInterface {
                         foreach ($t->{$t->type} as $choice) {
                             $pairs[$choice->side_a] = $choice->side_b;
                         }
-
-                        $sideB = array_values($pairs);
-                        shuffle($sideB);
-                        if ($this->includeUserAnswers && isset($t->answers)) {
-                            //when answers exist load the order and pairs of answers
+                        $answers = [];
+                        if (isset($t->answers)) {
                             foreach ($t->answers as $choice) {
-                                $payload = [
-                                    'available' => $sideB,
-                                    'selected'  => $choice['side_b'],
-                                ];
-                                if ($this->includeCorrectAnswers) {
-                                    $payload['correct'] = $pairs[$choice['side_a']];
-                                    //todo add given_points as well
-                                }
-                                $choices[$choice['side_a']] = $payload;
-                            }
-                        } else {
-                            //todo make the above to be written once, it is kind of duplicated
-                            $sideA = array_keys($pairs);
-                            $sideA = shuffle($sideA);
-                            foreach ($sideA as $choice) {
-                                $payload = [
-                                    'available' => $sideB,
-                                    'selected'  => null,
-                                ];
-                                if ($this->includeCorrectAnswers) {
-                                    $payload['correct'] = $pairs[$choice['side_a']];
-                                }
-                                $choices[$choice['side_a']] = $payload;
+                                $answers[$choice['side_a']] = $choice['side_b'];
                             }
                         }
+
+                        $sideA = array_keys($pairs);
+                        $sideB = array_values($pairs);
+                        shuffle($sideB);
+                        shuffle($sideA);
+
+                        foreach ($sideA as $a) {
+                            $payload = ['available' => $sideB];
+                            if ($this->includeUserAnswers && array_key_exists($a, $answers)) {
+                                $payload['selected'] = $answers[$a];
+                            }
+                            if ($this->includeCorrectAnswers) {
+                                $payload['correct'] = $pairs[$a];
+                            }
+                            $choices[$a] = $payload;
+                        }
+
                         $task['choices'] = $choices;
                         break;
                     case TaskType::FREE_TEXT:
