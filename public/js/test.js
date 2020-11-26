@@ -388,7 +388,8 @@ testUtils.saveTest = function () {
 /***/ 337:
 /***/ (function(module, exports) {
 
-var taskHandlerIdPrefix = ".task-wrap.task-wrap-correspondence#panel-task-";
+var taskCorrespondenceWrap = ".task-wrap.task-wrap-correspondence";
+var taskHandlerIdPrefix = taskCorrespondenceWrap + "#panel-task-";
 
 function getCorrespondenceTaskAnswersAndElements(taskId) {
   var task = $(taskHandlerIdPrefix + taskId);
@@ -425,6 +426,16 @@ $(".choice-side-b a").click(function (e) {
   //enable save buttons on change
   testUtils.toggleButton($('#save-test'), 'enable');
   testUtils.toggleButton($('#save-draft-test'), 'enable');
+});
+
+$(taskCorrespondenceWrap).each(function () {
+  var taskId = $(this).attr('data-task-id');
+  var taskAnswersAndElements = getCorrespondenceTaskAnswersAndElements(taskId);
+  var taskAnswers = {};
+  Object.keys(taskAnswersAndElements).forEach(function (a) {
+    taskAnswers[a] = taskAnswersAndElements[a].value;
+  });
+  fixSelectedOptionsInDropdown(taskId, taskAnswers);
 });
 
 function fixSelectedOptionsInDropdown(taskId, taskAnswers) {

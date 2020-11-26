@@ -1,4 +1,5 @@
-const taskHandlerIdPrefix = ".task-wrap.task-wrap-correspondence#panel-task-"
+const taskCorrespondenceWrap = ".task-wrap.task-wrap-correspondence";
+const taskHandlerIdPrefix = taskCorrespondenceWrap+"#panel-task-";
 
 function getCorrespondenceTaskAnswersAndElements(taskId) {
   let task = $(taskHandlerIdPrefix + taskId);
@@ -35,6 +36,16 @@ $(".choice-side-b a").click(function (e) {
   //enable save buttons on change
   testUtils.toggleButton($('#save-test'),'enable');
   testUtils.toggleButton($('#save-draft-test'),'enable');
+});
+
+$(taskCorrespondenceWrap).each(function(){
+  const taskId = $(this).attr('data-task-id');
+  let taskAnswersAndElements = getCorrespondenceTaskAnswersAndElements(taskId);
+  let taskAnswers = {};
+  Object.keys(taskAnswersAndElements).forEach(a => {
+    taskAnswers[a] = taskAnswersAndElements[a].value;
+  });
+  fixSelectedOptionsInDropdown(taskId,taskAnswers);
 });
 
 function fixSelectedOptionsInDropdown(taskId,taskAnswers) {

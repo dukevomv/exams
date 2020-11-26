@@ -236,8 +236,7 @@ class TestService implements TestServiceInterface {
                                     $test->segments[$s]->tasks[$t]->answer = $answer['data'];
                                     break;
                                 case  TaskType::CORRESPONDENCE:
-                                    \Log::info($answer);
-                                    //todo add code here
+                                    $test->segments[$s]->tasks[$t]->answers = $answer['data'];
                                     break;
                                 default:
                                     //code
@@ -360,25 +359,45 @@ class TestService implements TestServiceInterface {
                         $task['choices'] = $choices;
                         break;
                     case TaskType::CORRESPONDENCE:
-                        $sides = ['a' => [], 'b' => []];
+                        $choices = [];
+                        $pairs = [];
                         foreach ($t->{$t->type} as $choice) {
-                            $sides['a'][] = $choice->side_a;
-                            $sides['b'][] = $choice->side_b;
+                            $pairs[$choice->side_a] = $choice->side_b;
                         }
-                        shuffle($sides['b']);
-                        shuffle($sides['a']);
 
-                        $task['choices'] = $sides;
-
-                        //todo make the answers prefilled in task values and selections on load
-                        $answers = [];
-                        foreach ($sides['a'] as $a) {
-                            $answers[$a] = null;
+                        $sideB = array_values($pairs);
+                        shuffle($sideB);
+                        if ($this->includeUserAnswers && isset($t->answers)) {
+                            //when answers exist load the order and pairs of answers
+                            foreach ($t->answers as $choice) {
+                                $payload = [
+                                    'available' => $sideB,
+                                    'selected'  => $choice['side_b'],
+                                ];
+                                if ($this->includeCorrectAnswers) {
+                                    $payload['correct'] = $pairs[$choice['side_a']];
+                                    //todo add given_points as well
+                                }
+                                $choices[$choice['side_a']] = $payload;
+                            }
+                        } else {
+                            //todo make the above to be written once, it is kind of duplicated
+                            $sideA = array_keys($pairs);
+                            $sideA = shuffle($sideA);
+                            foreach ($sideA as $choice) {
+                                $payload = [
+                                    'available' => $sideB,
+                                    'selected'  => null,
+                                ];
+                                if ($this->includeCorrectAnswers) {
+                                    $payload['correct'] = $pairs[$choice['side_a']];
+                                }
+                                $choices[$choice['side_a']] = $payload;
+                            }
                         }
-                        $task['answers'] = $answers;
+                        $task['choices'] = $choices;
                         break;
                     case TaskType::FREE_TEXT:
-                        //todo make the answers prefilled in task answer on load
                         if ($this->includeUserAnswers) {
                             $task['answer'] = $t->answer;
                         }
