@@ -77,78 +77,11 @@ class TestService implements TestServiceInterface {
     }
 
     public function calculateUserPoints(Test $test, $userId) {
-        //make this as flags and calclulate everything in toArray methods
-        $test = $this
-            ->forUserId($userId)
-            ->withCorrectAnswers()
-            ->withUserAnswers()
-            ->withUserCalculatedPoints()
-            ->mergeUserAnswersToTest($test);
-
-        for ($s = 0; $s < count($test->segments); $s++) {
-            for ($t = 0; $t < count($test->segments[$s]->tasks); $t++) {
-                $calculative = true;
-                $type = $test->segments[$s]->tasks[$t]->type;
-                $points = $test->segments[$s]->tasks[$t]->points;
-                $given_points = 0;
-                switch ($type) {
-                    case TaskType::RMC:
-                        //FULL points are given if correct option is selected
-                        //0 points are given if any wrong option is selected
-                        for ($o = 0; $o < count($test->segments[$s]->tasks[$t]->{$type}); $o++) {
-                            $isCorrect = $test->segments[$s]->tasks[$t]->{$type}[$o]->correct == 1;
-                            $isSelected = $test->segments[$s]->tasks[$t]->{$type}[$o]->selected == 1;
-                            if ($isCorrect && $isSelected) {
-                                $given_points = $points;
-                                break;
-                            }
-                        }
-                        break;
-                    case TaskType::CMC:
-                        //FULL points are given if only all correct options are selected
-                        //0 points are given if all options are selected
-                        //formula = ( correct_selected_options * (points/total_correct_options) ) - ( wrong_selected_options * (points/total_wrong_options) )
-                        //with no negative results
-                        //this happens in order to 'punish' those who select all options regardless of correct/wrong
-
-                        $count = count($test->segments[$s]->tasks[$t]->{$type});
-                        $correctCount = $test->segments[$s]->tasks[$t]->{$type}->filter(function ($value, $key) {
-                            return $value->correct == 1;
-                        })->count();
-                        $wrongCount = $count - $correctCount;
-
-                        $precision = 100;
-
-                        //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
-                        $correctPoints = ($correctCount == 0 ? 0 : round(+$precision * ($points / $correctCount))); //Positive multiplied with precision and rounded
-                        $wrongPoints = ($wrongCount == 0 ? 0 : round(-$precision * ($points / $wrongCount)));   //Negative in order to subtract from positive points
-
-                        for ($o = 0; $o < count($test->segments[$s]->tasks[$t]->{$type}); $o++) {
-                            $isCorrect = $test->segments[$s]->tasks[$t]->{$type}[$o]->correct == 1;
-                            $isSelected = $test->segments[$s]->tasks[$t]->{$type}[$o]->selected == 1;
-                            if ($isSelected) {
-                                $option_points = $isCorrect ? $correctPoints : $wrongPoints;
-                                $given_points += $option_points;
-                                $test->segments[$s]->tasks[$t]->{$type}[$o]->given_points = $option_points / $precision;
-                            }
-                        }
-                        $given_points = $given_points / $precision;
-                        break;
-                    case TaskType::CORRESPONDENCE:
-                        \Log::info($test->segments[$s]->tasks[$t]);
-                        //todo be able to calculate grades for answers and correct sides
-                        break;
-                    default:
-                        $calculative = false;
-                        break;
-                }
-                //Making sure no negative grading will be applied to the task
-                if ($calculative) {
-                    $test->segments[$s]->tasks[$t]->given_points = $given_points < 0 ? 0 : $given_points;
-                }
-            }
-        }
-        return $test;
+        $this->forUserId($userId)
+             ->withCorrectAnswers()
+             ->withUserAnswers()
+             ->withUserCalculatedPoints();
+        return $this;
     }
 
     public function calculateTimer(Test $test) {
@@ -251,11 +184,11 @@ class TestService implements TestServiceInterface {
         return $test;
     }
 
-
     public function prepareForUser(Test $test) {
         if (Auth::user()->role === UserRole::STUDENT) {
-            $test = $this->forUserId(Auth::id())->withUserAnswers()->mergeUserAnswersToTest($test);
+            $this->forUserId(Auth::id())->withUserAnswers();
         }
+        $test = $this->mergeUserAnswersToTest($test);
         return $this->toArray($test);
     }
 
@@ -323,137 +256,137 @@ class TestService implements TestServiceInterface {
     }
 
     public function toArraySegment($s) {
-            $segment = [
-                'id'          => $s->id,
-                'title'       => $s->title,
-                'description' => $s->description,
-                'tasks'       => [],
+        $segment = [
+            'id'          => $s->id,
+            'title'       => $s->title,
+            'description' => $s->description,
+            'tasks'       => [],
+        ];
+        foreach ($s->tasks as $t) {
+            $task = [
+                'id'          => $t->id,
+                'type'        => $t->type,
+                'position'    => $t->position,
+                'description' => $t->description,
+                'points'      => $t->points,
             ];
-            foreach ($s->tasks as $t) {
-                $task = [
-                    'id'          => $t->id,
-                    'type'        => $t->type,
-                    'position'    => $t->position,
-                    'description' => $t->description,
-                    'points'      => $t->points,
-                ];
-                $calculative = true;
-                $given_points = 0;
-                switch ($t->type) {
-                    case TaskType::CMC:
-                    case TaskType::RMC:
-                        $counts = [
-                            'total'   => 0,
-                            'correct' => 0,
-                            'wrong'   => 0,
+            $calculative = true;
+            $given_points = 0;
+            switch ($t->type) {
+                case TaskType::CMC:
+                case TaskType::RMC:
+                    $counts = [
+                        'total'   => 0,
+                        'correct' => 0,
+                        'wrong'   => 0,
+                    ];
+                    $choices = [];
+                    foreach ($t->{$t->type} as $choice) {
+                        $choiceData = [
+                            'id'          => $choice->id,
+                            'description' => $choice->description,
                         ];
-                        $choices = [];
-                        foreach ($t->{$t->type} as $choice) {
-                            $choiceData = [
-                                'id'          => $choice->id,
-                                'description' => $choice->description,
-                            ];
-                            if ($this->includeUserAnswers) {
-                                $choiceData['selected'] = $choice->selected;
-                            }
-                            if ($this->includeCorrectAnswers) {
-                                $choiceData['correct'] = $choice->correct;
-                            }
-
-                            $choices[] = $choiceData;
-
-                            $counts['total']++;
-                            if ($choice->correct) {
-                                $counts['correct']++;
-                            }
-                        }
-                        $counts['wrong'] = $counts['total'] - $counts['correct'];
-                        $task['choices'] = $choices;
-                        break;
-                    case TaskType::CORRESPONDENCE:
-                        $choices = [];
-                        $pairs = [];
-                        foreach ($t->{$t->type} as $choice) {
-                            $pairs[$choice->side_a] = $choice->side_b;
-                        }
-                        $answers = [];
-                        if (isset($t->answers)) {
-                            foreach ($t->answers as $choice) {
-                                $answers[$choice['side_a']] = $choice['side_b'];
-                            }
-                        }
-
-                        $sideA = array_keys($pairs);
-                        $sideB = array_values($pairs);
-                        shuffle($sideB);
-                        shuffle($sideA);
-
-                        foreach ($sideA as $a) {
-                            $payload = ['available' => $sideB];
-                            if ($this->includeUserAnswers && array_key_exists($a, $answers)) {
-                                $payload['selected'] = $answers[$a];
-                            }
-                            if ($this->includeCorrectAnswers) {
-                                $payload['correct'] = $pairs[$a];
-                            }
-                            $choices[$a] = $payload;
-                        }
-
-                        $task['choices'] = $choices;
-                        break;
-                    case TaskType::FREE_TEXT:
                         if ($this->includeUserAnswers) {
-                            $task['answer'] = $t->answer;
+                            $choiceData['selected'] = $choice->selected;
                         }
-                        $calculative = false;
-                        break;
-                    default:
-                }
+                        if ($this->includeCorrectAnswers) {
+                            $choiceData['correct'] = $choice->correct;
+                        }
 
-                if ($calculative && $this->includeUserCalculatedPoints) {
-                    switch ($t->type) {
-                        case TaskType::RMC:
-                            //FULL points are given if correct option is selected
-                            //0 points are given if any wrong option is selected
-                            for ($o = 0; $o < count($task['choices']); $o++) {
-                                $isCorrect = $task['choices'][$o]['correct'] == 1;
-                                $isSelected = $task['choices'][$o]['selected'] == 1;
-                                if ($isCorrect && $isSelected) {
-                                    $given_points = $task['points'];
-                                    break;
-                                }
-                            }
-                            break;
-                        case TaskType::CMC:
-                            //FULL points are given if only all correct options are selected
-                            //0 points are given if all options are selected
-                            //formula = ( correct_selected_options * (points/total_correct_options) ) - ( wrong_selected_options * (points/total_wrong_options) )
-                            //with no negative results
-                            //this happens in order to 'punish' those who select all options regardless of correct/wrong
-                            $precision = 100;
+                        $choices[] = $choiceData;
 
-                            //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
-                            $correctPoints = ($counts['correct'] == 0 ? 0 : round(+$precision * ($task['points'] / $counts['correct']))); //Positive multiplied with precision and rounded
-                            $wrongPoints = ($counts['wrong'] == 0 ? 0 : round(-$precision * ($task['points'] / $counts['wrong'])));   //Negative in order to subtract from positive points
-
-                            for ($o = 0; $o < count($task['choices']); $o++) {
-                                $isCorrect = $task['choices'][$o]['correct'] == 1;
-                                $isSelected = $task['choices'][$o]['selected'] == 1;
-                                if ($isSelected) {
-                                    $option_points = $isCorrect ? $correctPoints : $wrongPoints;
-                                    $given_points += $option_points;
-                                    $task['choices'][$o]['given_points'] = $option_points / $precision;
-                                }
-                            }
-                            $given_points = $given_points / $precision;
-                            break;
+                        $counts['total']++;
+                        if ($choice->correct) {
+                            $counts['correct']++;
+                        }
+                    }
+                    $counts['wrong'] = $counts['total'] - $counts['correct'];
+                    $task['choices'] = $choices;
+                    break;
+                case TaskType::CORRESPONDENCE:
+                    $choices = [];
+                    $pairs = [];
+                    foreach ($t->{$t->type} as $choice) {
+                        $pairs[$choice->side_a] = $choice->side_b;
+                    }
+                    $answers = [];
+                    if ($this->includeUserAnswers && isset($t->answer)) {
+                        foreach ($t->answer as $choice) {
+                            $answers[$choice['side_a']] = $choice['side_b'];
+                        }
                     }
 
-                    //Making sure no negative grading will be applied to the task
-                    $task['given_points'] = $given_points < 0 ? 0 : $given_points;
-                }
-                $segment['tasks'][] = $task;
+                    $sideA = array_keys($pairs);
+                    $sideB = array_values($pairs);
+                    shuffle($sideB);
+                    shuffle($sideA);
+
+                    foreach ($sideA as $a) {
+                        $payload = ['available' => $sideB];
+                        if ($this->includeUserAnswers && array_key_exists($a, $answers)) {
+                            $payload['selected'] = $answers[$a];
+                        }
+                        if ($this->includeCorrectAnswers) {
+                            $payload['correct'] = $pairs[$a];
+                        }
+                        $choices[$a] = $payload;
+                    }
+
+                    $task['choices'] = $choices;
+                    break;
+                case TaskType::FREE_TEXT:
+                    if ($this->includeUserAnswers && isset($t->answer)) {
+                        $task['answer'] = $t->answer;
+                    }
+                    $calculative = false;
+                    break;
+                default:
             }
-            return $segment;
+
+            if ($calculative && $this->includeUserCalculatedPoints) {
+                switch ($t->type) {
+                    case TaskType::RMC:
+                        //FULL points are given if correct option is selected
+                        //0 points are given if any wrong option is selected
+                        for ($o = 0; $o < count($task['choices']); $o++) {
+                            $isCorrect = $task['choices'][$o]['correct'] == 1;
+                            $isSelected = $task['choices'][$o]['selected'] == 1;
+                            if ($isCorrect && $isSelected) {
+                                $given_points = $task['points'];
+                                break;
+                            }
+                        }
+                        break;
+                    case TaskType::CMC:
+                        //FULL points are given if only all correct options are selected
+                        //0 points are given if all options are selected
+                        //formula = ( correct_selected_options * (points/total_correct_options) ) - ( wrong_selected_options * (points/total_wrong_options) )
+                        //with no negative results
+                        //this happens in order to 'punish' those who select all options regardless of correct/wrong
+                        $precision = 100;
+
+                        //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
+                        $correctPoints = ($counts['correct'] == 0 ? 0 : round(+$precision * ($task['points'] / $counts['correct']))); //Positive multiplied with precision and rounded
+                        $wrongPoints = ($counts['wrong'] == 0 ? 0 : round(-$precision * ($task['points'] / $counts['wrong'])));   //Negative in order to subtract from positive points
+
+                        for ($o = 0; $o < count($task['choices']); $o++) {
+                            $isCorrect = $task['choices'][$o]['correct'] == 1;
+                            $isSelected = $task['choices'][$o]['selected'] == 1;
+                            if ($isSelected) {
+                                $option_points = $isCorrect ? $correctPoints : $wrongPoints;
+                                $given_points += $option_points;
+                                $task['choices'][$o]['given_points'] = $option_points / $precision;
+                            }
+                        }
+                        $given_points = $given_points / $precision;
+                        break;
+                }
+
+                //Making sure no negative grading will be applied to the task
+                $task['given_points'] = $given_points < 0 ? 0 : $given_points;
+            }
+            $segment['tasks'][] = $task;
+        }
+        return $segment;
     }
 }

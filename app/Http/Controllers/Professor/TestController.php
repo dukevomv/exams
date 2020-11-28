@@ -112,13 +112,12 @@ class TestController extends Controller {
     }
 
     public function userPreview($id, $userId, Request $request) {
-        //$test = Test::where('id',$id)->with('users')->withSegmentTaskAnswers()->first();
         $test = $this->service->fetchById($id);
-        $test = $this->service->calculateUserPoints($test, $userId);
+        $this->service->calculateUserPoints($test, $userId);
 
         return view('tests.preview', [
-            'test' => $this->service->prepareForUser($test),
-            'forUser' => true
+            'test'    => $this->service->prepareForUser($test),
+            'forUser' => true,
         ]);
     }
 }
