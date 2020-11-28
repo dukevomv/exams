@@ -212,7 +212,11 @@ textarea {
 
         .choice-side-b.selected a,
         .choice-side-b.selected a:hover {
-          color: #3097D1;
+          color: $brand-primary;
+        }
+
+        .choice-side-b.selected.correct a{
+          color: $brand-success;
         }
 
         .choice-button {
