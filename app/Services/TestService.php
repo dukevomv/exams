@@ -77,10 +77,12 @@ class TestService implements TestServiceInterface {
     }
 
     public function calculateUserPoints(Test $test, $userId) {
+        //make this as flags and calclulate everything in toArray methods
         $test = $this
             ->forUserId($userId)
             ->withCorrectAnswers()
             ->withUserAnswers()
+            ->withUserCalculatedPoints()
             ->mergeUserAnswersToTest($test);
 
         for ($s = 0; $s < count($test->segments); $s++) {
@@ -133,6 +135,7 @@ class TestService implements TestServiceInterface {
                         $given_points = $given_points / $precision;
                         break;
                     case TaskType::CORRESPONDENCE:
+                        \Log::info($test->segments[$s]->tasks[$t]);
                         //todo be able to calculate grades for answers and correct sides
                         break;
                     default:
@@ -201,7 +204,6 @@ class TestService implements TestServiceInterface {
     }
 
     public function mergeUserAnswersToTest($test) {
-        //todo use one of UserOnTest Attribure and getuser
         $user = $test->getUser($this->forUserId);
         if (is_null($user)) {
             return $test;
@@ -233,10 +235,10 @@ class TestService implements TestServiceInterface {
                                     }
                                     break;
                                 case TaskType::FREE_TEXT:
-                                    $test->segments[$s]->tasks[$t]->answer = $answer['data'];
-                                    break;
                                 case  TaskType::CORRESPONDENCE:
-                                    $test->segments[$s]->tasks[$t]->answers = $answer['data'];
+                                    if (array_key_exists('data', $answer)) {
+                                        $test->segments[$s]->tasks[$t]->answer = $answer['data'];
+                                    }
                                     break;
                                 default:
                                     //code
@@ -251,18 +253,13 @@ class TestService implements TestServiceInterface {
 
 
     public function prepareForUser(Test $test) {
-        switch (Auth::user()->role) {
-            case UserRole::STUDENT:
-                $test = $this->forUserId(Auth::id())->withUserAnswers()->mergeUserAnswersToTest($test);
-                break;
+        if (Auth::user()->role === UserRole::STUDENT) {
+            $test = $this->forUserId(Auth::id())->withUserAnswers()->mergeUserAnswersToTest($test);
         }
-        //todo make this a resource since you have hidden fields and you dont want them in your results
-        //hidden is returned in payload but it needs to be serialized in order not to be included ->toArray()
         return $this->toArray($test);
     }
 
-
-    private function toArray(Test $test) {
+    public function toArray(Test $test) {
         $initial = $test->toArray();
         $final = [
             'id'           => $test->id,
@@ -317,9 +314,15 @@ class TestService implements TestServiceInterface {
         ];
     }
 
-    private function toArraySegments($segments) {
+    public function toArraySegments($segments) {
         $data = [];
         foreach ($segments as $s) {
+            $data[] = $this->toArraySegment($s);
+        }
+        return $data;
+    }
+
+    public function toArraySegment($s) {
             $segment = [
                 'id'          => $s->id,
                 'title'       => $s->title,
@@ -334,12 +337,16 @@ class TestService implements TestServiceInterface {
                     'description' => $t->description,
                     'points'      => $t->points,
                 ];
-                if (isset($t->given_points)) {
-                    $task['given_points'] = $t->given_points;
-                }
+                $calculative = true;
+                $given_points = 0;
                 switch ($t->type) {
                     case TaskType::CMC:
                     case TaskType::RMC:
+                        $counts = [
+                            'total'   => 0,
+                            'correct' => 0,
+                            'wrong'   => 0,
+                        ];
                         $choices = [];
                         foreach ($t->{$t->type} as $choice) {
                             $choiceData = [
@@ -352,10 +359,15 @@ class TestService implements TestServiceInterface {
                             if ($this->includeCorrectAnswers) {
                                 $choiceData['correct'] = $choice->correct;
                             }
-                            //todo add here the calculated results
-                            $choiceData['given_points'] = 0;
+
                             $choices[] = $choiceData;
+
+                            $counts['total']++;
+                            if ($choice->correct) {
+                                $counts['correct']++;
+                            }
                         }
+                        $counts['wrong'] = $counts['total'] - $counts['correct'];
                         $task['choices'] = $choices;
                         break;
                     case TaskType::CORRESPONDENCE:
@@ -393,14 +405,55 @@ class TestService implements TestServiceInterface {
                         if ($this->includeUserAnswers) {
                             $task['answer'] = $t->answer;
                         }
+                        $calculative = false;
                         break;
                     default:
                 }
+
+                if ($calculative && $this->includeUserCalculatedPoints) {
+                    switch ($t->type) {
+                        case TaskType::RMC:
+                            //FULL points are given if correct option is selected
+                            //0 points are given if any wrong option is selected
+                            for ($o = 0; $o < count($task['choices']); $o++) {
+                                $isCorrect = $task['choices'][$o]['correct'] == 1;
+                                $isSelected = $task['choices'][$o]['selected'] == 1;
+                                if ($isCorrect && $isSelected) {
+                                    $given_points = $task['points'];
+                                    break;
+                                }
+                            }
+                            break;
+                        case TaskType::CMC:
+                            //FULL points are given if only all correct options are selected
+                            //0 points are given if all options are selected
+                            //formula = ( correct_selected_options * (points/total_correct_options) ) - ( wrong_selected_options * (points/total_wrong_options) )
+                            //with no negative results
+                            //this happens in order to 'punish' those who select all options regardless of correct/wrong
+                            $precision = 100;
+
+                            //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
+                            $correctPoints = ($counts['correct'] == 0 ? 0 : round(+$precision * ($task['points'] / $counts['correct']))); //Positive multiplied with precision and rounded
+                            $wrongPoints = ($counts['wrong'] == 0 ? 0 : round(-$precision * ($task['points'] / $counts['wrong'])));   //Negative in order to subtract from positive points
+
+                            for ($o = 0; $o < count($task['choices']); $o++) {
+                                $isCorrect = $task['choices'][$o]['correct'] == 1;
+                                $isSelected = $task['choices'][$o]['selected'] == 1;
+                                if ($isSelected) {
+                                    $option_points = $isCorrect ? $correctPoints : $wrongPoints;
+                                    $given_points += $option_points;
+                                    $task['choices'][$o]['given_points'] = $option_points / $precision;
+                                }
+                            }
+                            $given_points = $given_points / $precision;
+                            break;
+                    }
+
+                    //Making sure no negative grading will be applied to the task
+                    $task['given_points'] = $given_points < 0 ? 0 : $given_points;
+                }
                 $segment['tasks'][] = $task;
             }
-
-            $data[] = $segment;
-        }
-        return $data;
+            return $segment;
     }
 }
