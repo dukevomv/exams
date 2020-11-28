@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Enums\TaskType;
 use App\Http\Controllers\Controller;
+use App\Services\TestServiceInterface;
 use Illuminate\Http\Request;
 
 use App\Models\Segments\Segment;
@@ -11,6 +12,16 @@ use Log;
 
 class SegmentController extends Controller
 {
+
+    /**
+     * @var \App\Services\TestServiceInterface
+     */
+    private $testService;
+
+    public function __construct(TestServiceInterface $service) {
+        $this->testService = $service;
+    }
+
 	public function index(Request $request) {
 		$lessons 	= Lesson::approved()->get();
 		$segments = Segment::withCount('tests')->whereIn('lesson_id',$lessons->pluck('id')->all());
@@ -79,10 +90,12 @@ class SegmentController extends Controller
 		if(!is_null($id) && is_null($segment))
 			return redirect('segments');
 
+		$data = $this->testService->toArraySegment($segment);
+
 		if($request->input('modal',0) == 1)
-			return view('segments.modal_preview',['segment'=>$segment])->render();
+			return view('segments.modal_preview',['segment'=>$data])->render();
 		else
-			return view('segments.preview',['segment'=>$segment]);
+			return view('segments.preview',['segment'=>$data]);
 	}
 
 	public function delete($id = null) {

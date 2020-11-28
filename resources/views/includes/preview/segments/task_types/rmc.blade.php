@@ -15,7 +15,7 @@
                 <span>{{$choice['description']}}</span>
             </label>
             @if(array_key_exists('selected',$choice) && array_key_exists('correct',$choice))
-                @include('includes.preview.segments.task_answer', ['value' =>$choice['given_points'],'correct' => ($choice['correct'] == $choice['selected'])])
+                @include('includes.preview.segments.task_answer', ['correct' => ($choice['correct'] == $choice['selected'])])
             @endif
         </div>
     @endforeach
