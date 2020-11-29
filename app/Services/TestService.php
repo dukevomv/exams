@@ -380,10 +380,19 @@ class TestService implements TestServiceInterface {
                         }
                         $given_points = $given_points / $precision;
                         break;
+                    case TaskType::CORRESPONDENCE:
+                        $total = count($task['choices']);
+                        foreach($task['choices'] as $a => $b) {
+                            $isCorrect = $task['choices'][$a]['correct'] == $task['choices'][$a]['selected'];
+                            if ($isCorrect) {
+                                $given_points += $task['points'] / $total;
+                            }
+                        }
+                        break;
                 }
 
                 //Making sure no negative grading will be applied to the task
-                $task['given_points'] = $given_points < 0 ? 0 : $given_points;
+                $task['given_points'] = $given_points < 0 ? 0 : round($given_points,2);
             }
             $segment['tasks'][] = $task;
         }
