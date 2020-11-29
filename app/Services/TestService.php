@@ -383,7 +383,10 @@ class TestService implements TestServiceInterface {
                     case TaskType::CORRESPONDENCE:
                         $total = count($task['choices']);
                         foreach($task['choices'] as $a => $b) {
-                            $isCorrect = $task['choices'][$a]['correct'] == $task['choices'][$a]['selected'];
+                            $isCorrect = false;
+                            if(array_key_exists('selected',$task['choices'][$a])) {
+                                $isCorrect = $task['choices'][$a]['correct'] == $task['choices'][$a]['selected'];
+                            }
                             if ($isCorrect) {
                                 $given_points += $task['points'] / $total;
                             }
