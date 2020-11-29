@@ -3,7 +3,7 @@
     <div class="panel-heading">
         {{$task['description']}}
         @include('includes.preview.segments.task_points', [
-            'given' =>array_key_exists('given_points',$task) ? $task['given_points'] : null,
+            'given' =>array_key_exists('given_points',$task) ? $task['given_points'] : 0,
             'total' => $task['points']
         ])
     </div>
