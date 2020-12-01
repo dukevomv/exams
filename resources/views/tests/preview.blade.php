@@ -11,7 +11,14 @@
                         <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0">
                             @foreach($test['segments'] as $segment)
                                 <div class="segment-tasks-wrap" id="list-segment-id-{{$segment['id']}}">
-                                    <h4 class="clearfix">{{$segment['title']}}</h4>
+                                    <h4 class="clearfix">{{$segment['title']}}
+                                        @if(array_key_exists('total_given_points',$segment))
+                                            <span class="pull-right">
+                                                {{$segment['total_given_points']}}/{{$segment['total_points']}}
+                                            </span>
+                                        @endif
+                                    </h4>
+
                                     @foreach($segment['tasks'] as $task)
                                         @include('includes.preview.segments.task_view_panel', ['task' => $task])
                                     @endforeach

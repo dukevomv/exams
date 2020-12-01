@@ -257,10 +257,11 @@ class TestService implements TestServiceInterface {
 
     public function toArraySegment($s) {
         $segment = [
-            'id'          => $s->id,
-            'title'       => $s->title,
-            'description' => $s->description,
-            'tasks'       => [],
+            'id'           => $s->id,
+            'title'        => $s->title,
+            'description'  => $s->description,
+            'tasks'        => [],
+            'total_points' => 0,
         ];
         foreach ($s->tasks as $t) {
             $task = [
@@ -382,9 +383,9 @@ class TestService implements TestServiceInterface {
                         break;
                     case TaskType::CORRESPONDENCE:
                         $total = count($task['choices']);
-                        foreach($task['choices'] as $a => $b) {
+                        foreach ($task['choices'] as $a => $b) {
                             $isCorrect = false;
-                            if(array_key_exists('selected',$task['choices'][$a])) {
+                            if (array_key_exists('selected', $task['choices'][$a])) {
                                 $isCorrect = $task['choices'][$a]['correct'] == $task['choices'][$a]['selected'];
                             }
                             if ($isCorrect) {
@@ -395,8 +396,13 @@ class TestService implements TestServiceInterface {
                 }
 
                 //Making sure no negative grading will be applied to the task
-                $task['given_points'] = $given_points < 0 ? 0 : round($given_points,2);
+                $task['given_points'] = $given_points < 0 ? 0 : round($given_points, 2);
+                if (!array_key_exists('total_given_points', $segment)) {
+                    $segment['total_given_points'] = 0;
+                }
+                $segment['total_given_points'] += $task['given_points'];
             }
+            $segment['total_points'] += $task['points'];
             $segment['tasks'][] = $task;
         }
         return $segment;
