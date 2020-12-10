@@ -62,6 +62,7 @@
                     </form>
                 </div>
             </div>
+            @include('includes.demo-jumbotron')
         </div>
     </div>
 </div>
