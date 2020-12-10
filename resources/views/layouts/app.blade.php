@@ -49,32 +49,27 @@
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
-                    @if (Auth::guest())
-
-                    @elseif(Auth::user()->role == 'admin')
-                        <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
-                            <a href="{{ url('/users') }}">Users</a>
-                        </li>
-                        <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
-                            <a href="{{ url('/lessons') }}">Lessons</a>
-                        </li>
-                    @elseif(Auth::user()->role == 'professor')
-                        <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
-                            <a href="{{ url('/lessons') }}">Lessons</a>
-                        </li>
-                        <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
-                            <a href="{{ url('/tests') }}">Tests</a>
-                        </li>
-                        <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">
-                            <a href="{{ url('/segments') }}">Segments</a>
-                        </li>
-                    @elseif(Auth::user()->role == 'student')
-                        <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
-                            <a href="{{ url('/lessons') }}">Lessons</a>
-                        </li>
-                        <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
-                            <a href="{{ url('/tests') }}">Tests</a>
-                        </li>
+                    @if (Auth::user())
+                        @if(in_array(Auth::user()->role,['admin']))
+                            <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
+                                <a href="{{ url('/users') }}">Users</a>
+                            </li>
+                        @endif
+                        @if(in_array(Auth::user()->role,['admin','professor','student']))
+                            <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
+                                <a href="{{ url('/lessons') }}">Lessons</a>
+                            </li>
+                        @endif
+                        @if(in_array(Auth::user()->role,['professor','student']))
+                            <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
+                                <a href="{{ url('/tests') }}">Tests</a>
+                            </li>
+                        @endif
+                        @if(in_array(Auth::user()->role,['professor']))
+                            <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">
+                                <a href="{{ url('/segments') }}">Segments</a>
+                            </li>
+                        @endif
                     @endif
                 </ul>
 
