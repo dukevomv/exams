@@ -9,7 +9,7 @@
 
                 <div class="panel-body">
                     @if(Auth::check())
-                        You are logged in!ssss
+                        You are logged in!
                     @else
                         You must login in order to do more things.
                     @endif

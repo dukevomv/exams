@@ -19,6 +19,13 @@ Route::get('/now',function () {return \Carbon\Carbon::now();});
 Route::get('/settings', 'HomeController@settings');
 Route::post('/settings', 'HomeController@updateSettings')->middleware('auth');
 
+if(config('app.demo.enabled')){
+    Route::group(['prefix' => 'demo'], function () {
+        Route::post('generate', 'DemoController@generate');
+        Route::post('switch-role/{role}', 'DemoController@switchRole');
+    });
+}
+
 Route::group(['middleware' => ['auth','can:navigate']], function () {
 	Route::get('/home', 'HomeController@home');
 	Route::get('/test', 'HomeController@test');
@@ -73,6 +80,7 @@ Route::group(['middleware' => ['auth','can:navigate']], function () {
 			Route::post('{id}/finish', 'TestController@finish');
 
             Route::get('{id}/users/{userId}', 'TestController@userPreview');
+            Route::post('{id}/users/{userId}/grade-task', 'TestController@gradeUserTask');
 		});
 
 		//students

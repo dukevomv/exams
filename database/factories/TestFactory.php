@@ -17,11 +17,13 @@ $factory->define(App\Models\Test::class, function (Faker\Generator $faker) {
         'lesson_id' => function () {
             return factory(\App\Models\Lesson::class)->create()->id;
         },
-        'name' => $faker->name,
+        'name' => function (array $test) use ($faker) {
+            return App\Models\Lesson::find($test['lesson_id'])->name. ' Examination '.$faker->randomDigitNot(0);
+        },
         'description' => $faker->text,
         'status' => $faker->randomElement(\App\Enums\TestStatus::values()),
         'scheduled_at' => null,
-        'duration' => $faker->randomDigit,
+        'duration' => $faker->randomDigit*10,
     ];
 });
 

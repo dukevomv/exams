@@ -40,38 +40,36 @@
                 <!-- Branding Image -->
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
+                    @if(config('app.demo.enabled') && Session::has(config('app.demo.session_field')))
+                        <span class="label label-info">DEMO</span>
+                    @endif
                 </a>
             </div>
 
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
-                    @if (Auth::guest())
-
-                    @elseif(Auth::user()->role == 'admin')
-                        <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
-                            <a href="{{ url('/users') }}">Users</a>
-                        </li>
-                        <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
-                            <a href="{{ url('/lessons') }}">Lessons</a>
-                        </li>
-                    @elseif(Auth::user()->role == 'professor')
-                        <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
-                            <a href="{{ url('/lessons') }}">Lessons</a>
-                        </li>
-                        <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
-                            <a href="{{ url('/tests') }}">Tests</a>
-                        </li>
-                        <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">
-                            <a href="{{ url('/segments') }}">Segments</a>
-                        </li>
-                    @elseif(Auth::user()->role == 'student')
-                        <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
-                            <a href="{{ url('/lessons') }}">Lessons</a>
-                        </li>
-                        <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
-                            <a href="{{ url('/tests') }}">Tests</a>
-                        </li>
+                    @if (Auth::user())
+                        @if(in_array(Auth::user()->role,['admin']))
+                            <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
+                                <a href="{{ url('/users') }}">Users</a>
+                            </li>
+                        @endif
+                        @if(in_array(Auth::user()->role,['admin','professor','student']))
+                            <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
+                                <a href="{{ url('/lessons') }}">Lessons</a>
+                            </li>
+                        @endif
+                        @if(in_array(Auth::user()->role,['professor','student']))
+                            <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
+                                <a href="{{ url('/tests') }}">Tests</a>
+                            </li>
+                        @endif
+                        @if(in_array(Auth::user()->role,['professor']))
+                            <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">
+                                <a href="{{ url('/segments') }}">Segments</a>
+                            </li>
+                        @endif
                     @endif
                 </ul>
 
@@ -79,6 +77,7 @@
                 <ul class="nav navbar-nav navbar-right">
                     <!-- Authentication Links -->
                     @if (Auth::guest())
+                        {{session('demo_user')}}
                         <li><a href="{{ route('login') }}">Login</a></li>
                         <li><a href="{{ route('register') }}">Register</a></li>
                     @else
@@ -92,6 +91,23 @@
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="{{url('/settings')}}"><i class="fa fa-cog"></i> Settings</a></li>
                                 <li role="separator" class="divider"></li>
+                                <li class="dropdown-header">DEMO Options</li>
+                                @if(config('app.demo.enabled'))
+                                    @foreach(\App\Enums\UserRole::values() as $role)
+                                        @php $toggle = $role == Auth::user()->role ? 'on' : 'off'; @endphp
+                                    <li>
+                                        <a href="{{ url('demo/switch-role/'.$role) }}"
+                                           onclick="event.preventDefault();
+                                                     document.getElementById('switch-role-{{$role}}-form').submit();"><i class="fa fa-toggle-{{$toggle}}"></i> Switch to <span class="label label-{{$role}}">{{ucfirst($role)}}</span>
+                                        </a>
+                                        <form id="switch-role-{{$role}}-form" action="{{ url('demo/switch-role/'.$role) }}" method="POST"
+                                              style="display: none;">
+                                            <input type="hidden" value="{{ csrf_token() }}" name="_token">
+                                        </form>
+                                    </li>
+                                        @endforeach
+                                    <li role="separator" class="divider"></li>
+                                @endif
                                 <li>
                                     <a href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
