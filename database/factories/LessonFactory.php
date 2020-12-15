@@ -29,7 +29,7 @@ const SUBJECTS = ['Accounting and Finance', 'Aeronautical and Manufacturing Engi
 $factory->define(App\Models\Lesson::class, function (Faker\Generator $faker) {
     return [
         'name'       => $faker->randomElement(SUBJECTS),
-        'semester'   => $faker->randomDigit,
+        'semester'   => $faker->randomDigitNot(0),
         'gunet_code' => str_random(10),
     ];
 });
