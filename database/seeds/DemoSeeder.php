@@ -51,35 +51,40 @@ class DemoSeeder extends Seeder {
                                ->build();
 
         $test = TestBuilder::instance()
-                           ->inLesson($lesson->id)
-                           ->withUser($users[UserRole::STUDENT]->id)
                            ->published(Carbon::now()->addMinutes(10))
-                           ->withSegmentTasks([
-                               [
-                                   'type'        => TaskType::CMC,
-                                   'points'      => 3,
-                                   'description' => 'Odd numbers?',
-                                   'options'     => [
-                                       'A'   => false,
-                                       '3'   => true,
-                                       '17'  => true,
-                                       '2'   => false,
-                                       '170' => false,
-                                   ],
-                               ],
-                               [
-                                   'type'        => TaskType::RMC,
-                                   'points'      => 13,
-                                   'description' => 'Highest number',
-                                   'options'     => [
-                                       'A'   => false,
-                                       '3'   => false,
-                                       '17'  => false,
-                                       '2'   => false,
-                                       '170' => true,
-                                   ],
-                               ],
-                           ])->withSegmentTasks([
+                           ->withUser($users[UserRole::STUDENT]->id)
+                           ->inLesson($lesson->id)->withSegmentTasks([
+                [
+                    'type'        => TaskType::CMC,
+                    'points'      => 3,
+                    'description' => 'Odd numbers?',
+                    'options'     => [
+                        'A'   => false,
+                        '3'   => true,
+                        '17'  => true,
+                        '2'   => false,
+                        '170' => false,
+                    ],
+                ],
+                [
+                    'type'        => TaskType::RMC,
+                    'points'      => 13,
+                    'description' => 'Highest number',
+                    'options'     => [
+                        'A'   => false,
+                        '3'   => false,
+                        '17'  => false,
+                        '2'   => false,
+                        '170' => true,
+                    ],
+                ],
+                [
+                    'type'        => TaskType::CORRESPONDENCE,
+                    'points'      => 23,
+                    'description' => 'Connect the dots',
+                    'options'     => 6,
+                ],
+            ])->withSegmentTasks([
                 [
                     'type'        => TaskType::CMC,
                     'points'      => 4,
@@ -92,7 +97,11 @@ class DemoSeeder extends Seeder {
                     'description' => 'Second Choose numbers',
                     'options'     => 6,
                 ],
-            ])->build();
+                [
+                    'type'        => TaskType::FREE_TEXT,
+                    'points'      => 4,
+                    'description' => 'Explain how HTML, CSS and JS are connected in the browser.'
+                ]])->build();
 
         DB::table('demo_users')->where('id', $demoUserId)->update(['finished' => true]);
         return $timestamp;

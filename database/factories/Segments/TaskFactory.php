@@ -51,3 +51,14 @@ $factory->define(App\Models\Segments\AnswerRmc::class, function (Faker\Generator
         'correct' => $faker->boolean,
     ];
 });
+
+$factory->define(App\Models\Segments\AnswerCorrespondence::class, function (Faker\Generator $faker) {
+    $sideA = $faker->word;
+    return [
+        'task_id' => function () {
+            return factory(\App\Models\Segments\Task::class)->create()->id;
+        },
+        'side_a' => $sideA.' A',
+        'side_b' => $sideA.' B',
+    ];
+});
