@@ -29,7 +29,7 @@ class Segment extends Model {
 
     public function scopeWithTaskAnswers($query) {
         return $query->with(['tasks' => function ($q) {
-            $q->with([TaskType::RMC, TaskType::CMC, TaskType::CORRESPONDENCE])->orderBy('position');
+            $q->with([TaskType::RMC, TaskType::CMC, TaskType::CORRESPONDENCE,TaskType::FREE_TEXT])->orderBy('position');
         }]);
     }
 }

@@ -33,32 +33,44 @@ foreach(App\Enums\TaskType::values() as $type){
 }
 
 $factory->define(App\Models\Segments\AnswerCmc::class, function (Faker\Generator $faker) {
+    $correct = $faker->boolean;
     return [
         'task_id' => function () {
             return factory(\App\Models\Segments\Task::class)->create()->id;
         },
-        'description' => $faker->text,
-        'correct' => $faker->boolean,
+        'description' => ($correct ? 'Correct - ' : 'Wrong - ').$faker->words(2,true),
+        'correct' => $correct,
     ];
 });
 
 $factory->define(App\Models\Segments\AnswerRmc::class, function (Faker\Generator $faker) {
+    $correct = $faker->boolean;
     return [
         'task_id' => function () {
             return factory(\App\Models\Segments\Task::class)->create()->id;
         },
-        'description' => $faker->text,
-        'correct' => $faker->boolean,
+        'description' => ($correct ? 'Correct - ' : 'Wrong - ').$faker->words(2,true),
+        'correct' => $correct,
     ];
 });
 
 $factory->define(App\Models\Segments\AnswerCorrespondence::class, function (Faker\Generator $faker) {
-    $sideA = $faker->word;
+    $sideA = $faker->words(3,true);
     return [
         'task_id' => function () {
             return factory(\App\Models\Segments\Task::class)->create()->id;
         },
         'side_a' => $sideA.' A',
         'side_b' => $sideA.' B',
+    ];
+});
+
+
+$factory->define(App\Models\Segments\AnswerFreeText::class, function (Faker\Generator $faker) {
+    return [
+        'task_id' => function () {
+            return factory(\App\Models\Segments\Task::class)->create()->id;
+        },
+        'description' => $faker->text
     ];
 });

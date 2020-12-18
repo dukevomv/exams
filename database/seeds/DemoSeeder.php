@@ -79,10 +79,9 @@ class DemoSeeder extends Seeder {
                     ],
                 ],
                 [
-                    'type'        => TaskType::CORRESPONDENCE,
-                    'points'      => 23,
-                    'description' => 'Connect the dots',
-                    'options'     => 6,
+                    'type'        => TaskType::FREE_TEXT,
+                    'points'      => 4,
+                    'description' => 'Explain how HTML, CSS and JS are connected in the browser.',
                 ],
             ])->withSegmentTasks([
                 [
@@ -92,16 +91,18 @@ class DemoSeeder extends Seeder {
                     'options'     => 5,
                 ],
                 [
+                    'type'        => TaskType::CORRESPONDENCE,
+                    'points'      => 23,
+                    'description' => 'Connect the dots',
+                    'options'     => 6,
+                ],
+                [
                     'type'        => TaskType::RMC,
                     'points'      => 14,
                     'description' => 'Second Choose numbers',
                     'options'     => 6,
                 ],
-                [
-                    'type'        => TaskType::FREE_TEXT,
-                    'points'      => 4,
-                    'description' => 'Explain how HTML, CSS and JS are connected in the browser.'
-                ]])->build();
+            ])->build();
 
         DB::table('demo_users')->where('id', $demoUserId)->update(['finished' => true]);
         return $timestamp;
