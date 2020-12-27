@@ -117,7 +117,21 @@ class TestController extends Controller {
 
         return view('tests.preview', [
             'test'    => $this->service->prepareForUser($test),
-            'forUser' => true,
+            'forUser' => $userId,
         ]);
+    }
+
+    public function gradeUserTask($id, $userId, Request $request) {
+        $this->validate($request, [
+            'task_id'      => 'required|integer',
+            'points'       => 'required|numeric'
+        ]);
+
+        $test = $this->service->fetchById($id);
+        //todo the below line is to set the forUserId for the student is being graded
+        $this->service->calculateUserPoints($test,$userId);
+        $this->service->gradeUserTask($test,$request->only('task_id','points'));
+        //todo make this an ajax call
+        return back();
     }
 }

@@ -58,7 +58,7 @@ class Test extends Model {
     }
 
     public function getUserById($userId) {
-        return $this->belongsToMany(User::class)->where('user_id', $userId)->withTimestamps()->withPivot('status', 'answers', 'answers_draft', 'answered_draft_at', 'answered_at', 'grade')->using('App\Models\TestUser');
+        return $this->belongsToMany(User::class)->where('user_id', $userId)->withTimestamps()->withPivot('status', 'answers', 'answers_draft', 'answered_draft_at', 'answered_at', 'grades', 'graded_at', 'graded_by')->using('App\Models\TestUser');
     }
 
     public function getUser($userId) {
@@ -108,6 +108,14 @@ class Test extends Model {
 
     public function getStudentsAnswers($userID, $final = false) {
         return $this->users()->where('user_id', $userID)->select();
+    }
+
+    public function saveProfessorGrade($userID, array $grades) {
+        return $this->users()->updateExistingPivot($userID, [
+            'grades' => json_encode($grades),
+            'graded_at' => Carbon::now(),
+            'graded_by' => Auth::id(),
+        ]);
     }
 
     public function saveStudentsAnswers($userID, array $answers, $final = false) {

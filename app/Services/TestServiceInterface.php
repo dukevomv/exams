@@ -10,11 +10,13 @@ interface TestServiceInterface {
 
     public function calculateUserPoints(Test $test, $userId);
 
+    public function gradeUserTask(Test $test, $payload);
+
     public function prepareForUser(Test $test);
 
     public function toArray(Test $test);
-    public function toArraySegment($segment);
-    public function toArraySegments($segments);
+    public function toArraySegment($segment,$grades = []);
+    public function toArraySegments(Test $test);
 
     //todo include the TestService used functions and what i want to have published
 }

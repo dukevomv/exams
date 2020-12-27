@@ -6,7 +6,8 @@
             <div class="row">
                 @include('includes.preview.test.sidebar', ['test' => $test])
                 <div class="main col-xs-8 pull-right main-panel">
-                    @if ((Auth::user()->role == 'student' && $test['status'] == 'started'  && $timer['actual_time'])
+{{--                    todo  make the below check to work properly for users and shows tasks only whne should (started after 30 sec, finished first 30 secs--}}
+                    @if ((Auth::user()->role == 'student' && ($test['status'] == 'started' || $timer['running']))
                         || (Auth::user()->role == 'professor' && isset($forUser) && in_array($test['status'],['finished','graded'])))
                         <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0">
                             @foreach($test['segments'] as $segment)
@@ -20,7 +21,15 @@
                                     </h4>
 
                                     @foreach($segment['tasks'] as $task)
-                                        @include('includes.preview.segments.task_view_panel', ['task' => $task])
+                                        @php
+                                            $data = [
+                                                'test_id' => $test['id']
+                                            ];
+                                            if(isset($forUser)){
+                                                $data['student_id'] = $forUser;
+                                            }
+                                        @endphp
+                                        @include('includes.preview.segments.task_view_panel', array_merge($data,['task' => $task]))
                                     @endforeach
                                     <hr>
                                 </div>
@@ -40,12 +49,12 @@
     <script type="text/javascript">
       testData.test = {!! json_encode($test) !!};
       @if(isset($timer))
-          testData.timer = {!! json_encode($timer) !!};
-          testData.now = moment('{{$now}}');
-          testData.serverSecondsDifference = moment().diff(moment('{{$now}}'), 'seconds');
+        testData.timer = {!! json_encode($timer) !!};
+      testData.now = moment('{{$now}}');
+      testData.serverSecondsDifference = moment().diff(moment('{{$now}}'), 'seconds');
 
-          testUtils.initializeRealtime()
-          testUtils.initiateTimer()
-      @endif
+      testUtils.initializeRealtime()
+      testUtils.initiateTimer()
+        @endif
     </script>
 @endsection

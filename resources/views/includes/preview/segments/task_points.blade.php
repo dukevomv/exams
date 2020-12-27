@@ -16,7 +16,7 @@
     }
 
 $editable = false;
-if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR){
+if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test_id) && isset($student_id)){
     $editable = true;
 }
 @endphp
@@ -29,10 +29,14 @@ if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR){
 <span class="pull-right label label-{{$class}} @if($editable) editable @endif">{{$output}}</span>
 @if($editable)
     <div class="input-group mb-3 pull-right">
-        <input type="number" class="form-control" value="{{$given}}" max="{{$total}}">
-        <div class="input-group-append pull-right">
-            <button class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
-        </div>
+        <form method="POST" action="{{ url('/tests/'.$test_id.'/users/'.$student_id.'/grade-task')}}">
+            {{ csrf_field() }}
+            <input type="hidden" name="task_id" value="{{$task_id}}">
+            <input type="number" class="form-control" name="points" value="{{$given}}" max="{{$total}}">
+            <div class="input-group-append pull-right">
+                <button class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
+            </div>
+        </form>
     </div>
 @endif
 

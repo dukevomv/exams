@@ -1,3 +1,4 @@
+
 <div class="panel panel-default task-wrap relative" data-task-type="free_text">
   <div class="order-wrap">
     <div class="order-trigger cursor-pointer" data-order-direction="up"><i class="fa fa-angle-up" aria-hidden="true"></i></div>
