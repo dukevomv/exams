@@ -4,6 +4,8 @@ namespace Tests\Builders;
 
 use App\Enums\TaskType;
 use App\Models\Segments\AnswerCmc;
+use App\Models\Segments\AnswerCorrespondence;
+use App\Models\Segments\AnswerFreeText;
 use App\Models\Segments\AnswerRmc;
 use App\Models\Segments\Segment;
 use App\Models\Segments\Task;
@@ -99,14 +101,19 @@ class SegmentBuilder extends ModelBuilder {
             $this->tasks[$t]['id'] = $task->id;
             $position++;
 
+            $answerClass = [
+                TaskType::CMC            => AnswerCmc::class,
+                TaskType::RMC            => AnswerRmc::class,
+                TaskType::CORRESPONDENCE => AnswerCorrespondence::class,
+                TaskType::FREE_TEXT      => AnswerFreeText::class,
+            ];
+            //todo make RMC to have always only one correct option
+
+            $commons = ['task_id' => $task->id];
             switch ($type) {
                 case TaskType::CMC:
                 case TaskType::RMC:
-                    $answerClass = [
-                        TaskType::CMC => AnswerCmc::class,
-                        TaskType::RMC => AnswerRmc::class,
-                    ];
-                    $commons = ['task_id' => $task->id];
+                case TaskType::CORRESPONDENCE:
                     $finalOptions = [];
                     if (!Arr::has($this->tasks[$t], 'options')) {
                         //if options doesnt exist create random amount of options
@@ -115,24 +122,38 @@ class SegmentBuilder extends ModelBuilder {
                         //if options is a number, create that many options and ensure its more than 1
                         $amount = (integer)$this->tasks[$t]['options'];
                         $amount = ($amount <= 1) ? 2 : $amount;
-                        $finalOptions = factory($answerClass[$type], $amount)->create($commons)->toArray();
+                        $finalOptions = factory($answerClass[$type], $amount)
+                            ->create($commons)
+                            ->toArray();
                     } elseif (count($this->tasks[$t]['options']) > 0) {
                         //if options is an array
                         foreach ($this->tasks[$t]['options'] as $optionKey => $option) {
-                            if (is_integer($optionKey) && (isset($option['description']) || isset($option['correct']))) {
+                            if (is_integer($optionKey) && (is_object($option) || is_array($option)) && Arr::isAssoc($option)) {
                                 //$optionKey is array with associative array in $option
                                 $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, $option))->toArray();
-                            } elseif (is_bool($option)) {
-                                //$optionKey is the option description with correct boolean in $option
-                                $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, [
-                                    'description' => $optionKey,
-                                    'correct'     => $option,
-                                ]))->toArray();
+                            } else {
+                                if (is_bool($option)) {
+                                    //$optionKey is the option description with correct boolean in $option
+                                    $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, [
+                                        'description' => $optionKey,
+                                        'correct'     => $option,
+                                    ]))->toArray();
+                                } else {
+                                    if ($type == TaskType::CORRESPONDENCE) {
+                                        //$optionKey is the option description with correct boolean in $option
+                                        $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, [
+                                            'side_a' => $optionKey,
+                                            'side_b' => $option,
+                                        ]))->toArray();
+                                    }
+                                }
                             }
                         }
                     }
                     $this->tasks[$t]['options'] = $finalOptions;
                     break;
+                case TaskType::FREE_TEXT:
+                    $this->tasks[$t]['answer'] = factory($answerClass[$type])->create($commons)->toArray();
                 default:
             }
         }
