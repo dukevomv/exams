@@ -9,12 +9,20 @@ use App\Models\Segments\AnswerFreeText;
 use App\Models\Segments\AnswerRmc;
 use App\Models\Segments\Segment;
 use App\Models\Segments\Task;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Tests\Builders\Traits\AddsLessonId;
 
 class SegmentBuilder extends ModelBuilder {
 
     use AddsLessonId;
+
+    const ANSWER_CLASS_MAP = [
+        TaskType::CMC            => AnswerCmc::class,
+        TaskType::RMC            => AnswerRmc::class,
+        TaskType::CORRESPONDENCE => AnswerCorrespondence::class,
+        TaskType::FREE_TEXT      => AnswerFreeText::class,
+    ];
 
     private $tasks = [];
 
@@ -84,6 +92,22 @@ class SegmentBuilder extends ModelBuilder {
         return $segment->load('tasks');
     }
 
+    private function createOptions($type, $data,$amount = 1) {
+        $items = [];
+        switch ($type) {
+            case TaskType::RMC:
+                $correct = rand(0,$amount-1);
+                for ($i = 0; $i < $amount; $i++) {
+                    $state = $i == $correct ? 'correct' : 'wrong';
+                    $items[] = factory(self::ANSWER_CLASS_MAP[$type])->states([$state])->create($data)->toArray();
+                }
+                break;
+            default:
+                $items = factory(self::ANSWER_CLASS_MAP[$type], $amount)->create($data)->toArray();
+        }
+        return $items;
+    }
+
     private function buildTasks(Segment $segment) {
         $position = 0;
         for ($t = 0; $t < count($this->tasks); $t++) {
@@ -101,14 +125,6 @@ class SegmentBuilder extends ModelBuilder {
             $this->tasks[$t]['id'] = $task->id;
             $position++;
 
-            $answerClass = [
-                TaskType::CMC            => AnswerCmc::class,
-                TaskType::RMC            => AnswerRmc::class,
-                TaskType::CORRESPONDENCE => AnswerCorrespondence::class,
-                TaskType::FREE_TEXT      => AnswerFreeText::class,
-            ];
-            //todo make RMC to have always only one correct option
-
             $commons = ['task_id' => $task->id];
             switch ($type) {
                 case TaskType::CMC:
@@ -117,34 +133,32 @@ class SegmentBuilder extends ModelBuilder {
                     $finalOptions = [];
                     if (!Arr::has($this->tasks[$t], 'options')) {
                         //if options doesnt exist create random amount of options
-                        $finalOptions = factory($answerClass[$type], $this->faker->numberBetween(2, 10))->create($commons)->toArray();
+                        $finalOptions = $this->createOptions($type, $this->faker->numberBetween(2, 10), $commons);
                     } elseif (is_integer($this->tasks[$t]['options'])) {
                         //if options is a number, create that many options and ensure its more than 1
                         $amount = (integer)$this->tasks[$t]['options'];
                         $amount = ($amount <= 1) ? 2 : $amount;
-                        $finalOptions = factory($answerClass[$type], $amount)
-                            ->create($commons)
-                            ->toArray();
+                        $finalOptions = $this->createOptions($type, $commons,$amount);
                     } elseif (count($this->tasks[$t]['options']) > 0) {
                         //if options is an array
                         foreach ($this->tasks[$t]['options'] as $optionKey => $option) {
                             if (is_integer($optionKey) && (is_object($option) || is_array($option)) && Arr::isAssoc($option)) {
                                 //$optionKey is array with associative array in $option
-                                $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, $option))->toArray();
+                                $finalOptions[] = $this->createOptions($type, array_merge($commons, $option));
                             } else {
                                 if (is_bool($option)) {
                                     //$optionKey is the option description with correct boolean in $option
-                                    $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, [
+                                    $finalOptions[] = $this->createOptions($type, array_merge($commons, [
                                         'description' => $optionKey,
                                         'correct'     => $option,
-                                    ]))->toArray();
+                                    ]));
                                 } else {
                                     if ($type == TaskType::CORRESPONDENCE) {
                                         //$optionKey is the option description with correct boolean in $option
-                                        $finalOptions[] = factory($answerClass[$type])->create(array_merge($commons, [
+                                        $finalOptions[] = $this->createOptions($type, array_merge($commons, [
                                             'side_a' => $optionKey,
                                             'side_b' => $option,
-                                        ]))->toArray();
+                                        ]));
                                     }
                                 }
                             }
@@ -153,7 +167,7 @@ class SegmentBuilder extends ModelBuilder {
                     $this->tasks[$t]['options'] = $finalOptions;
                     break;
                 case TaskType::FREE_TEXT:
-                    $this->tasks[$t]['answer'] = factory($answerClass[$type])->create($commons)->toArray();
+                    $this->tasks[$t]['answer'] = $this->createOptions($type, $commons);
                 default:
             }
         }
