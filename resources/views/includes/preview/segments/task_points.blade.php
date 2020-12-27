@@ -26,19 +26,24 @@ if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test_id) && is
     }
 </style>
 
-<span class="pull-right label label-{{$class}} @if($editable) editable @endif">{{$output}}</span>
-@if($editable)
-    <div class="input-group mb-3 pull-right">
+<div class="col-md-3 no-padding pull-right">
+    @if($editable)
         <form method="POST" action="{{ url('/tests/'.$test_id.'/users/'.$student_id.'/grade-task')}}">
             {{ csrf_field() }}
             <input type="hidden" name="task_id" value="{{$task_id}}">
-            <input type="number" class="form-control" name="points" value="{{$given}}" max="{{$total}}">
-            <div class="input-group-append pull-right">
-                <button class="btn btn-primary btn-sm"><i class="fa fa-save"></i></button>
+            <div class="input-group input-group-sm">
+                <input type="number" class="form-control bg-success" name="points" value="{{$given}}" max="{{$total}}" style="text-align: right;}">
+                <span class="input-group-addon text-success" id="sizing-addon3"><b class="text-{{$class}}">/{{$total}} pts</b></span>
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i></button>
+                </span>
+
             </div>
         </form>
-    </div>
-@endif
+    @else
+        <span class="pull-right label label-{{$class}} @if($editable) editable @endif">{{$output}}</span>
+    @endif
+</div>
 
 {{--show input  on click
 hide input on click
