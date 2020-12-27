@@ -38,7 +38,7 @@ $factory->define(App\Models\Segments\AnswerCmc::class, function (Faker\Generator
         'task_id' => function () {
             return factory(\App\Models\Segments\Task::class)->create()->id;
         },
-        'description' => ($correct ? 'Correct - ' : 'Wrong - ').$faker->words(2,true),
+        'description' => $faker->words(2,true).($correct ? ' - Correct' : ' - Wrong'),
         'correct' => $correct,
     ];
 });
@@ -49,7 +49,7 @@ $factory->define(App\Models\Segments\AnswerRmc::class, function (Faker\Generator
         'task_id' => function () {
             return factory(\App\Models\Segments\Task::class)->create()->id;
         },
-        'description' => ($correct ? 'Correct - ' : 'Wrong - ').$faker->words(2,true),
+        'description' => $faker->words(2,true).($correct ? ' - Correct' : ' - Wrong'),
         'correct' => $correct,
     ];
 });
