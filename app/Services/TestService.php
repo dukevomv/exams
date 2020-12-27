@@ -252,6 +252,7 @@ class TestService implements TestServiceInterface {
             'users'        => $this->toArrayUsers($test->users),
             'scheduled_at' => (!is_null($test->scheduled_at) ? $test->scheduled_at->format('d M, H:i') : '-'),
             'initial'      => $initial,
+            'with_grades' => $this->includeUserCalculatedPoints
         ];
 
         $userOnTest = $test->user_on_test;

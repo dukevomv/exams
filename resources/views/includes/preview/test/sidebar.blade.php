@@ -13,6 +13,20 @@
             </p>
             <p><strong>Status: </strong>{{ucfirst($test['status'])}}
             </p>
+            @php
+                $gradesDOM = '';
+                $total = 0;
+                $total_given = 0;
+                if($test['with_grades']){
+                    $pointsDOM = '';
+                    foreach($test['segments'] as $segment){
+                        $total_given += $segment['total_given_points'];
+                        $total += $segment['total_points'];
+                    }
+                        $gradesDOM = '<p><strong>Grades: </strong><span class="label label-default pull-right">'.$total_given.'/'.$total.'</span></p>';
+                }
+            @endphp
+            {!! $gradesDOM !!}
             <li class="list-group-item test-timer-wrap hidden">
                 <div id="test-timer" class="test-timer"></div>
             </li>
@@ -30,7 +44,7 @@
                         @endif
                     </div>
                 @elseif (Auth::user()->role == 'student')
-{{--                    todo here the save buttons dont work at all for any task  type--}}
+                    {{--                    todo here the save buttons dont work at all for any task  type--}}
                     <div class="margin-bottom-15 clearfix">
                         @if(!array_key_exists('current_user',$test))
                             @if (in_array($test['status'],['published','started']))
@@ -67,12 +81,18 @@
                 @endif
             </div>
         </div>
-        @if (Auth::user()->role == 'student' && isset($timer) && $test['status'] == 'started'  && $timer['actual_time'])
+        @if (Auth::user()->role == 'professor' || isset($timer) && $test['status'] == 'started' && $timer['actual_time'])
             <div id="segment-list" class="list-group">
                 @foreach($test['segments'] as $segment)
+                    @php
+                        $pointsDOM = '';
+                        if($test['with_grades']){
+                            $pointsDOM = '<span class="label label-default pull-right">'.$segment['total_given_points'].'/'.$segment['total_points'].'</span>';
+                        }
+                    @endphp
                     <a class="list-group-item list-group-item-action"
                        href="#list-segment-id-{{$segment['id']}}">{{$segment['title']}}
-                        <small>({{count($segment['tasks'])}} tasks)</small></a>
+                        <small>({{count($segment['tasks'])}} tasks)</small> {!!$pointsDOM!!}</a>
                 @endforeach
             </div>
         @endif
