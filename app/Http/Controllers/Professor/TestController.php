@@ -113,6 +113,9 @@ class TestController extends Controller {
 
     public function userPreview($id, $userId, Request $request) {
         $test = $this->service->fetchById($id);
+        if(in_array($test->status,[TestStatus::STARTED,TestStatus::PUBLISHED])){
+            return redirect('/tests/'.$id);
+        }
         $this->service->calculateUserPoints($test, $userId);
 
         return view('tests.preview', [
