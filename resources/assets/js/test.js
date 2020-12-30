@@ -1,6 +1,7 @@
 window.testData = {
   test: null,
   timer: null,
+  user: null,
   now: null,
   serverSecondsDifference: null,
   clockInterval: null,

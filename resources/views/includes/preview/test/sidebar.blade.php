@@ -32,6 +32,7 @@
             </li>
             <div class="test-actions margin-top-30">
                 @if (Auth::user()->role == 'professor')
+                    {{--                    todo make test list to show current status and active should be very visible for students - and then show grades on tests--}}
                     {{--                    todo add actions for grading and publishing grades for students--}}
                     <div class="margin-bottom-15 clearfix">
                         @if ($test['status'] == 'published')
@@ -67,7 +68,9 @@
                                         Test
                                     </button>
                                 </form>
-                            @elseif (Auth::user()->role == 'student' && isset($timer) && (($test['status'] == 'started' && $timer['actual_time']) || ($test['status'] == 'finished' && !$timer['actual_time'])))
+                            @elseif (Auth::user()->role == \App\Enums\UserRole::STUDENT
+                                    && (($test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay'])
+                                        || ($test['status'] == \App\Enums\TestStatus::FINISHED && $timer['in_delay'])))
                                 <button type="button" class="btn btn-success"
                                         id="save-test" @if(!$test['current_user']['has_draft']) disabled @endif>
                                     Submit @if($test['current_user']['has_draft']) (1) @endif</button>
@@ -81,7 +84,7 @@
                 @endif
             </div>
         </div>
-        @if (Auth::user()->role == 'professor' || isset($timer) && $test['status'] == 'started' && $timer['actual_time'])
+        @if (Auth::user()->role == 'professor' || isset($timer) && $test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay'])
             <div id="segment-list" class="list-group">
                 @foreach($test['segments'] as $segment)
                     @php

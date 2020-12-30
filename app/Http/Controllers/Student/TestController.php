@@ -63,10 +63,7 @@ class TestController extends Controller {
             'final'          => 'required|integer|in:0,1',
         ]);
 
-        $test = Test::where('id', $id)
-                    ->where('status', TestStatus::STARTED) //TODO this for tests that just ended wont work ()
-                    ->with('users')
-                    ->first();
+        $test = Test::find($id);
         if (is_null($test)) {
             return back()->with(['error' => 'You can not submit to this test.']);
         }

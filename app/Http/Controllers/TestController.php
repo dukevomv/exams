@@ -37,7 +37,6 @@ class TestController extends Controller {
         $data = ['test' => $this->service->prepareForUser($test)];
         if ($test->status !== TestStatus::GRADED) {
             $data['timer'] = $this->service->calculateTimer($test);
-            $data['now'] = Carbon::now();
         }
 
         return view('tests.preview', $data);

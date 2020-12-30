@@ -6,6 +6,7 @@ use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Models\Segments\Segment;
 use App\Traits\Searchable;
+use App\Exceptions\InvalidOperationException;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -119,6 +120,10 @@ class Test extends Model {
     }
 
     public function saveStudentsAnswers($userID, array $answers, $final = false) {
+        $studentCanSave = $this->status == TestStatus::STARTED
+                            || ($this->status == TestStatus::FINISHED && Carbon::now()->lte(Carbon::parse($this->finished_at)));
+        if(!$studentCanSave)
+            throw new InvalidOperationException('Test is not saveable',[]);
         return $this->users()->updateExistingPivot($userID, $this->constructAnswersFields($answers, $final));
     }
 
@@ -140,14 +145,14 @@ class Test extends Model {
 
     public function start() {
         $this->status = TestStatus::STARTED;
-        $this->started_at = Carbon::now()->addSeconds(30);
+        $this->started_at = Carbon::now()->addSeconds(config('app.bm.test_timer.start_delay_in_seconds'));
         $this->started_by_user = Auth::id();
 
         $firebase = app('firebase');
         $student = Auth::user();
 
         $firebase->update([
-            'started_at' => Carbon::now()->toDateTimeString(),
+            'started_at' => $this->started_at->toDateTimeString(),
         ], 'tests/' . $this->id);
 
         $this->save();
@@ -155,14 +160,14 @@ class Test extends Model {
 
     public function finish() {
         $this->status = TestStatus::FINISHED;
-        $this->finished_at = Carbon::now()->addSeconds(30);
+        $this->finished_at = Carbon::now()->addSeconds(config('app.bm.test_timer.finish_delay_in_seconds'));
         $this->finished_by_user = Auth::id();
 
         $firebase = app('firebase');
         $student = Auth::user();
 
         $firebase->update([
-            'finished_at' => Carbon::now()->toDateTimeString(),
+            'finished_at' => $this->finished_at->toDateTimeString(),
         ], 'tests/' . $this->id);
 
         $this->save();

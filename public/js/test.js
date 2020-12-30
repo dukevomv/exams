@@ -79,6 +79,7 @@ module.exports = __webpack_require__(331);
 window.testData = {
   test: null,
   timer: null,
+  user: null,
   now: null,
   serverSecondsDifference: null,
   clockInterval: null,
@@ -219,7 +220,7 @@ testUtils.initiateTimer = function () {
   $('.test-timer-wrap').removeClass('hidden');
   testUtils.setTimerTo(testData.timer.remaining_seconds);
   //dont reload if test havent finished auto
-  if (!testData.timer.actual_time) ;
+  if (testData.timer.in_delay) ;
   realtime.reloadOn(testData.timer.remaining_seconds);
 
   testData.clockInterval = setInterval(function () {
@@ -232,19 +233,21 @@ testUtils.initiateTimer = function () {
 };
 
 realtime.on('test.started', function (payload) {
-  testUtils.setTimerTo(testData.timer.seconds_gap);
+  testUtils.setTimerTo(testData.timer.start_delay_in_seconds);
   testData.timer.running = true;
-  realtime.reloadOn(testData.timer.seconds_gap);
+  realtime.reloadOn(testData.timer.start_delay_in_seconds);
   if (testData.user.role == 'student' && !testData.test.user_on_test) window.location.reload;
 });
 
 realtime.on('test.finished', function (payload) {
-  testUtils.setTimerTo(testData.timer.seconds_gap);
+  testUtils.setTimerTo(testData.timer.finish_delay_in_seconds);
   testData.timer.running = true;
-  realtime.reloadOn(testData.timer.seconds_gap);
+  realtime.reloadOn(testData.timer.finish_delay_in_seconds);
 });
 
 testUtils.setTimerTo = function (seconds) {
+  console.log(testData.timer.remaining_seconds, 'remaining');
+  console.log(seconds, 'secs');
   testData.timer.remaining_seconds = seconds;
   var minutes = Math.floor(seconds / 60);
   var hours = Math.floor(minutes / 60);
@@ -253,7 +256,7 @@ testUtils.setTimerTo = function (seconds) {
   var now = '';
   now = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds_left < 10 ? '0' : '') + seconds_left;
   $('#test-timer').text(now);
-  if (testData.timer.actual_time) $('#test-timer').removeClass('alarm');else $('#test-timer').addClass('alarm');
+  if (testData.timer.in_delay) $('#test-timer').addClass('alarm');else $('#test-timer').removeClass('alarm');
 };
 
 /***/ }),

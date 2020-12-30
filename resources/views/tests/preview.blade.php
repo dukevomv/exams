@@ -6,9 +6,10 @@
             <div class="row">
                 @include('includes.preview.test.sidebar', ['test' => $test])
                 <div class="main col-xs-8 pull-right main-panel">
-{{--                    todo  make the below check to work properly for users and shows tasks only whne should (started after 30 sec, finished first 30 secs--}}
-                    @if ((Auth::user()->role == 'student' && ($test['status'] == 'started' || $timer['running']))
-                        || (Auth::user()->role == 'professor' && isset($forUser) && in_array($test['status'],['finished','graded'])))
+                    @if ((Auth::user()->role == \App\Enums\UserRole::STUDENT
+                            && (($test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay'])
+                                || ($test['status'] == \App\Enums\TestStatus::FINISHED && $timer['in_delay'])))
+                        || (Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($forUser) && in_array($test['status'],[\App\Enums\TestStatus::FINISHED,\App\Enums\TestStatus::GRADED])))
                         <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0">
                             @foreach($test['segments'] as $segment)
                                 <div class="segment-tasks-wrap" id="list-segment-id-{{$segment['id']}}">
@@ -47,11 +48,12 @@
 @section('scripts')
     <script type="text/javascript" src="{{ asset('js/test.js') }}"></script>
     <script type="text/javascript">
+      testData.user = {!! json_encode(Auth::user()) !!};
       testData.test = {!! json_encode($test) !!};
       @if(isset($timer))
         testData.timer = {!! json_encode($timer) !!};
-      testData.now = moment('{{$now}}');
-      testData.serverSecondsDifference = moment().diff(moment('{{$now}}'), 'seconds');
+      testData.server_time = moment('{{$timer['server_time']}}');
+      testData.serverSecondsDifference = moment().diff(testData.server_time, 'seconds');
 
       testUtils.initializeRealtime()
       testUtils.initiateTimer()

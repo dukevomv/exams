@@ -50,20 +50,20 @@
             <tr>
               <th>Name</th>
               <th>Lesson</th>
-              <th>Scheduled at</th>
               <th>Duration</th>
-              @if(Auth::user()->role == 'professor')<th>Segments</th>@endif
+              <th>Scheduled at</th>
               <th>Status</th>
+              @if(Auth::user()->role == \App\Enums\UserRole::STUDENT)<th>Grade</th>@endif
               <th class="text-center">Action</th>
             </tr>
             @foreach($tests as $test)
               <tr>
                 <td>{{$test->name}}</td>
                 <td>{{$test->lesson->name}}</td>
-                <td>{{ !is_null($test->scheduled_at) ? $test->scheduled_at->format('d M, H:i') : '-'}}</td>
                 <td>@if(!is_null($test->duration)){{$test->duration}}'@endif</td>
-                @if(Auth::user()->role == 'professor')<td>{{$test->segments_count}}</td>@endif
+                <td>{{ !is_null($test->scheduled_at) ? $test->scheduled_at->format('d M Y, H:i') : '-'}}</td>
                 <td>{{ucfirst($test->status)}}</td>
+                @if(Auth::user()->role == \App\Enums\UserRole::STUDENT)<td>-</td>@endif
                 <td class="text-center">
                   @if(true)
                     <a href="{{url('tests/'.$test->id)}}" type="button" class="btn btn-primary btn-xs">

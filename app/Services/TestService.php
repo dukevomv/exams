@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\TaskType;
 use App\Enums\TestStatus;
 use App\Enums\UserRole;
-use App\Exceptions\InvalidOperationException;
 use App\Models\Lesson;
 use App\Models\Test;
 use Auth;
@@ -86,49 +85,37 @@ class TestService implements TestServiceInterface {
     }
 
     public function calculateTimer(Test $test) {
-        $seconds_gap = 30;
         $timer = [
-            'running'           => false,
-            'remaining_seconds' => $test->duration * 60,
-            'actual_time'       => false,
-            'seconds_gap'       => $seconds_gap,
+            'running'                 => false,
+            'in_delay'                => true,
+            'remaining_seconds'       => $test->duration * 60,
+            'start_delay_in_seconds'  => config('app.bm.test_timer.start_delay_in_seconds'),
+            'finish_delay_in_seconds' => config('app.bm.test_timer.finish_delay_in_seconds'),
+            'server_time'             => Carbon::now(),
         ];
 
-        $now = Carbon::now();
-        switch ($test->status) {
-            case TestStatus::STARTED:
-                $timer['running'] = true;
-                $actually_started = Carbon::parse($test->started_at);
-                $button_pressed = $actually_started->copy()->subSeconds($seconds_gap);
-                $should_finish = $actually_started->copy()->addMinutes($test->duration);
-                if ($now->gte($actually_started)) {
-                    $timer['actual_time'] = true;
-                    if ($now->lte($should_finish)) {
-                        $timer['remaining_seconds'] = $now->diffInSeconds($should_finish);
+        if (in_array($test->status, [TestStatus::STARTED, TestStatus::FINISHED])) {
+            $timer['running'] = true;
+            $status_changed_at = Carbon::parse($test->{$test->status . '_at'});
+            if ($timer['server_time']->gte($status_changed_at)) {
+                $timer['in_delay'] = false;
+                if ($test->status === TestStatus::STARTED) {
+                    $should_finish = $status_changed_at->copy()->addMinutes($test->duration);
+
+                    if ($timer['server_time']->lte($should_finish)) {
+                        $timer['remaining_seconds'] = $timer['server_time']->diffInSeconds($should_finish);
                     } else {
                         $timer['remaining_seconds'] = 0;
                         $timer['running'] = false;
                     }
-                } else {
-                    $timer['remaining_seconds'] = $now->diffInSeconds($actually_started);
-                }
-                break;
-            case TestStatus::FINISHED:
-                $timer['running'] = true;
-                $actually_finished = Carbon::parse($test->finished_at);
-                $button_pressed = $actually_finished->copy()->subSeconds($seconds_gap);
-                if ($now->gte($actually_finished)) {
+                } elseif ($test->status === TestStatus::FINISHED) {
                     $timer['remaining_seconds'] = 0;
                     $timer['running'] = false;
-                    $timer['actual_time'] = true;
-                } else {
-                    $timer['remaining_seconds'] = $now->diffInSeconds($actually_finished);
-                    $timer['actual_time'] = false;
                 }
-                break;
-            default:
-                // code...
-                break;
+            } else {
+                $timer['remaining_seconds'] = $timer['server_time']->diffInSeconds($status_changed_at);
+                $timer['in_delay'] = true;
+            }
         }
         return $timer;
     }
@@ -252,7 +239,7 @@ class TestService implements TestServiceInterface {
             'users'        => $this->toArrayUsers($test->users),
             'scheduled_at' => (!is_null($test->scheduled_at) ? $test->scheduled_at->format('d M, H:i') : '-'),
             'initial'      => $initial,
-            'with_grades' => $this->includeUserCalculatedPoints
+            'with_grades'  => $this->includeUserCalculatedPoints,
         ];
 
         $userOnTest = $test->user_on_test;

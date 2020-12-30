@@ -37,10 +37,20 @@ return [
     |
     */
     'demo' => [
-        'enabled' => env('DEMO_ENABLED', false),
-        'email_suffix' => 'exams.wiz',
-        'default_role' => \App\Enums\UserRole::ADMIN,
+        'enabled'       => env('DEMO_ENABLED', false),
+        'email_suffix'  => 'exams.wiz',
+        'default_role'  => \App\Enums\UserRole::ADMIN,
         'session_field' => 'demo_user_timestamp',
+    ],
+
+    /*
+     * Business Logic configurations
+     */
+    'bm'   => [
+        'test_timer' => [
+            'start_delay_in_seconds'  => 30,
+            'finish_delay_in_seconds' => 30,
+        ],
     ],
 
     /*
