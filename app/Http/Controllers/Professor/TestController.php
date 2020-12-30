@@ -79,9 +79,9 @@ class TestController extends Controller {
         if (is_null($test)) {
             return back()->with(['error' => 'You can not start this test.']);
         }
-        if (!Carbon::parse($test->scheduled_at)->isToday()) {
-            return back()->with(['error' => 'This test can not start today.']);
-        }
+//        if (!Carbon::parse($test->scheduled_at)->isToday()) {
+//            return back()->with(['error' => 'This test can not start today.']);
+//        }
         $registered_users = $test->users->filter(function ($value, $key) {
             return $value->pivot->status == 'registered';
         });
