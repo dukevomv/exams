@@ -45,64 +45,54 @@ class DemoSeeder extends Seeder {
             $users[$role] = factory(User::class)->states([$role])->create($data);
         }
 
-        $lesson = LessonBuilder::instance()
-                               ->withUser($users[UserRole::PROFESSOR]->id)
+        $draft = TestBuilder::instance()
+                            ->draft()
+                            ->withUser($users[UserRole::STUDENT]->id)
+                            ->inLesson(self::newLessonId($users))
+                            ->withSegmentTasks(self::getPredefinedSegment('numbers'))
+                            ->withSegmentTasks(self::getPredefinedSegment('random'))
+                            ->build();
+
+        $published = TestBuilder::instance()
+                                ->published(Carbon::now()->addMinutes(2))
+                                ->withUser($users[UserRole::STUDENT]->id)
+                                ->inLesson(self::newLessonId($users))
+                                ->withSegmentTasks(self::getPredefinedSegment('numbers'))
+                                ->withSegmentTasks(self::getPredefinedSegment('random'))
+                                ->build();
+
+        $started = TestBuilder::instance()
+                              ->started(Carbon::now()->addMinutes(2))
+                              ->withUser($users[UserRole::STUDENT]->id)
+                              ->inLesson(self::newLessonId($users))
+                              ->withSegmentTasks(self::getPredefinedSegment('numbers'))
+                              ->withSegmentTasks(self::getPredefinedSegment('random'))
+                              ->build();
+
+        $started_expired = TestBuilder::instance()
+                                      ->appendAttributes(['duration' => 60])
+                                      ->started(Carbon::now()->subMinutes(60))
+                                      ->withUser($users[UserRole::STUDENT]->id)
+                                      ->inLesson(self::newLessonId($users))
+                                      ->withSegmentTasks(self::getPredefinedSegment('numbers'))
+                                      ->withSegmentTasks(self::getPredefinedSegment('random'))
+                                      ->build();
+
+        $finished = TestBuilder::instance()
+                               ->finished(Carbon::now()->addMinutes(2))
                                ->withUser($users[UserRole::STUDENT]->id)
+                               ->inLesson(self::newLessonId($users))
+                               ->withSegmentTasks(self::getPredefinedSegment('numbers'))
+                               ->withSegmentTasks(self::getPredefinedSegment('random'))
                                ->build();
 
-        $test = TestBuilder::instance()
-                           ->published(Carbon::now()->addMinutes(10))
-                           ->withUser($users[UserRole::STUDENT]->id)
-                           ->inLesson($lesson->id)->withSegmentTasks([
-                [
-                    'type'        => TaskType::CMC,
-                    'points'      => 3,
-                    'description' => 'Odd numbers?',
-                    'options'     => [
-                        'A'   => false,
-                        '3'   => true,
-                        '17'  => true,
-                        '2'   => false,
-                        '170' => false,
-                    ],
-                ],
-                [
-                    'type'        => TaskType::RMC,
-                    'points'      => 13,
-                    'description' => 'Highest number',
-                    'options'     => [
-                        'A'   => false,
-                        '3'   => false,
-                        '17'  => false,
-                        '2'   => false,
-                        '170' => true,
-                    ],
-                ],
-                [
-                    'type'        => TaskType::FREE_TEXT,
-                    'points'      => 4,
-                    'description' => 'Explain how HTML, CSS and JS are connected in the browser.',
-                ],
-            ])->withSegmentTasks([
-                [
-                    'type'        => TaskType::CMC,
-                    'points'      => 4,
-                    'description' => 'Second Odd numbers?',
-                    'options'     => 5,
-                ],
-                [
-                    'type'        => TaskType::CORRESPONDENCE,
-                    'points'      => 23,
-                    'description' => 'Connect the dots',
-                    'options'     => 6,
-                ],
-                [
-                    'type'        => TaskType::RMC,
-                    'points'      => 14,
-                    'description' => 'Second Choose numbers',
-                    'options'     => 6,
-                ],
-            ])->build();
+        $finished_expired = TestBuilder::instance()
+                                       ->finished(Carbon::now()->subMinutes(2))
+                                       ->withUser($users[UserRole::STUDENT]->id)
+                                       ->inLesson(self::newLessonId($users))
+                                       ->withSegmentTasks(self::getPredefinedSegment('numbers'))
+                                       ->withSegmentTasks(self::getPredefinedSegment('random'))
+                                       ->build();
 
         DB::table('demo_users')->where('id', $demoUserId)->update(['finished' => true]);
         return $timestamp;
@@ -115,5 +105,76 @@ class DemoSeeder extends Seeder {
         // - make able to generate new user emails if exists
         // demo user must apply name and have correct name: Duke Professor etc.
         // create pages to  inform businness logic and  demo utilities
+    }
+
+    private static function newLessonId($users) {
+        return self::createLessonForUsers($users)->id;
+    }
+    private static function createLessonForUsers($users) {
+        return LessonBuilder::instance()
+                            ->withUser($users[UserRole::PROFESSOR]->id)
+                            ->withUser($users[UserRole::STUDENT]->id)
+                            ->build();
+    }
+
+    private static function getPredefinedSegment($type) {
+        $segments = [
+            'numbers' => [
+                [
+                    [
+                        'type'        => TaskType::CMC,
+                        'points'      => 3,
+                        'description' => 'Odd numbers?',
+                        'options'     => [
+                            'A'   => false,
+                            '3'   => true,
+                            '17'  => true,
+                            '2'   => false,
+                            '170' => false,
+                        ],
+                    ],
+                    [
+                        'type'        => TaskType::RMC,
+                        'points'      => 13,
+                        'description' => 'Highest number',
+                        'options'     => [
+                            'A'   => false,
+                            '3'   => false,
+                            '17'  => false,
+                            '2'   => false,
+                            '170' => true,
+                        ],
+                    ],
+                    [
+                        'type'        => TaskType::FREE_TEXT,
+                        'points'      => 4,
+                        'description' => 'Explain differences for integer and float numbers.',
+                    ],
+                ],
+            ],
+            'random'  => [
+                [
+                    [
+                        'type'        => TaskType::CMC,
+                        'points'      => 4,
+                        'description' => 'Second Odd numbers?',
+                        'options'     => 5,
+                    ],
+                    [
+                        'type'        => TaskType::CORRESPONDENCE,
+                        'points'      => 23,
+                        'description' => 'Connect the dots',
+                        'options'     => 6,
+                    ],
+                    [
+                        'type'        => TaskType::RMC,
+                        'points'      => 14,
+                        'description' => 'Second Choose numbers',
+                        'options'     => 6,
+                    ],
+                ],
+            ],
+        ];
+        return $segments[$type][0];
     }
 }
