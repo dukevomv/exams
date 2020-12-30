@@ -17,7 +17,7 @@ $factory->define(App\Models\Segments\Segment::class, function (Faker\Generator $
         'lesson_id' => function () {
             return factory(\App\Models\Lesson::class)->create()->id;
         },
-        'title' => $faker->words(3),
+        'title' => $faker->words(3,true),
         'description' => $faker->text,
     ];
 });
