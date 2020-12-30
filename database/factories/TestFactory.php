@@ -23,7 +23,7 @@ $factory->define(App\Models\Test::class, function (Faker\Generator $faker) {
         'description' => $faker->text,
         'status' => $faker->randomElement(\App\Enums\TestStatus::values()),
         'scheduled_at' => null,
-        'duration' => $faker->randomDigit*10,
+        'duration' => $faker->randomDigitNot(0)*10,
     ];
 });
 
