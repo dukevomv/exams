@@ -300,20 +300,17 @@ class TestService implements TestServiceInterface {
         ];
         foreach ($s->tasks as $t) {
             $task = [
-                'id'          => $t->id,
-                'type'        => $t->type,
-                'position'    => $t->position,
-                'description' => $t->description,
-                'points'      => $t->points,
+                'id'             => $t->id,
+                'type'           => $t->type,
+                'position'       => $t->position,
+                'description'    => $t->description,
+                'points'         => $t->points,
+                'manually_saved' => false,
+                'calculative'    => true,
             ];
-            $calculative = true;
 
             $taskGrade = $this->getTaskGradeFromUserGrades($grades, $t->id);
             $taskGradeExists = !is_null($taskGrade);
-            if ($taskGradeExists) {
-                //when task points exist make calculative to false to avoid auto grading
-                $calculative = false;
-            }
 
             switch ($t->type) {
                 case TaskType::CMC:
@@ -381,13 +378,16 @@ class TestService implements TestServiceInterface {
                     if ($this->includeUserAnswers && isset($t->answer)) {
                         $task['answer'] = $t->answer;
                     }
-                    $calculative = false;
+                    $task['calculative'] = false;
                     break;
                 default:
             }
             if ($this->includeUserCalculatedPoints) {
                 $given_points = 0;
-                if ($calculative) {
+                if ($taskGradeExists) {
+                    $given_points = $taskGrade;
+                    $task['manually_saved'] = true;
+                } elseif ($task['calculative']) {
                     switch ($t->type) {
                         case TaskType::RMC:
                             //FULL points are given if correct option is selected
@@ -437,8 +437,6 @@ class TestService implements TestServiceInterface {
                             }
                             break;
                     }
-                } elseif ($taskGradeExists) {
-                    $given_points = $taskGrade;
                 }
 
                 //Making sure no negative grading will be applied to the task

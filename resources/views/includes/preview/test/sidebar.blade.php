@@ -35,12 +35,15 @@
                     {{--                    todo make test list to show current status and active should be very visible for students - and then show grades on tests--}}
                     {{--                    todo add actions for grading and publishing grades for students--}}
                     <div class="margin-bottom-15 clearfix">
-                        @if ($test['status'] == 'published')
+                        @if ($test['status'] == \App\Enums\TestStatus::PUBLISHED)
                             <button type="button" class="btn btn-success" id="start-test">Start in 30"
                             </button>
-                        @elseif ($test['status'] == 'started')
+                        @elseif ($test['status'] == \App\Enums\TestStatus::STARTED)
                             <button type="button" class="btn btn-danger" id="finish-test">Finish in
                                 30"
+                            </button>
+                        @elseif ($test['status'] == \App\Enums\TestStatus::FINISHED)
+                            <button type="button" class="btn btn-primary" id="auto-grade-student">Auto-grade Answers
                             </button>
                         @endif
                     </div>

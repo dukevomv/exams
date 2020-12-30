@@ -19,6 +19,12 @@ $editable = false;
 if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test_id) && isset($student_id)){
     $editable = true;
 }
+
+$saveButtonClass = 'primary';
+if($manually_saved){
+    $saveButtonClass = 'default';
+}
+
 @endphp
 <style>
     .editable {
@@ -32,10 +38,11 @@ if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test_id) && is
             {{ csrf_field() }}
             <input type="hidden" name="task_id" value="{{$task_id}}">
             <div class="input-group input-group-sm">
-                <input type="number" class="form-control bg-success" name="points" value="{{$given}}" max="{{$total}}" style="text-align: right;}">
+                <input type="number" class="form-control bg-success" name="points" value="{{$given}}" max="{{$total}}"
+                       style="text-align: right;}">
                 <span class="input-group-addon text-success" id="sizing-addon3"><b class="text-{{$class}}">/{{$total}} pts</b></span>
                 <span class="input-group-btn">
-                    <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i></button>
+                    <button class="btn btn-{{$saveButtonClass}}" type="submit"><i class="fa fa-save"></i></button>
                 </span>
 
             </div>
