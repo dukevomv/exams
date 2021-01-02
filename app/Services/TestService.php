@@ -253,10 +253,12 @@ class TestService implements TestServiceInterface {
         $data = [];
         foreach ($users as $u) {
             $data[] = [
-                'id'     => $u->id,
-                'name'   => $u->name,
-                'role'   => $u->role,
-                'status' => $u->pivot->status,
+                'id'         => $u->id,
+                'name'       => $u->name,
+                'role'       => $u->role,
+                'status'     => $u->pivot->status,
+                'entered_at' => Carbon::parse($u->pivot->created_at)->diffForHumans(),
+                'grade'      => $u->pivot->published_grade,
             ];
         }
         return $data;

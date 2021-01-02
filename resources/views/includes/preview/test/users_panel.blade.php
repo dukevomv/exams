@@ -11,8 +11,8 @@
             {{--                  todo make this dynamic with firebase and trust only db data--}}
             <tr>
                 <td>{{$user['name']}}</td>
-                <td></td>
-                <td></td>
+                <td>{{$user['entered_at']}}</td>
+                <td>{{ucfirst($user['status'])}}</td>
                 <td></td>
                 <th class="text-center">
                     <a href="{{url('/tests/'.$testId.'/users/'.$user['id'])}}" type="button"
