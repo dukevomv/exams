@@ -111,9 +111,33 @@ class TestBuilder extends ModelBuilder {
      *
      * @return $this
      */
-    public function withUser($userId, $pivot = ['status' => TestUserStatus::REGISTERED]) {
+    public function withUser($userId, $pivot = null) {
+        //todo add here the basic logic  of statuses (left|participated|graded)
+        if ($pivot == null) {
+            $pivot = [
+                'entered_at' => Carbon::now(),
+                'status'     => TestUserStatus::REGISTERED,
+            ];
+        } elseif (array_key_exists('answers', $pivot)) {
+            $pivot['entered_at'] = Carbon::now()->subMinutes(10);
+            $pivot['answered_at'] = Carbon::now();
+            $pivot['status'] = TestUserStatus::PARTICIPATED;
+        } elseif (array_key_exists('published_grades', $pivot)) {
+            $pivot['entered_at'] = Carbon::now()->subMinutes(20);
+            $pivot['answered_at'] = Carbon::now()->subMinutes(10);
+            $pivot['answered_at'] = Carbon::now();
+            $pivot['status'] = TestUserStatus::GRADED;
+        }
         $this->users[$userId] = $pivot;
         return $this;
+    }
+
+    public function withUserLeft($userId){
+        return $this->withUser($userId,[
+            'entered_at' => Carbon::now()->subMinutes(10),
+            'entered_at' => Carbon::now(),
+            'status'     => TestUserStatus::LEFT,
+        ]);
     }
 
     /**
