@@ -108,7 +108,7 @@ class Test extends Model {
 
         $firebase->delete('tests/' . $this->id . '/students/' . $student->id);
 
-        $this->users()->updateExistingPivot($student->id, ['status' => TestUserStatus::LEFT]);
+        $this->users()->updateExistingPivot($student->id, ['status' => TestUserStatus::LEFT,'left_at'=>Carbon::now()]);
     }
 
     public function getStudentsAnswers($userID, $final = false) {
