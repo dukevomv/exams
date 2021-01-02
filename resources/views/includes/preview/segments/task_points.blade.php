@@ -38,7 +38,7 @@ if($manually_saved){
             {{ csrf_field() }}
             <input type="hidden" name="task_id" value="{{$task_id}}">
             <div class="input-group input-group-sm">
-                <input type="number" class="form-control bg-success" name="points" value="{{$given}}" max="{{$total}}"
+                <input type="number" class="form-control bg-success task-grade-points" name="points" value="{{$given}}" max="{{$total}}"
                        style="text-align: right;}">
                 <span class="input-group-addon text-success" id="sizing-addon3"><b class="text-{{$class}}">/{{$total}} pts</b></span>
                 <span class="input-group-btn">

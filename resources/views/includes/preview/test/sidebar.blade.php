@@ -42,8 +42,8 @@
                             <button type="button" class="btn btn-danger" id="finish-test">Finish in
                                 30"
                             </button>
-                        @elseif ($test['status'] == \App\Enums\TestStatus::FINISHED)
-                            <button type="button" class="btn btn-primary" id="auto-grade-student">Auto-grade Answers
+                        @elseif ($test['status'] == \App\Enums\TestStatus::FINISHED && array_key_exists('for_student',$test))
+                            <button type="button" class="btn btn-primary" id="publish-grade" @if(!$test['for_student']['publishable']) disabled @endif>Publish Grades
                             </button>
                         @endif
                     </div>

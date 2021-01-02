@@ -10,6 +10,10 @@ window.testData = {
 
 window.testUtils = {}
 
+$('input.task-grade-points').on('change',function() {
+  $(this).siblings('.input-group-btn').find('button').removeClass('btn-default').addClass('btn-primary')
+});
+
 require('./includes/lib/realtime');
 
 require('./test/realtime');

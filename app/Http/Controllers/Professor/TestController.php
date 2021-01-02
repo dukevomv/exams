@@ -137,4 +137,11 @@ class TestController extends Controller {
         //todo make this an ajax call
         return back();
     }
+
+    public function publishGrade($id, $userId, Request $request) {
+        $test = $this->service->fetchById($id);
+        //todo make sure grades are publishable
+        $test->publishProfessorGrade($userId);
+        return [];
+    }
 }

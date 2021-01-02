@@ -88,6 +88,10 @@ window.testData = {
 
 window.testUtils = {};
 
+$('input.task-grade-points').on('change', function () {
+  $(this).siblings('.input-group-btn').find('button').removeClass('btn-default').addClass('btn-primary');
+});
+
 __webpack_require__(332);
 
 __webpack_require__(333);
@@ -281,6 +285,11 @@ $('#start-test').on('click', function (e) {
 $('#finish-test').on('click', function (e) {
   $.post(testsURL + testData.test.id + '/' + 'finish', { _token: CSRF }, function () {
     $('#finish-test').removeClass('btn-danger').addClass('btn-default').prop('disabled', false);
+  });
+});
+$('#publish-grade').on('click', function (e) {
+  $.post(testsURL + testData.test.id + '/users/' + testData.test.for_student.id + '/publish-grade', { _token: CSRF }, function () {
+    location.reload();
   });
 });
 

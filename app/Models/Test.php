@@ -4,9 +4,9 @@ namespace App\Models;
 
 use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
+use App\Exceptions\InvalidOperationException;
 use App\Models\Segments\Segment;
 use App\Traits\Searchable;
-use App\Exceptions\InvalidOperationException;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -50,8 +50,12 @@ class Test extends Model {
         return $this->belongsToMany(Segment::class)->orderBy('position', 'asc')->withTimestamps();
     }
 
+    private function user_test_relation_query(){
+        return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status', 'left_at', 'answers', 'answers_draft', 'answered_draft_at', 'answered_at', 'grades', 'graded_at', 'graded_by', 'given_points','total_points', 'grade_published_at')->using('App\Models\TestUser');
+    }
+
     public function users() {
-        return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status');
+        return $this->user_test_relation_query();
     }
 
     public function user() {
@@ -59,7 +63,7 @@ class Test extends Model {
     }
 
     public function getUserById($userId) {
-        return $this->belongsToMany(User::class)->where('user_id', $userId)->withTimestamps()->withPivot('status', 'answers', 'answers_draft', 'answered_draft_at', 'answered_at', 'grades', 'graded_at', 'graded_by')->using('App\Models\TestUser');
+        return $this->user_test_relation_query()->where('user_id', $userId);
     }
 
     public function getUser($userId) {
@@ -111,19 +115,30 @@ class Test extends Model {
         return $this->users()->where('user_id', $userID)->select();
     }
 
-    public function saveProfessorGrade($userID, array $grades) {
+    public function publishProfessorGrade($userID) {
         return $this->users()->updateExistingPivot($userID, [
-            'grades' => json_encode($grades),
-            'graded_at' => Carbon::now(),
-            'graded_by' => Auth::id(),
+            'status'             => TestUserStatus::GRADED,
+            'grade_published_at' => Carbon::now(),
+        ]);
+    }
+
+    public function saveProfessorGrade($userID, array $grades, $given, $total) {
+        return $this->users()->updateExistingPivot($userID, [
+            'status'       => TestUserStatus::PARTICIPATED,
+            'grades'       => json_encode($grades),
+            'graded_at'    => Carbon::now(),
+            'graded_by'    => Auth::id(),
+            'given_points' => $given,
+            'total_points' => $total,
         ]);
     }
 
     public function saveStudentsAnswers($userID, array $answers, $final = false) {
         $studentCanSave = $this->status == TestStatus::STARTED
-                            || ($this->status == TestStatus::FINISHED && Carbon::now()->lte(Carbon::parse($this->finished_at)));
-        if(!$studentCanSave)
-            throw new InvalidOperationException('Test is not saveable',[]);
+            || ($this->status == TestStatus::FINISHED && Carbon::now()->lte(Carbon::parse($this->finished_at)));
+        if (!$studentCanSave) {
+            throw new InvalidOperationException('Test is not saveable', []);
+        }
         return $this->users()->updateExistingPivot($userID, $this->constructAnswersFields($answers, $final));
     }
 

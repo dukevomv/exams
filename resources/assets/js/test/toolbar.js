@@ -17,7 +17,11 @@ $('#finish-test').on('click',function(e){
     $('#finish-test').removeClass('btn-danger').addClass('btn-default').prop('disabled',false)
   });
 });
-
+$('#publish-grade').on('click',function(e){
+  $.post(testsURL+testData.test.id+'/users/'+testData.test.for_student.id+'/publish-grade',{_token:CSRF},function() {
+    location.reload()
+  });
+});
 
 //todo these are not working
 // - saving test and reloading

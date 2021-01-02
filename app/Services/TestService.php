@@ -4,9 +4,12 @@ namespace App\Services;
 
 use App\Enums\TaskType;
 use App\Enums\TestStatus;
+use App\Enums\TestUserStatus;
 use App\Enums\UserRole;
 use App\Models\Lesson;
+use App\Models\Segments\Task;
 use App\Models\Test;
+use App\Models\User;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -182,17 +185,25 @@ class TestService implements TestServiceInterface {
     public function gradeUserTask(Test $test, $payload) {
         $existingGrades = $this->getUserGrades($test);
         $gradeExisted = false;
+        $given = 0;
+        $gradedTaskIds = [];
         foreach ($existingGrades as $taskId => $grade) {
+            $gradedTaskIds[] = $this->stripGradeTaskKey($taskId);
             if ($taskId === $this->getGradeTaskKey($payload['task_id'])) {
                 $existingGrades[$taskId] = $payload['points'];
                 $gradeExisted = true;
+                $given += $payload['points'];
+            } else{
+                $given += $grade;
             }
         }
         if (!$gradeExisted) {
+            $given += $payload['points'];
+            $gradedTaskIds[] = $payload['task_id'];
             $existingGrades[$this->getGradeTaskKey($payload['task_id'])] = $payload['points'];
         }
-
-        $test->saveProfessorGrade($this->forUserId, $existingGrades);
+        $total = Task::whereIn('id', $gradedTaskIds)->sum('points');
+        $test->saveProfessorGrade($this->forUserId, $existingGrades, $given, $total);
         //todo return value that is needed for ajax call
         return [];
     }
@@ -215,6 +226,9 @@ class TestService implements TestServiceInterface {
     private function getGradeTaskKey($taskId) {
         return 'task_id_' . $taskId;
     }
+    private function stripGradeTaskKey($taskId) {
+        return str_replace('task_id_','',$taskId);
+    }
 
     public function prepareForUser(Test $test) {
         if (Auth::user()->role === UserRole::STUDENT) {
@@ -232,7 +246,6 @@ class TestService implements TestServiceInterface {
             'description'  => $test->description,
             'status'       => $test->status,
             'can_register' => $test->can_register,
-            'user_on_test' => $test->user_on_test,
             'duration'     => $test->duration,
             'lesson'       => $test->lesson->name,
             'segments'     => $this->toArraySegments($test),
@@ -241,6 +254,10 @@ class TestService implements TestServiceInterface {
             'initial'      => $initial,
             'with_grades'  => $this->includeUserCalculatedPoints,
         ];
+
+        if (!is_null($this->forUserId)) {
+            $final['for_student'] = $this->toArrayStudent($test,$final['segments']);
+        }
 
         $userOnTest = $test->user_on_test;
         if (Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
@@ -252,16 +269,36 @@ class TestService implements TestServiceInterface {
     private function toArrayUsers($users) {
         $data = [];
         foreach ($users as $u) {
-            $data[] = [
-                'id'         => $u->id,
-                'name'       => $u->name,
-                'role'       => $u->role,
-                'status'     => $u->pivot->status,
-                'entered_at' => Carbon::parse($u->pivot->created_at)->diffForHumans(),
-                'grade'      => $u->pivot->published_grade,
-            ];
+            \Log::info($u->pivot);
+            $data[] = $this->toArrayUser($u);
         }
         return $data;
+    }
+
+    private function toArrayUser(User $u) {
+        return [
+            'id'           => $u->id,
+            'name'         => $u->name,
+            'role'         => $u->role,
+            'status'       => $u->pivot->status,
+            'entered_at'   => Carbon::parse($u->pivot->created_at)->diffForHumans(),
+            'given_points' => $u->pivot->given_points,
+            'total_points' => $u->pivot->total_points,
+        ];
+    }
+
+    private function toArrayStudent(Test $test, array $segmentsArray) {
+        $student = $test->getUser($this->forUserId);
+        $main = $this->toArrayUser($student);
+        $total = 0;
+        foreach($segmentsArray as $segm){
+            $total += $segm['total_points'];
+        }
+
+        $main['publishable'] = $student->pivot->status !== TestUserStatus::GRADED
+                                && $total == $student->pivot->total_points;
+
+        return $main;
     }
 
     private function toArrayCurrentUser($userOnTest) {
