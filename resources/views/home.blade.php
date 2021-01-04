@@ -28,7 +28,50 @@
                     </div>
 
                 @php
-                    $commits = [
+                    $new_commits = [
+                        [
+                            'title' => 'Test Grading',
+                            'date' => '4 January 2021',
+                            'tags' => ['front','back'],
+                            'body' => '<p>Professors can <b>grade student answers</b> after the tests are finished, and then <b>publish the results</b> to the students.</p>'
+                        ],
+                        [
+                            'title' => 'Auto Grading',
+                            'date' => '3 January 2021',
+                            'tags' => ['back'],
+                            'body' => '<p>Some of the task types are now able to <b>automatically calculate student\'s points</b> based on their answers.</p>'
+                        ],
+                        [
+                            'title' => 'Demo Helper',
+                            'date' => '2 January 2021',
+                            'tags' => ['front','back'],
+                            'body' => '<p>Specific environments can register users with the Demo seeder, providing a <b>helpful UI</b> to easily see the features of this platforms <b>without creating multiple accounts</b>.</p>'
+                        ],
+                        [
+                            'title' => 'Automated Tests',
+                            'date' => '13 December 2020',
+                            'tags' => ['back'],
+                            'body' => '<p>In order to ensure the quality of the project\'s features and utilities, an <b>automated test suite has been developed</b> and maintained as features are added.</p>'
+                        ],
+                        [
+                            'title' => 'Task Type answers',
+                            'date' => '27 November 2020',
+                            'tags' => ['front','back'],
+                            'body' => '<p>Now <b>Multiple choice (Radio & Checkbox), Correspondence and Free text</b> questions are operating normally during the test\'s duration ans are savable from the students</p>'
+                        ],
+                        [
+                            'title' => 'Task Type Correspondence',
+                            'date' => '27 November 2020',
+                            'tags' => ['front','back'],
+                            'body' => '<p>A new task type was added that is named <b>Correspondence</b>. It provides the ability to match pairs.</p>'
+                        ],
+                    ];
+
+                    for($i=0;$i<count($new_commits);$i++){
+                        $new_commits[$i]['tags'][] = 'new';
+                    }
+
+                    $commits = array_merge($new_commits,[
                         [
                             'title' => 'User Administration',
                             'date' => '28 July 2018',
@@ -126,7 +169,7 @@
                             So here we go with <a href="https://laravel.com/docs/5.4" target="_blank">Laravel 5.4</a>
                             for our framework.</p>'
                         ],
-                    ];
+                    ]);
                @endphp
 
                 @foreach($commits as $commit)
