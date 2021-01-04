@@ -8,7 +8,7 @@
           <div class="col-xs-9">
             <div class="btn-group pull-left">
               <button id="lesson" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <?php 
+                <?php
                   $selected_lesson = Request::input('lesson','All');
                   foreach($lessons as $lesson){
                     if($selected_lesson == $lesson->id){
@@ -40,9 +40,9 @@
           <div class="col-xs-3">
             @include('includes.assets.search-wrap', ['value'=>Request::input('search','')])
           </div>
-        </div>  
-      </div>  
-    </div>  
+        </div>
+      </div>
+    </div>
     <div class="row">
       <div class="col-xs-12">
         <div class="panel panel-default">
@@ -63,7 +63,17 @@
                 <td>@if(!is_null($test->duration)){{$test->duration}}'@endif</td>
                 <td>{{ !is_null($test->scheduled_at) ? $test->scheduled_at->format('d M Y, H:i') : '-'}}</td>
                 <td>{{ucfirst($test->status)}}</td>
-                @if(Auth::user()->role == \App\Enums\UserRole::STUDENT)<td>-</td>@endif
+                @if(Auth::user()->role == \App\Enums\UserRole::STUDENT)
+                  @php
+                    $grade = '-';
+                    $testUser = $test->user_on_test->pivot;
+                    if($testUser->status == \App\Enums\TestUserStatus::GRADED){
+                        $grade = \App\Util\Points::getWithPercentage($testUser->given_points,$testUser->total_points);
+                    }
+                  //todo make this to calculate test user grades if graded
+                  @endphp
+                  <td>{{$grade}}</td>
+                @endif
                 <td class="text-center">
                   @if(true)
                     <a href="{{url('tests/'.$test->id)}}" type="button" class="btn btn-primary btn-xs">
