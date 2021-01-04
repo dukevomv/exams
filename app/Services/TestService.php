@@ -141,7 +141,8 @@ class TestService implements TestServiceInterface {
             }
         }
 
-        $answers = $user->pivot->{$field};
+        //todo make the below to be parsable with cast in pivot model
+        $answers = json_decode($user->pivot->{$field},true);
         if ($answers) {
             for ($s = 0; $s < count($test->segments); $s++) {
                 for ($t = 0; $t < count($test->segments[$s]->tasks); $t++) {
