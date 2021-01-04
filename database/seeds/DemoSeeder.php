@@ -44,52 +44,58 @@ class DemoSeeder extends Seeder {
         foreach ($userRoleData as $role => $data) {
             $users[$role] = factory(User::class)->states([$role])->create($data);
         }
-
+        $lesson = self::createLessonForUsers($users);
+        $testCount = 0;
         $draft = TestBuilder::instance()
+                            ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
                             ->draft()
                             ->withUser($users[UserRole::STUDENT]->id)
-                            ->inLesson(self::newLessonId($users))
+                            ->inLesson($lesson->id)
                             ->withSegmentTasks(self::getPredefinedSegment('numbers'))
                             ->withSegmentTasks(self::getPredefinedSegment('random'))
                             ->build();
 
         $published = TestBuilder::instance()
+                                ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
                                 ->published(Carbon::now()->addMinutes(2))
                                 ->withUser($users[UserRole::STUDENT]->id)
-                                ->inLesson(self::newLessonId($users))
+                                ->inLesson($lesson->id)
                                 ->withSegmentTasks(self::getPredefinedSegment('numbers'))
                                 ->withSegmentTasks(self::getPredefinedSegment('random'))
                                 ->build();
 
         $started = TestBuilder::instance()
+                              ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
                               ->started(Carbon::now()->addMinutes(2))
                               ->withUser($users[UserRole::STUDENT]->id)
-                              ->inLesson(self::newLessonId($users))
+                              ->inLesson($lesson->id)
                               ->withSegmentTasks(self::getPredefinedSegment('numbers'))
                               ->withSegmentTasks(self::getPredefinedSegment('random'))
                               ->build();
 
         $started_expired = TestBuilder::instance()
-                                      ->appendAttributes(['duration' => 60])
+                                      ->appendAttributes(['duration' => 60,'name'=>$lesson->name.' no '.++$testCount])
                                       ->started(Carbon::now()->subMinutes(60))
                                       ->withUser($users[UserRole::STUDENT]->id)
-                                      ->inLesson(self::newLessonId($users))
+                                      ->inLesson($lesson->id)
                                       ->withSegmentTasks(self::getPredefinedSegment('numbers'))
                                       ->withSegmentTasks(self::getPredefinedSegment('random'))
                                       ->build();
 
         $finished = TestBuilder::instance()
+                               ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
                                ->finished(Carbon::now()->addMinutes(2))
                                ->withUser($users[UserRole::STUDENT]->id)
-                               ->inLesson(self::newLessonId($users))
+                               ->inLesson($lesson)
                                ->withSegmentTasks(self::getPredefinedSegment('numbers'))
                                ->withSegmentTasks(self::getPredefinedSegment('random'))
                                ->build();
 
         $finished_expired = TestBuilder::instance()
+                                       ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
                                        ->finished(Carbon::now()->subMinutes(2))
                                        ->withUser($users[UserRole::STUDENT]->id)
-                                       ->inLesson(self::newLessonId($users))
+                                       ->inLesson($lesson)
                                        ->withSegmentTasks(self::getPredefinedSegment('numbers'))
                                        ->withSegmentTasks(self::getPredefinedSegment('random'))
                                        ->build();
