@@ -26,186 +26,113 @@
                         <p><span class="label label-success">BACKEND</span><br>Contains implementation in the background
                             that fixes the infrastructure and might not be visible to the user.</p>
                     </div>
-                <!--
 
-                         <span class="label label-warning">new2</span>
-                         <span class="label label-primary">FRONTEND</span>
-                         <span class="label label-success">BACKEND</span>
-                         <span class="label label-default">IN PROGRESS</span>
-                         <span class="label label-danger">NEW</span>
-
-                     -->
-
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            User Administration &middot; <small class="text-warning">28 July 2018</small>
-                            <div class="pull-right">
-                                <span class="label label-success">BACKEND</span>
-                                <span class="label label-primary">FRONTEND</span>
-                                <span class="label label-danger">NEW</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <p>
-                                <b>Admins</b> can now manage <a href="{{ url('/users') }}" target="_blank">Users</a> by
-                                approving or disapproving current users.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            URL filters on Lists and Search &middot; <small class="text-warning">11 May 2018</small>
-                            <div class="pull-right">
-                                <span class="label label-primary">FRONTEND</span>
-                                <span class="label label-danger">NEW</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <p>
-                                <b>Filters</b> are available to all lists <b>Users</b>, <b>Lessons</b> and <b>Tests</b>
-                                inside url for permanent and sharable filtering.
-                            </p>
-                            <p>
-                                <b>Search</b> is also added to the lists and provides the ability to look into custom
-                                fields based on the list.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Authorization &middot; <small class="text-warning">18 March 2018</small>
-                            <div class="pull-right">
-                                <span class="label label-success">BACKEND</span>
-                                <span class="label label-danger">NEW</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <p>
+                @php
+                    $commits = [
+                        [
+                            'title' => 'User Administration',
+                            'date' => '28 July 2018',
+                            'tags' => ['front','back'],
+                            'body' => '<p><b>Admins</b> can now manage <a href="'.url('/users').'" target="_blank">Users</a> by approving or disapproving current users.</p>'
+                        ],
+                        [
+                            'title' => 'URL filters on Lists and Search',
+                            'date' => '11 May 2018',
+                            'tags' => ['front'],
+                            'body' => '<p><b>Filters</b> are available to all lists <b>Users</b>, <b>Lessons</b> and <b>Tests</b>inside url for permanent and sharable filtering.</p>
+                                <p><b>Search</b> is also added to the lists and provides the ability to look into custom fields based on the list.</p>'
+                        ],
+                        [
+                            'title' => 'Authorization',
+                            'date' => '18 March 2018',
+                            'tags' => ['back'],
+                            'body' => '<p>
                                 Authorization for specific role is filtered dynamically and shows error page based on
                                 the action.
                             </p>
                             <p>
                                 Links from other roles that dont show in Navigation Bar are also filtered.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Routing based on role &middot; <small class="text-warning">22 February 2018</small>
-                            <div class="pull-right">
-                                <span class="label label-primary">FRONTEND</span>
-                                <span class="label label-danger">NEW</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <p>
+                            </p>'
+                        ],
+                        [
+                            'title' => 'Routing based on role',
+                            'date' => '22 February 2018',
+                            'tags' => ['front'],
+                            'body' => '<p>
                                 Tabs in the Navigation bar are different per <b>Role</b> and provide a Role hierarchy
                             </p>
                             <p>
                                 Admins <b>></b> Professors <b>></b> Students
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            User registration based on type &middot; <small class="text-warning">04 February
-                                2018</small>
-                            <div class="pull-right">
-                                <span class="label label-success">BACKEND</span>
-                                <span class="label label-primary">FRONTEND</span>
-                                <span class="label label-danger">NEW</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <p>
-                                The <a href="{{ url('/register') }}" target="_blank">Register</a> page, now has
+                            </p>'
+                        ],
+                        [
+                            'title' => 'User registration based on type',
+                            'date' => '04 February 2018',
+                            'tags' => ['back','front'],
+                            'body' => '<p>
+                                The <a href="'.url('/register').'" target="_blank">Register</a> page, now has
                                 <b>Role</b> option for Admin, Professors or Students.
                             </p>
                             <p>
                                 All Users that register are saved in a <b>pending</b> state and must be approved by an
                                 existing approved user in the platform.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Tests Logic &middot; <small class="text-warning">12 November 2017</small>
-                            <div class="pull-right">
-                                <span class="label label-success">BACKEND</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <p>
-                                The <a href="{{ url('/tests') }}" target="_blank">Tests</a> section is created and it
-                                will contain all your saved tests ready to become your student's exams.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Segments Logic &middot; <small class="text-warning">11 November 2017</small>
-                            <div class="pull-right">
-                                <span class="label label-primary">FRONTEND</span>
-                                <span class="label label-success">BACKEND</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <p>
-                                The <a href="{{ url('/segments') }}" target="_blank">Segments</a> section basic
-                                functionality is ready with its actions and its full backend implimentation with the 2
-                                first types of questions, Multiple and SIngle Choice.
+                            </p>'
+                        ],
+                        [
+                            'title' => 'Tests Logic',
+                            'date' => '12 November 2017',
+                            'tags' => ['back'],
+                            'body' => '<p>
+                                The <a href="'.url('/tests').'" target="_blank">Tests</a> section is created and it
+                                will contain all your saved tests ready to become your student\'s exams.
+                            </p>'
+                        ],
+                        [
+                            'title' => 'Segments Logic',
+                            'date' => '11 November 2017',
+                            'tags' => ['front','back'],
+                            'body' => '<p>
+                                The <a href="'.url('/segments').'" target="_blank">Segments</a> section basic
+                                functionality is ready with its actions and its full backend implementation with the 2
+                                first types of questions, Multiple and Single Choice.
                             </p>
                             <p>
                                 <b>Functionalities added:</b> Listing, Create, Edit and Delete
                             </p>
                             <p>
-                                <b>Functionalities comming soon:</b> Validation in Forms.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Lessons Logic &middot; <small class="text-warning">23 August 2017</small>
-                            <div class="pull-right">
-                                <span class="label label-primary">FRONTEND</span>
-                                <span class="label label-success">BACKEND</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <p>
-                                A new Tab <a href="{{ url('/lessons') }}" target="_blank">Lessons</a> is added to the
+                                <b>Functionalities coming soon:</b> Validation in Forms.
+                            </p>'
+                        ],
+                        [
+                            'title' => 'Lessons Logic',
+                            'date' => '23 August 2017',
+                            'tags' => ['front','back'],
+                            'body' => '<p>
+                                A new Tab <a href="'.url('/lessons').'" target="_blank">Lessons</a> is added to the
                                 Navigation Bar, along with its
                                 own basic listing functionalities.
                             </p>
                             <p>
-                                <b>Functionalities added:</b> UI Tables, Dropdown with working FIlters and optional
+                                <b>Functionalities added:</b> UI Tables, Dropdown with working Filters and optional
                                 Pagination
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            First Blood &middot; <small class="text-warning">7 August 2017</small>
-                            <div class="pull-right">
-                                <span class="label label-success">BACKEND</span>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <b>Exams</b> after some time of reconsider, decided to start things from the scratch, for
+                            </p>'
+                        ],
+                        [
+                            'title' => 'First Blood',
+                            'date' => '7 August 2017',
+                            'tags' => ['back'],
+                            'body' => '<p><b>Exams</b> after some time of reconsider, decided to start things from the scratch, for
                             more stuff up its back.
                             So here we go with <a href="https://laravel.com/docs/5.4" target="_blank">Laravel 5.4</a>
-                            for our framework.
-                        </div>
-                    </div>
+                            for our framework.</p>'
+                        ],
+                    ];
+               @endphp
+
+                @foreach($commits as $commit)
+                    @include('includes.commit',$commit)
+                @endforeach
+
                 @endif
             </div>
         </div>
