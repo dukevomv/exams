@@ -91,9 +91,14 @@
 
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="{{url('/settings')}}"><i class="fa fa-cog"></i> Settings</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li class="dropdown-header">DEMO Options</li>
+
+                                @if(\App\Util\UserIs::adminOrProfessor($user))
+                                    <li><a href="{{url('/statistics')}}"><i class="fa fa-bar-chart"></i> Statistics</a></li>
+                                @endif
+
                                 @if(config('app.demo.enabled'))
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">DEMO Options</li>
                                     @foreach(\App\Enums\UserRole::values() as $role)
                                         @php $toggle = $role == Auth::user()->role ? 'on' : 'off'; @endphp
                                     <li>

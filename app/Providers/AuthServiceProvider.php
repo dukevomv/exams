@@ -50,5 +50,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('accessSegments', function($user) {
             return UserIs::adminOrProfessor($user);
         });
+
+        Gate::define('viewStatistics', function($user) {
+            return UserIs::adminOrProfessor($user);
+        });
     }
 }

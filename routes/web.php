@@ -37,7 +37,10 @@ Route::group(['middleware' => ['auth', 'can:navigate']], function () {
 
     Route::get('/settings', 'HomeController@settings');
     Route::post('/settings', 'HomeController@updateSettings');
-    Route::get('statistics', 'HomeController@statistics');
+
+    Route::group(['middleware' => 'can:viewStatistics'], function () {
+        Route::get('statistics', 'HomeController@statistics');
+    });
 
     Route::group(['prefix' => 'lessons'], function () {
         Route::get('/', 'LessonController@index')->name('lessons_index');
