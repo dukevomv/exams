@@ -49,23 +49,24 @@
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
-                    @if (Auth::user())
-                        @if(in_array(Auth::user()->role,['admin']))
+                    @php $user = Auth::user(); @endphp
+                    @if ($user)
+                        @if(\App\Util\UserIs::admin($user))
                             <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
                                 <a href="{{ url('/users') }}">Users</a>
                             </li>
                         @endif
-                        @if(in_array(Auth::user()->role,['admin','professor','student']))
+                        @if(true)
                             <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
                                 <a href="{{ url('/lessons') }}">Lessons</a>
                             </li>
                         @endif
-                        @if(in_array(Auth::user()->role,['professor','student']))
+                        @if(\App\Util\UserIs::professorOrStudent($user)))
                             <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
                                 <a href="{{ url('/tests') }}">Tests</a>
                             </li>
                         @endif
-                        @if(in_array(Auth::user()->role,['professor']))
+                        @if(\App\Util\UserIs::professor($user))
                             <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">
                                 <a href="{{ url('/segments') }}">Segments</a>
                             </li>
