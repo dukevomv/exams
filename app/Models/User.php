@@ -40,6 +40,7 @@ class User extends Authenticatable {
      *
      * @return bool
      */
+    /* The below is used as a method inside the Gates to check if current user is within correct roles */
     public function role($role) {
         $role = (array)$role;
         return in_array($this->role, $role);
