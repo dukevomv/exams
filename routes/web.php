@@ -18,8 +18,6 @@ Auth::routes();
 Route::get('/now', function () {
     return \Carbon\Carbon::now();
 });
-Route::get('/settings', 'HomeController@settings');
-Route::post('/settings', 'HomeController@updateSettings')->middleware('auth');
 
 if (config('app.demo.enabled')) {
     Route::group(['prefix' => 'demo'], function () {
@@ -36,6 +34,10 @@ Route::group(['middleware' => ['auth', 'can:navigate']], function () {
         Route::get('/', 'UserController@index')->name('users_index');
         Route::post('toggle-approve', 'UserController@toggleApprove');
     });
+
+    Route::get('/settings', 'HomeController@settings');
+    Route::post('/settings', 'HomeController@updateSettings');
+    Route::get('statistics', 'HomeController@statistics');
 
     Route::group(['prefix' => 'lessons'], function () {
         Route::get('/', 'LessonController@index')->name('lessons_index');
