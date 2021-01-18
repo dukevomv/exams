@@ -31,8 +31,9 @@ class Kernel extends HttpKernel {
         'web' => [
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            // \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
+            \App\Http\Middleware\XSSProtection::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
