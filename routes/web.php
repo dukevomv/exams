@@ -32,7 +32,7 @@ Route::post('/otp', 'HomeController@submitOTP');
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/settings', 'HomeController@settings');
-    Route::post('/settings', 'HomeController@updateSettings');
+    Route::post('/settings', 'HomeController@updateSettings')->middleware('can:switchOffOTP');
 
     Route::group(['middleware' => ['can:navigate']], function () {
         Route::get('/home', 'HomeController@home');
