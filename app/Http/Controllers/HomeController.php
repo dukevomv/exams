@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Models\Lesson;
+use App\Models\OTP;
 use App\Models\Segments\Segment;
 use App\Models\Test;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Auth;
-Use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Session;
+
 class HomeController extends Controller
 {
     /**
@@ -39,11 +41,13 @@ class HomeController extends Controller
                 'email',
                 Rule::unique('users')->ignore($user->id)
             ],
-            'name'=>'required|string|max:255'
+            'name'=>'required|string|max:255',
+            'otp_enabled'=>'string'
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->otp_enabled = $request->input('otp_enabled',false) == 'on';
         $user->save();
 
         return redirect('settings');
@@ -52,6 +56,28 @@ class HomeController extends Controller
     public function test()
     {
         return view('test');
+    }
+
+    public function viewOTP(){
+        return view('auth.otp');
+    }
+
+    public function resendOTP(){
+        OTP::generateForMail(Auth::user()->email);
+        return back()->with(['success'=>'A new OTP has been send to your email.']);
+    }
+
+    public function submitOTP(Request $request){
+        $this->validate($request,[
+            'otp'=> 'required',
+        ]);
+        $results = OTP::confirmForEmail($request->otp,Auth::user()->email);
+        if(array_key_exists('success',$results)){
+            return redirect('/');
+        } else {
+        return back()->with($results);
+
+        }
     }
 
     public function statistics()

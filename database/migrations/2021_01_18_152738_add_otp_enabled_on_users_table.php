@@ -15,6 +15,7 @@ class AddOtpEnabledOnUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('otp_enabled')->default(false);
+            $table->boolean('otp_pending')->default(false);
         });
     }
 
@@ -27,6 +28,7 @@ class AddOtpEnabledOnUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('otp_enabled');
+            $table->dropColumn('otp_pending');
         });
     }
 }

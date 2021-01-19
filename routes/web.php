@@ -26,6 +26,10 @@ if (config('app.demo.enabled')) {
     });
 }
 
+Route::get('/otp', 'HomeController@viewOTP');
+Route::get('/otp/resend', 'HomeController@resendOTP');
+Route::post('/otp', 'HomeController@submitOTP');
+
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/settings', 'HomeController@settings');
     Route::post('/settings', 'HomeController@updateSettings');

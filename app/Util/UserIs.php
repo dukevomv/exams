@@ -6,8 +6,13 @@ use App\Enums\UserRole;
 
 class UserIs {
     public static function approved($user) {
-        return $user->approved == 1;
+        return $user->approved == 1 && (!$user->otp_enabled || !$user->otp_pending);
     }
+
+    public static function withPendingOTP($user) {
+        return $user->otp_enabled && $user->otp_pending;
+    }
+
     public static function admin($user) {
         return $user->role(UserRole::ADMIN);
     }
