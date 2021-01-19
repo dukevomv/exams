@@ -30,6 +30,12 @@
                 @php
                     $new_commits = [
                         [
+                            'title' => 'One Time Passwords',
+                            'date' => '19 January 2021',
+                            'tags' => ['front','back'],
+                            'body' => 'All users now can have <b>OTP</b> as a second step verification after they login.</p>'
+                        ],
+                        [
                             'title' => 'Test Grading',
                             'date' => '4 January 2021',
                             'tags' => ['front','back'],

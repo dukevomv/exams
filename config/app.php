@@ -78,6 +78,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+    'use_https' => env('USE_HTTPS', false),
 
     /*
     |--------------------------------------------------------------------------

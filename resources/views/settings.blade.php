@@ -18,6 +18,9 @@
                             <label for="inputEmail">Email address</label>
                             <input type="email" name="email" class="form-control" id="inputEmail" placeholder="Email" value="{{Auth::user()->email}}">
                         </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" name="otp_enabled"  @if(Auth::user()->otp_enabled) checked @endif> Enable OTP</label>
+                        </div>
                         <button type="submit" class="btn btn-primary">Save Details</button>
                     </form>
                 </div>

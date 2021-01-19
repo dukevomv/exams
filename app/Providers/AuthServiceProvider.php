@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Enums\UserRole;
+use App\Util\UserIs;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -26,27 +28,35 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('navigate', function($user) {
-            return $user->approved == 1;
+            return UserIs::approved($user);
+        });
+
+        Gate::define('switchOffOTP', function($user) {
+            return !UserIs::withPendingOTP($user);
         });
 
         Gate::define('accessUsers', function($user) {
-            return $user->role('admin');
+            return UserIs::admin($user);
         });
 
         Gate::define('customizeLessons', function($user) {
-            return $user->role('admin');
+            return UserIs::admin($user);
         });
 
         Gate::define('customizeTests', function($user) {
-            return $user->role(['admin','professor']);
+            return UserIs::adminOrProfessor($user);
         });
 
         Gate::define('takeTests', function($user) {
-            return $user->role('student');
+            return UserIs::student($user);
         });
 
         Gate::define('accessSegments', function($user) {
-            return $user->role(['admin','professor']);
+            return UserIs::adminOrProfessor($user);
+        });
+
+        Gate::define('viewStatistics', function($user) {
+            return UserIs::adminOrProfessor($user);
         });
     }
 }

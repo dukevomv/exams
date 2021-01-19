@@ -49,23 +49,22 @@
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
-                    @if (Auth::user())
-                        @if(in_array(Auth::user()->role,['admin']))
+                    @php $user = Auth::user(); @endphp
+                    @if ($user)
+                        @if(\App\Util\UserIs::admin($user))
                             <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
                                 <a href="{{ url('/users') }}">Users</a>
                             </li>
                         @endif
-                        @if(in_array(Auth::user()->role,['admin','professor','student']))
                             <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
                                 <a href="{{ url('/lessons') }}">Lessons</a>
                             </li>
-                        @endif
-                        @if(in_array(Auth::user()->role,['professor','student']))
+                        @if(\App\Util\UserIs::professorOrStudent($user))
                             <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
                                 <a href="{{ url('/tests') }}">Tests</a>
                             </li>
                         @endif
-                        @if(in_array(Auth::user()->role,['professor']))
+                        @if(\App\Util\UserIs::professor($user))
                             <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">
                                 <a href="{{ url('/segments') }}">Segments</a>
                             </li>
@@ -90,9 +89,14 @@
 
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="{{url('/settings')}}"><i class="fa fa-cog"></i> Settings</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li class="dropdown-header">DEMO Options</li>
+
+                                @if(\App\Util\UserIs::adminOrProfessor($user))
+                                    <li><a href="{{url('/statistics')}}"><i class="fa fa-bar-chart"></i> Statistics</a></li>
+                                @endif
+
                                 @if(config('app.demo.enabled'))
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">DEMO Options</li>
                                     @foreach(\App\Enums\UserRole::values() as $role)
                                         @php $toggle = $role == Auth::user()->role ? 'on' : 'off'; @endphp
                                     <li>
