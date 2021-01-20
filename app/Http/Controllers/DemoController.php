@@ -22,8 +22,10 @@ class DemoController extends Controller {
     }
 
     public function switchRole($role,Request $request) {
-        $timestamp = Session::get(config('app.demo.session_field'));
-        $this->loginUserRole($timestamp,$role);
+        if(Session::has(config('app.demo.session_field'))) {
+            $timestamp = Session::get(config('app.demo.session_field'));
+            $this->loginUserRole($timestamp, $role);
+        }
         return back();
     }
 

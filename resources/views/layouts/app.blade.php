@@ -94,7 +94,7 @@
                                     <li><a href="{{url('/statistics')}}"><i class="fa fa-bar-chart"></i> Statistics</a></li>
                                 @endif
 
-                                @if(config('app.demo.enabled'))
+                                @if(config('app.demo.enabled') && Session::has(config('app.demo.session_field')))
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">DEMO Options</li>
                                     @foreach(\App\Enums\UserRole::values() as $role)
