@@ -142,7 +142,7 @@ class TestService implements TestServiceInterface {
         }
 
         //todo make the below to be parsable with cast in pivot model
-        $answers = json_decode($user->pivot->{$field},true);
+        $answers = json_decode($user->pivot->{$field}, true);
         if ($answers) {
             for ($s = 0; $s < count($test->segments); $s++) {
                 for ($t = 0; $t < count($test->segments[$s]->tasks); $t++) {
@@ -194,7 +194,7 @@ class TestService implements TestServiceInterface {
                 $existingGrades[$taskId] = $payload['points'];
                 $gradeExisted = true;
                 $given += $payload['points'];
-            } else{
+            } else {
                 $given += $grade;
             }
         }
@@ -227,8 +227,9 @@ class TestService implements TestServiceInterface {
     private function getGradeTaskKey($taskId) {
         return 'task_id_' . $taskId;
     }
+
     private function stripGradeTaskKey($taskId) {
-        return str_replace('task_id_','',$taskId);
+        return str_replace('task_id_', '', $taskId);
     }
 
     public function prepareForUser(Test $test) {
@@ -257,7 +258,7 @@ class TestService implements TestServiceInterface {
         ];
 
         if (!is_null($this->forUserId)) {
-            $final['for_student'] = $this->toArrayStudent($test,$final['segments']);
+            $final['for_student'] = $this->toArrayStudent($test, $final['segments']);
         }
 
         $userOnTest = $test->user_on_test;
@@ -292,12 +293,12 @@ class TestService implements TestServiceInterface {
         $student = $test->getUser($this->forUserId);
         $main = $this->toArrayUser($student);
         $total = 0;
-        foreach($segmentsArray as $segm){
+        foreach ($segmentsArray as $segm) {
             $total += $segm['total_points'];
         }
 
         $main['publishable'] = $student->pivot->status !== TestUserStatus::GRADED
-                                && $total == $student->pivot->total_points;
+            && $total == $student->pivot->total_points;
 
         return $main;
     }

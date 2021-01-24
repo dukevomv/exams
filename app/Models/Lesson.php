@@ -15,7 +15,7 @@ class Lesson extends Model {
     public    $fillable = ['name', 'gunet_code', 'semester'];
 
     public function users() {
-        return $this->belongsToMany(User::class)->withPivot('user_id', 'approved','created_at','updated_at');
+        return $this->belongsToMany(User::class)->withPivot('user_id', 'approved', 'created_at', 'updated_at');
     }
 
     public function status() {

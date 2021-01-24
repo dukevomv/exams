@@ -15,7 +15,9 @@ interface TestServiceInterface {
     public function prepareForUser(Test $test);
 
     public function toArray(Test $test);
-    public function toArraySegment($segment,$grades = []);
+
+    public function toArraySegment($segment, $grades = []);
+
     public function toArraySegments(Test $test);
 
     //todo include the TestService used functions and what i want to have published

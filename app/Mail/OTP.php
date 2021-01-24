@@ -5,10 +5,9 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class OTP extends Mailable
-{
+class OTP extends Mailable {
+
     use Queueable, SerializesModels;
 
     /**
@@ -16,8 +15,7 @@ class OTP extends Mailable
      *
      * @param string $code
      */
-    public function __construct(string $code)
-    {
+    public function __construct(string $code) {
         $this->code = $code;
     }
 
@@ -26,8 +24,7 @@ class OTP extends Mailable
      *
      * @return $this
      */
-    public function build()
-    {
-        return $this->subject('Your OTP for Exams Wizard')->markdown('emails.otp',['code'=>$this->code]);
+    public function build() {
+        return $this->subject('Your OTP for Exams Wizard')->markdown('emails.otp', ['code' => $this->code]);
     }
 }

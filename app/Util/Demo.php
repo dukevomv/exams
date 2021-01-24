@@ -14,7 +14,7 @@ class Demo {
         return $role . '+' . $timestamp . '@' . config('app.demo.email_suffix');
     }
 
-    public static function generateNameFromEmail($email){
+    public static function generateNameFromEmail($email) {
         $emailParts = explode('@', $email);
         return ucfirst($emailParts[0]);
     }

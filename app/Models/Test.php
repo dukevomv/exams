@@ -50,8 +50,8 @@ class Test extends Model {
         return $this->belongsToMany(Segment::class)->orderBy('position', 'asc')->withTimestamps();
     }
 
-    private function user_test_relation_query(){
-        return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status', 'left_at', 'answers', 'answers_draft', 'answered_draft_at', 'answered_at', 'grades', 'graded_at', 'graded_by', 'given_points','total_points', 'grade_published_at')->using('App\Models\TestUser');
+    private function user_test_relation_query() {
+        return $this->belongsToMany(User::class)->withTimestamps()->withPivot('status', 'left_at', 'answers', 'answers_draft', 'answered_draft_at', 'answered_at', 'grades', 'graded_at', 'graded_by', 'given_points', 'total_points', 'grade_published_at')->using('App\Models\TestUser');
     }
 
     public function users() {
@@ -108,7 +108,8 @@ class Test extends Model {
 
         $firebase->delete('tests/' . $this->id . '/students/' . $student->id);
 
-        $this->users()->updateExistingPivot($student->id, ['status' => TestUserStatus::LEFT,'left_at'=>Carbon::now()]);
+        $this->users()->updateExistingPivot($student->id, ['status'  => TestUserStatus::LEFT, 'left_at' => Carbon::now(),
+        ]);
     }
 
     public function getStudentsAnswers($userID, $final = false) {

@@ -26,6 +26,6 @@ class Task extends Model {
     }
 
     public function scopeAnswers($query) {
-        return $query->with([TaskType::RMC,TaskType::CMC,TaskType::FREE_TEXT,TaskType::CORRESPONDENCE]);
+        return $query->with([TaskType::RMC, TaskType::CMC, TaskType::FREE_TEXT, TaskType::CORRESPONDENCE]);
     }
 }

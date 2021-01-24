@@ -12,7 +12,7 @@ class Segment extends Model {
 
     use Searchable;
 
-    private $search   = ['title', 'description'];
+    private $search = ['title', 'description'];
     public  $fillable = ['lesson_id', 'title', 'description'];
 
     public function lesson() {
@@ -29,7 +29,9 @@ class Segment extends Model {
 
     public function scopeWithTaskAnswers($query) {
         return $query->with(['tasks' => function ($q) {
-            $q->with([TaskType::RMC, TaskType::CMC, TaskType::CORRESPONDENCE,TaskType::FREE_TEXT])->orderBy('position');
-        }]);
+            $q->with([TaskType::RMC, TaskType::CMC, TaskType::CORRESPONDENCE, TaskType::FREE_TEXT,
+            ])->orderBy('position');
+        },
+        ]);
     }
 }

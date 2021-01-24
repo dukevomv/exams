@@ -3,22 +3,18 @@
 namespace App\Traits;
 
 use App\Models\OTP;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
-
 use Illuminate\Foundation\Auth\AuthenticatesUsers as LaravelAuthenticatesUsers;
+use Illuminate\Http\Request;
 
-trait AuthenticatesUsers
-{
+trait AuthenticatesUsers {
+
     use LaravelAuthenticatesUsers;
 
-    protected function sendLoginResponse(Request $request)
-    {
+    protected function sendLoginResponse(Request $request) {
         $request->session()->regenerate();
 
         $this->clearLoginAttempts($request);
-        if($this->guard()->user()->otp_enabled == 1) {
+        if ($this->guard()->user()->otp_enabled == 1) {
             OTP::generateForMail($this->guard()->user()->email);
             $this->redirectTo = '/otp';
         }

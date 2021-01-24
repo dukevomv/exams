@@ -113,8 +113,8 @@ class TestController extends Controller {
 
     public function userPreview($id, $userId, Request $request) {
         $test = $this->service->fetchById($id);
-        if(in_array($test->status,[TestStatus::STARTED,TestStatus::PUBLISHED])){
-            return redirect('/tests/'.$id);
+        if (in_array($test->status, [TestStatus::STARTED, TestStatus::PUBLISHED])) {
+            return redirect('/tests/' . $id);
         }
         $this->service->calculateUserPoints($test, $userId);
 
@@ -126,14 +126,14 @@ class TestController extends Controller {
 
     public function gradeUserTask($id, $userId, Request $request) {
         $this->validate($request, [
-            'task_id'      => 'required|integer',
-            'points'       => 'required|numeric'
+            'task_id' => 'required|integer',
+            'points'  => 'required|numeric',
         ]);
 
         $test = $this->service->fetchById($id);
         //todo the below line is to set the forUserId for the student is being graded
-        $this->service->calculateUserPoints($test,$userId);
-        $this->service->gradeUserTask($test,$request->only('task_id','points'));
+        $this->service->calculateUserPoints($test, $userId);
+        $this->service->gradeUserTask($test, $request->only('task_id', 'points'));
         //todo make this an ajax call
         return back();
     }

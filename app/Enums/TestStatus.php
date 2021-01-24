@@ -8,5 +8,5 @@ class TestStatus extends Enum {
     const PUBLISHED = 'published';
     const STARTED   = 'started';
     const FINISHED  = 'finished';
-    const GRADED  = 'graded';
+    const GRADED    = 'graded';
 }
