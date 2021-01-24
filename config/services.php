@@ -35,4 +35,10 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'firebase' => [
+        'enabled' => env('FIREBASE_ENABLED',false),
+        'auth_file' => env('FIREBASE_AUTH_FILE',null),
+        'db_url' => env('FIREBASE_DB_URL',null),
+    ]
+
 ];

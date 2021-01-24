@@ -163,12 +163,13 @@ class Test extends Model {
         $this->started_at = Carbon::now()->addSeconds(config('app.bm.test_timer.start_delay_in_seconds'));
         $this->started_by_user = Auth::id();
 
-        $firebase = app('firebase');
-        $student = Auth::user();
+        if (config('services.firebase.enabled')) {
+            $firebase = app('firebase');
 
-        $firebase->update([
-            'started_at' => $this->started_at->toDateTimeString(),
-        ], 'tests/' . $this->id);
+            $firebase->update([
+                'started_at' => $this->started_at->toDateTimeString(),
+            ], 'tests/' . $this->id);
+        }
 
         $this->save();
     }
@@ -178,12 +179,13 @@ class Test extends Model {
         $this->finished_at = Carbon::now()->addSeconds(config('app.bm.test_timer.finish_delay_in_seconds'));
         $this->finished_by_user = Auth::id();
 
-        $firebase = app('firebase');
-        $student = Auth::user();
+        if (config('services.firebase.enabled')) {
+            $firebase = app('firebase');
 
-        $firebase->update([
-            'finished_at' => $this->finished_at->toDateTimeString(),
-        ], 'tests/' . $this->id);
+            $firebase->update([
+                'finished_at' => $this->finished_at->toDateTimeString(),
+            ], 'tests/' . $this->id);
+        }
 
         $this->save();
     }
