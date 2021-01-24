@@ -66,7 +66,7 @@
                 @if(Auth::user()->role == \App\Enums\UserRole::STUDENT)
                   @php
                     $grade = '-';
-                    $testUser = $test->user_on_test->pivot;
+                    $testUser = is_null($test->user_on_test) ? null : $test->user_on_test->pivot;
                     if($testUser->status == \App\Enums\TestUserStatus::GRADED){
                         $grade = \App\Util\Points::getWithPercentage($testUser->given_points,$testUser->total_points);
                     }
