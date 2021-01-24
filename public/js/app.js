@@ -37048,19 +37048,12 @@ module.exports = function xhrAdapter(config) {
       delete requestHeaders['Content-Type']; // Let the browser set it
     }
 
-    if (
-      (utils.isBlob(requestData) || utils.isFile(requestData)) &&
-      requestData.type
-    ) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
-
     var request = new XMLHttpRequest();
 
     // HTTP basic authentication
     if (config.auth) {
       var username = config.auth.username || '';
-      var password = unescape(encodeURIComponent(config.auth.password)) || '';
+      var password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
       requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
     }
 
@@ -37366,7 +37359,7 @@ module.exports = Cancel;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(212);
-module.exports = __webpack_require__(329);
+module.exports = __webpack_require__(330);
 
 
 /***/ }),
@@ -37376,9 +37369,9 @@ module.exports = __webpack_require__(329);
 
 __webpack_require__(213);
 
-__webpack_require__(326);
 __webpack_require__(327);
 __webpack_require__(328);
+__webpack_require__(329);
 
 /***/ }),
 /* 213 */
@@ -109387,6 +109380,9 @@ axios.all = function all(promises) {
 };
 axios.spread = __webpack_require__(325);
 
+// Expose isAxiosError
+axios.isAxiosError = __webpack_require__(326);
+
 module.exports = axios;
 
 // Allow use of default import syntax in TypeScript
@@ -109475,7 +109471,8 @@ utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData
   Axios.prototype[method] = function(url, config) {
     return this.request(mergeConfig(config || {}, {
       method: method,
-      url: url
+      url: url,
+      data: (config || {}).data
     }));
   };
 });
@@ -110130,6 +110127,24 @@ module.exports = function spread(callback) {
 
 /***/ }),
 /* 326 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Determines whether the payload is an error thrown by Axios
+ *
+ * @param {*} payload The value to test
+ * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+ */
+module.exports = function isAxiosError(payload) {
+  return (typeof payload === 'object') && (payload.isAxiosError === true);
+};
+
+
+/***/ }),
+/* 327 */
 /***/ (function(module, exports) {
 
 
@@ -110150,14 +110165,15 @@ $('.search-wrap input').keypress(function (e) {
 });
 
 /***/ }),
-/* 327 */
+/* 328 */
 /***/ (function(module, exports) {
 
 window.showValidatorErrors = function (data) {
   if (!data.responseJSON || data.responseJSON.length == 0) return 1;
   $('.wrap-for-banners .ajax-errors').remove();
   var errors = '<div class="alert alert-danger ajax-errors"><ul>';
-  $.each(data.responseJSON, function (key, val) {
+  var allErrors = data.responseJSON.errors ? data.responseJSON.errors : data.responseJSON;
+  $.each(allErrors, function (key, val) {
     errors += '<li>' + val[0] + '</li>';
   });
   errors += '</ul></div>';
@@ -110165,7 +110181,7 @@ window.showValidatorErrors = function (data) {
 };
 
 /***/ }),
-/* 328 */
+/* 329 */
 /***/ (function(module, exports) {
 
 
@@ -110192,7 +110208,7 @@ $('#confirm-modal button').on('click', function (event) {
 });
 
 /***/ }),
-/* 329 */
+/* 330 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

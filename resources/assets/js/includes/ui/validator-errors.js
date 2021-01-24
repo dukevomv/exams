@@ -3,9 +3,10 @@ window.showValidatorErrors = function(data){
     return 1;
   $('.wrap-for-banners .ajax-errors').remove()
   var errors = '<div class="alert alert-danger ajax-errors"><ul>'
-    $.each(data.responseJSON,function(key,val){
-      errors += '<li>'+val[0]+'</li>'
-    });
-    errors += '</ul></div>'
+  const allErrors = data.responseJSON.errors ? data.responseJSON.errors : data.responseJSON;
+  $.each(allErrors,function(key,val){
+    errors += '<li>'+val[0]+'</li>'
+  });
+  errors += '</ul></div>'
   $('.wrap-for-banners').append(errors)
 }

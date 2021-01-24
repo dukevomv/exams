@@ -60,20 +60,20 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 330);
+/******/ 	return __webpack_require__(__webpack_require__.s = 331);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 330:
+/***/ 331:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(331);
+module.exports = __webpack_require__(332);
 
 
 /***/ }),
 
-/***/ 331:
+/***/ 332:
 /***/ (function(module, exports, __webpack_require__) {
 
 window.testData = {
@@ -92,18 +92,18 @@ $('input.task-grade-points').on('change', function () {
   $(this).siblings('.input-group-btn').find('button').removeClass('btn-default').addClass('btn-primary');
 });
 
-__webpack_require__(332);
-
 __webpack_require__(333);
+
 __webpack_require__(334);
 __webpack_require__(335);
 __webpack_require__(336);
-
 __webpack_require__(337);
+
+__webpack_require__(338);
 
 /***/ }),
 
-/***/ 332:
+/***/ 333:
 /***/ (function(module, exports, __webpack_require__) {
 
 var config = {
@@ -149,7 +149,7 @@ window.realtime = {
 
 /***/ }),
 
-/***/ 333:
+/***/ 334:
 /***/ (function(module, exports) {
 
 testUtils.initializeRealtime = function () {
@@ -197,7 +197,7 @@ testUtils.getTestData = function () {
 
 /***/ }),
 
-/***/ 334:
+/***/ 335:
 /***/ (function(module, exports) {
 
 realtime.on('student.registered', function (student) {
@@ -216,7 +216,7 @@ realtime.on('student.left', function (student) {
 
 /***/ }),
 
-/***/ 335:
+/***/ 336:
 /***/ (function(module, exports) {
 
 
@@ -265,7 +265,7 @@ testUtils.setTimerTo = function (seconds) {
 
 /***/ }),
 
-/***/ 336:
+/***/ 337:
 /***/ (function(module, exports) {
 
 var testsURL = baseURL + '/tests/';
@@ -397,7 +397,7 @@ testUtils.saveTest = function () {
 
 /***/ }),
 
-/***/ 337:
+/***/ 338:
 /***/ (function(module, exports) {
 
 var taskCorrespondenceWrap = ".task-wrap.task-wrap-correspondence";
