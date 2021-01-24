@@ -11,6 +11,7 @@ class Points {
      * @return string
      */
     public static function getWithPercentage($given, $total) {
-        return $given.'/'.$total.' ('.intval(($given/$total)*100).'%)';
+        $percentage = ($total === 0) ? 0 : intval(($given / $total) * 100);
+        return $given . '/' . $total . ' (' . $percentage . '%)';
     }
 }
