@@ -1,4 +1,8 @@
 <div class="sidebar col-xs-5 fixed-toolbar">
+    @if(array_key_exists('for_student',$test))
+        <span><a href="{{URL::to('/tests/'.$test['id'])}}"><i class="fa fa-arrow-left"></i> Back</a></span>
+        <h3>{{$test['for_student']['name']}}</h3>
+    @endif
     <div class="panel panel-info">
         <div class="panel-heading">
             <h4>{{ $test['name'] }}</h4>
