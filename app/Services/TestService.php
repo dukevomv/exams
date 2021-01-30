@@ -183,30 +183,54 @@ class TestService implements TestServiceInterface {
      *
      * @return array
      */
+    public function autoGradeUser(Test $test) {
+        $existingGrades = $this->getUserGrades($test);
+        $testData = $this->prepareForUser($test);
+        foreach($testData['segments'] as $segment){
+            foreach($segment['tasks'] as $task){
+                if(!$task['manually_saved'] && $task['calculative']){
+                    $gradedTaskIds[] = $task['id'];
+                    $existingGrades[$this->getGradeTaskKey($task['id'])] = $task['given_points'];
+                }
+            }
+        }
+        $this->saveUserGrades($test, $existingGrades);
+        //todo return value that is needed for ajax call
+        return [];
+    }
+
+    /**
+     * @param \App\Models\Test $test
+     * @param $payload
+     *
+     * @return array
+     */
     public function gradeUserTask(Test $test, $payload) {
         $existingGrades = $this->getUserGrades($test);
         $gradeExisted = false;
-        $given = 0;
-        $gradedTaskIds = [];
         foreach ($existingGrades as $taskId => $grade) {
-            $gradedTaskIds[] = $this->stripGradeTaskKey($taskId);
             if ($taskId === $this->getGradeTaskKey($payload['task_id'])) {
                 $existingGrades[$taskId] = $payload['points'];
                 $gradeExisted = true;
-                $given += $payload['points'];
-            } else {
-                $given += $grade;
             }
         }
         if (!$gradeExisted) {
-            $given += $payload['points'];
-            $gradedTaskIds[] = $payload['task_id'];
             $existingGrades[$this->getGradeTaskKey($payload['task_id'])] = $payload['points'];
         }
-        $total = Task::whereIn('id', $gradedTaskIds)->sum('points');
-        $test->saveProfessorGrade($this->forUserId, $existingGrades, $given, $total);
+        $this->saveUserGrades($test, $existingGrades);
         //todo return value that is needed for ajax call
         return [];
+    }
+
+    private function saveUserGrades(Test $test, array $grades) {
+        $gradedTaskIds = [];
+        $given = 0;
+        foreach ($grades as $taskId => $grade) {
+            $gradedTaskIds[] = $this->stripGradeTaskKey($taskId);
+            $given += $grade;
+        }
+        $total = Task::whereIn('id', $gradedTaskIds)->sum('points');
+        $test->saveProfessorGrade($this->forUserId, $grades, $given, $total);
     }
 
     private function getUserGrades(Test $test) {

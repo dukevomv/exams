@@ -292,6 +292,11 @@ $('#publish-grade').on('click', function (e) {
     location.reload();
   });
 });
+$('#auto-grade').on('click', function (e) {
+  $.post(testsURL + testData.test.id + '/users/' + testData.test.for_student.id + '/auto-grade', { _token: CSRF }, function () {
+    location.reload();
+  });
+});
 
 //todo these are not working
 // - saving test and reloading

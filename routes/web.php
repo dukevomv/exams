@@ -93,6 +93,7 @@ Route::group(['middleware' => ['auth']], function () {
 
                 Route::get('{id}/users/{userId}', 'TestController@userPreview');
                 Route::post('{id}/users/{userId}/grade-task', 'TestController@gradeUserTask');
+                Route::post('{id}/users/{userId}/auto-grade', 'TestController@autoGrade');
                 Route::post('{id}/users/{userId}/publish-grade', 'TestController@publishGrade');
             });
 

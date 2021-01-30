@@ -12,6 +12,8 @@ interface TestServiceInterface {
 
     public function gradeUserTask(Test $test, $payload);
 
+    public function autoGradeUser(Test $test);
+
     public function prepareForUser(Test $test);
 
     public function toArray(Test $test);

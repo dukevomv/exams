@@ -39,7 +39,8 @@
                                 30"
                             </button>
                         @elseif ($test['status'] == \App\Enums\TestStatus::FINISHED && array_key_exists('for_student',$test))
-                            <button type="button" class="btn btn-primary" id="publish-grade" @if(!$test['for_student']['publishable']) disabled @endif>Publish Grades
+                            <button type="button" class="btn btn-success" id="publish-grade" @if(!$test['for_student']['publishable']) disabled @endif>Publish Grades
+                            </button><button type="button" class="btn btn-primary pull-right" id="auto-grade"><i class="fa fa-save"></i> Save Auto
                             </button><br>
                         <!-- todo make  the below to be automatic save to all auto-calculated -->
                             <small><i class="fa fa-warning"></i> To publish student's grades you must first save each task's points.</small>
