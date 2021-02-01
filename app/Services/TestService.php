@@ -272,6 +272,7 @@ class TestService implements TestServiceInterface {
             'description'  => $test->description,
             'status'       => $test->status,
             'can_register' => $test->can_register,
+            'register_time' => $test->register_time,
             'duration'     => $test->duration,
             'lesson'       => $test->lesson->name,
             'segments'     => $this->toArraySegments($test),
@@ -281,7 +282,7 @@ class TestService implements TestServiceInterface {
             'with_grades'  => $this->includeUserCalculatedPoints,
         ];
 
-        if (!is_null($this->forUserId)) {
+        if (Auth::user()->role == UserRole::PROFESSOR && !is_null($this->forUserId)) {
             $final['for_student'] = $this->toArrayStudent($test, $final['segments']);
         }
 
@@ -315,6 +316,8 @@ class TestService implements TestServiceInterface {
 
     private function toArrayStudent(Test $test, array $segmentsArray) {
         $student = $test->getUser($this->forUserId);
+        if(is_null($student))
+            return null;
         $main = $this->toArrayUser($student);
         $total = 0;
         foreach ($segmentsArray as $segm) {

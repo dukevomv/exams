@@ -83,7 +83,7 @@ class Test extends Model {
     }
 
     public function getRegisterTimeAttribute() {
-        return is_null($this->scheduled_at) ? $this->scheduled_at : Carbon::parse($this->scheduled_at)->subMinutes(30);
+        return is_null($this->scheduled_at) ? $this->scheduled_at : Carbon::parse($this->scheduled_at)->subMinutes(config('app.bm.test_register_before_scheduled_in_minutes'));
     }
 
     public function getCanRegisterAttribute() {

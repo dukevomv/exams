@@ -62,6 +62,10 @@
                                             @if( !$test['can_register'] || $test['status'] == 'started')  disabled="disabled" @endif >
                                         Register to Test
                                     </button>
+                                    @if(!$test['can_register'])
+                                        <br>
+                                        <small><i class="fa fa-warning"></i> In {{$test['register_time']->fromNow()}} you  will be able to register to this test.</small>
+                                    @endif
                                 </form>
                             @endif
                         @elseif($test['current_user']['status'] == 'registered')

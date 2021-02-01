@@ -67,7 +67,7 @@
                   @php
                     $grade = '-';
                     $testUser = is_null($test->user_on_test) ? null : $test->user_on_test->pivot;
-                    if($testUser->status == \App\Enums\TestUserStatus::GRADED){
+                    if($testUser && $testUser->status == \App\Enums\TestUserStatus::GRADED){
                         $grade = \App\Util\Points::getWithPercentage($testUser->given_points,$testUser->total_points);
                     }
                   //todo make this to calculate test user grades if graded

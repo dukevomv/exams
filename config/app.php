@@ -51,6 +51,7 @@ return [
             'start_delay_in_seconds'  => 30,
             'finish_delay_in_seconds' => 30,
         ],
+        'test_register_before_scheduled_in_minutes'  => 60*2,
     ],
 
     /*
