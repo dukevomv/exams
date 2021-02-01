@@ -10823,6 +10823,18 @@ strong {
   background-color: #6dcc50;
 }
 
+.label-registered {
+  background-color: #cbb956;
+}
+
+.label-graded {
+  background-color: #2ab27b;
+}
+
+.label-submitted {
+  background-color: #8eb4cb;
+}
+
 textarea {
   resize: vertical;
 }

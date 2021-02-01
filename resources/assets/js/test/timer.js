@@ -32,8 +32,6 @@ realtime.on('test.finished', function (payload) {
 });
 
 testUtils.setTimerTo = function(seconds) {
-  console.log(testData.timer.remaining_seconds,'remaining')
-  console.log(seconds,'secs')
   testData.timer.remaining_seconds = seconds;
   var minutes = Math.floor(seconds / 60);
   var hours = Math.floor(minutes / 60);

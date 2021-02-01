@@ -103,7 +103,6 @@ testUtils.saveTest = function(final= false){
         task.data = element.find('textarea').val();
         break;
       case "correspondence":
-        console.log('11112121')
         task.data = []
         element.find('.choice-wrap').each(function(i) {
           let choice = {

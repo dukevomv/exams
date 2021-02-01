@@ -86,7 +86,7 @@ window.testData = {
   taskData: {}
 };
 
-window.testUtils = {};
+if (!window.testUtils) window.testUtils = {};
 
 $('input.task-grade-points').on('change', function () {
   $(this).siblings('.input-group-btn').find('button').removeClass('btn-default').addClass('btn-primary');
@@ -201,13 +201,12 @@ testUtils.getTestData = function () {
 /***/ (function(module, exports) {
 
 realtime.on('student.registered', function (student) {
-  $("#test-registered-students .table").append('<tr data-id="' + student.id + '" class="student-' + student.id + '">\
-          <td>' + student.name + '</td>\
-          <td>' + student.registered_at + '</td>\
-          <td><span class="label label-warning">Registered</span></td>\
-          <td></td>\
-          <td></td>\
-        </tr>');
+  var table = $("#test-registered-students .table");
+  if (!table.find("#student-" + student.id)) {
+    table.append('<tr ' + testUtils.buildStudentRowAttributes(student.id) + '></tr>');
+  }
+  var studentRow = table.find("#student-" + student.id);
+  studentRow.html(testUtils.buildStudentRowColumns(student.id, student.name, moment(student.registered_at).fromNow(), 'registered'));
 });
 
 realtime.on('student.left', function (student) {
@@ -250,8 +249,6 @@ realtime.on('test.finished', function (payload) {
 });
 
 testUtils.setTimerTo = function (seconds) {
-  console.log(testData.timer.remaining_seconds, 'remaining');
-  console.log(seconds, 'secs');
   testData.timer.remaining_seconds = seconds;
   var minutes = Math.floor(seconds / 60);
   var hours = Math.floor(minutes / 60);
@@ -376,7 +373,6 @@ testUtils.saveTest = function () {
         task.data = element.find('textarea').val();
         break;
       case "correspondence":
-        console.log('11112121');
         task.data = [];
         element.find('.choice-wrap').each(function (i) {
           var choice = {

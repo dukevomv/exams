@@ -1,11 +1,10 @@
 realtime.on('student.registered', function (student) {
-  $("#test-registered-students .table").append('<tr data-id="' + student.id + '" class="student-' + student.id + '">\
-          <td>' + student.name + '</td>\
-          <td>' + student.registered_at + '</td>\
-          <td><span class="label label-warning">Registered</span></td>\
-          <td></td>\
-          <td></td>\
-        </tr>');
+  let table =  $("#test-registered-students .table");
+  if(!table.find("#student-"+student.id)){
+    table.append('<tr '+testUtils.buildStudentRowAttributes(student.id)+'></tr>')
+  }
+  let  studentRow = table.find("#student-"+student.id);
+  studentRow.html(testUtils.buildStudentRowColumns(student.id,student.name,moment(student.registered_at).fromNow(),'registered'));
 });
 
 realtime.on('student.left', function (student) {

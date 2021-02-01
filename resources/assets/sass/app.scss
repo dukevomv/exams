@@ -1,5 +1,6 @@
 // Variables
 @import "variables";
+@import "custom_variables";
 
 // Fontawesome
 @import "~font-awesome/scss/font-awesome";
@@ -24,6 +25,16 @@ b, strong {
 
 .label-student {
   background-color: $brand-student;
+}
+
+.label-registered {
+  background-color: $label-registered;
+}
+.label-graded {
+  background-color: $label-graded;
+}
+.label-submitted {
+  background-color: $label-submitted;
 }
 
 textarea {
