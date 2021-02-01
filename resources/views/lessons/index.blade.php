@@ -183,7 +183,7 @@
         modals.lessonUpdate.find('span.action-update').removeClass('hidden')
         $.ajax({
           type: "GET",
-          url: baseURL+'lessons/'+id,
+          url: baseURL+'/lessons/'+id,
           success: function(data){
             $.each( editableFields, function(key,val) {
               modals.lessonUpdate.find('input[name="'+val+'"]').val(data[val])
@@ -197,7 +197,7 @@
     function InitLessonUserApprovalModal(id){
       $.ajax({
         type: "GET",
-        url: baseURL+'lessons/'+id+'/users',
+        url: baseURL+'/lessons/'+id+'/users',
         success: function(data){
           var table = modals.lessonUsers.find('.modal-body table');
           table.find('.custom-row').remove();
@@ -222,7 +222,7 @@
       let input = $(this)
       const value = input.prop('checked')
       let toggle = input.closest('.toggle')
-      $.post( baseURL+'lessons/users/toggle-approve',
+      $.post( baseURL+'/lessons/users/toggle-approve',
         { 
           _token: CSRF,
           lesson_id : toggle.attr('data-lesson-id'),
