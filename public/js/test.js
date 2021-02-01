@@ -92,7 +92,7 @@ $('input.task-grade-points').on('change', function () {
   $(this).siblings('.input-group-btn').find('button').removeClass('btn-default').addClass('btn-primary');
 });
 
-$('.wrap-for-banners').addClass('col-xs-7').addClass('pull-right');
+$('.wrap-for-banners').addClass('with-sidebar');
 
 __webpack_require__(333);
 
