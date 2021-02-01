@@ -51,10 +51,9 @@
                         @endif
                     </div>
                 @elseif (Auth::user()->role == 'student')
-                    {{--                    todo here the save buttons dont work at all for any task  type--}}
                     <div class="margin-bottom-15 clearfix">
                         @if(!array_key_exists('current_user',$test))
-                            @if (in_array($test['status'],['published','started']))
+                            @if (in_array($test['status'],[\App\Enums\TestStatus::PUBLISHED,\App\Enums\TestStatus::STARTED]))
                                 <form method="POST"
                                       action="{{URL::to('tests')}}/{{ $test['id'] }}/register">
                                     <input type="hidden" name="_token" value="{{csrf_token()}}">
@@ -68,8 +67,8 @@
                                     @endif
                                 </form>
                             @endif
-                        @elseif($test['current_user']['status'] == 'registered')
-                            @if ($test['status'] == 'published')
+                        @elseif(in_array($test['current_user']['status'],[\App\Enums\TestUserStatus::REGISTERED,\App\Enums\TestUserStatus::PARTICIPATED]))
+                            @if ($test['status'] == \App\Enums\TestStatus::PUBLISHED)
                                 <form method="POST" action="{{URL::to('tests')}}/{{ $test['id'] }}/leave"
                                       class="confirm-form" data-confirm-action="Leave"
                                       data-confirm-title="After leaving you will not be able to register again.">
