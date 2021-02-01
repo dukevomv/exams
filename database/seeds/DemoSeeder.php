@@ -67,11 +67,11 @@ class DemoSeeder extends Seeder {
             ],
         ];
 
-        for ($t = 1; $t <= count($testData); $t++) {
+        for ($t = 0; $t < count($testData); $t++) {
             $tests[] = self::createPredefinedTest(array_merge([
                 'lesson' => $lesson,
-                'count'  => $t,
-            ], $testData[$t - 1]));
+                'count'  => $t+1,
+            ], $testData[$t]));
         }
 
         DB::table('demo_users')->where('id', $demoUserId)->update(['finished' => true]);
@@ -86,11 +86,13 @@ class DemoSeeder extends Seeder {
                               ->{$data['status']}()
                               ->inLesson($data['lesson']->id);
 
-        for($u=0;$u<count($data['users']);$u++) {
-            $builder->withUser($data['users'][$u]->id,[
-                'created_at' => Carbon::now()->subMinutes($u*7),
-                'status'     => TestUserStatus::REGISTERED,
-            ]);
+        if(isset($data['users'])){
+            for($u=0;$u<count($data['users']);$u++) {
+                $builder->withUser($data['users'][$u]->id,[
+                    'created_at' => Carbon::now()->subMinutes($u*7),
+                    'status'     => TestUserStatus::REGISTERED,
+                ]);
+            }
         }
 
         return $builder->build();
