@@ -131,7 +131,7 @@
             </div>
         </div>
     </nav>
-    <div class="container wrap-for-banners pull-right">
+    <div class="container wrap-for-banners">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
