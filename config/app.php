@@ -39,7 +39,7 @@ return [
     'demo' => [
         'enabled'       => env('DEMO_ENABLED', false),
         'email_suffix'  => 'exams.wiz',
-        'default_role'  => \App\Enums\UserRole::ADMIN,
+        'default_role'  => \App\Enums\UserRole::PROFESSOR,
         'session_field' => 'demo_user_timestamp',
     ],
 
