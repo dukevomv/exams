@@ -42,22 +42,27 @@ class DemoSeeder extends Seeder {
             ],
             [
                 'status'    => 'published',
+                'users'  => $users[UserRole::STUDENT],
                 'published' => Carbon::now()->addMinutes(2),
             ],
             [
                 'status'  => 'started',
+                'users'  => $users[UserRole::STUDENT],
                 'started' => Carbon::now()->addMinutes(2),
             ],
             [
                 'status'  => 'started',
+                'users'  => $users[UserRole::STUDENT],
                 'started' => Carbon::now()->subMinutes(60),
             ],
             [
                 'status'   => 'finished',
+                'users'  => $users[UserRole::STUDENT],
                 'finished' => Carbon::now()->addMinutes(2),
             ],
             [
                 'status'   => 'finished',
+                'users'  => $users[UserRole::STUDENT],
                 'finished' => Carbon::now()->subMinutes(2),
             ],
         ];
@@ -65,7 +70,6 @@ class DemoSeeder extends Seeder {
         for ($t = 1; $t <= count($testData); $t++) {
             $tests[] = self::createPredefinedTest(array_merge([
                 'lesson' => $lesson,
-                'users'  => $users[UserRole::STUDENT],
                 'count'  => $t,
             ], $testData[$t - 1]));
         }
