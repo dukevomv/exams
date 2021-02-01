@@ -80,7 +80,7 @@
     let input = $(this)
     const value = input.prop('checked')
     let toggle = input.closest('.approved-toggle')
-    $.post( baseURL+'users/toggle-approve',
+    $.post( baseURL+'/users/toggle-approve',
       { 
         _token: CSRF,
         user : toggle.attr('data-user-id'),
