@@ -42,7 +42,7 @@
               <td><span class="label label-'+status+'">'+jsUcfirst(status)+'</span></td>\
               <td>'+grades+'</td>\
               <th class="text-center">\
-                    <a href="'+baseURL+'/tests/'+testData.id+'/users/'+id+'" type="button"\
+                    <a href="'+baseURL+'/tests/'+testData.test.id+'/users/'+id+'" type="button"\
                        class="btn btn-xs btn-primary">\
                         <i class="fa fa-eye"></i>\
                     </a>\

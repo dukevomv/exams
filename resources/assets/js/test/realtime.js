@@ -10,6 +10,7 @@ testUtils.getTestData = function() {
     'test.finished',
 
     'student.registered',
+    'student.updated',
     'student.left',
   ];
 
@@ -17,21 +18,24 @@ testUtils.getTestData = function() {
     var studentsRef = firebase.database().ref('tests/' + testData.test.id + '/students');
 
     studentsRef.on('child_added', function (data) {
-      var student = data.val();
-      realtime.executeEvent('student.registered', {
-        id: data.key,
-        name: student.name,
-        registered_at: student.registered_at
-      });
+      triggerStudentChanged(data.key,data.val());
+    });
+    studentsRef.on('child_changed', function (data) {
+      triggerStudentChanged(data.key,data.val());
     });
 
-    studentsRef.on('child_removed', function (data) {
-      var student = data.val();
-      realtime.executeEvent('student.left', {
-        id: data.key,
+    function triggerStudentChanged(id,student){
+      realtime.executeEvent('student.changed', {
+        id: id,
         name: student.name,
-        registered_at: student.registered_at
+        registered_at: student.registered_at,
+        status: student.status
       });
+    }
+
+
+    studentsRef.on('child_removed', function (data) {
+      triggerStudentChanged(data.key,data.val());
     });
   }
 

@@ -91,23 +91,25 @@ class Test extends Model {
     }
 
     public function register() {
-        $firebase = app('firebase');
         $student = Auth::user();
-        $firebase->update([
-            'name'          => $student->name,
-            'registered_at' => Carbon::now()->toDateTimeString(),
-        ], 'tests/' . $this->id . '/students/' . $student->id);
+        if (config('services.firebase.enabled')) {
+            $firebase = app('firebase');
+            $firebase->update([
+                'name'          => $student->name,
+                'registered_at' => Carbon::now()->toDateTimeString(),
+                'status'        => TestUserStatus::REGISTERED,
+            ], 'tests/' . $this->id . '/students/' . $student->id);
+        }
 
         $this->users()->attach(Auth::id(), ['status' => TestUserStatus::REGISTERED]);
     }
 
     public function leave() {
-        $firebase = app('firebase');
-
         $student = Auth::user();
-
-        $firebase->delete('tests/' . $this->id . '/students/' . $student->id);
-
+        if (config('services.firebase.enabled')) {
+            $firebase = app('firebase');
+            $firebase->delete('tests/' . $this->id . '/students/' . $student->id);
+        }
         $this->users()->updateExistingPivot($student->id, ['status'  => TestUserStatus::LEFT, 'left_at' => Carbon::now(),
         ]);
     }
@@ -125,7 +127,6 @@ class Test extends Model {
 
     public function saveProfessorGrade($userID, array $grades, $given, $total) {
         return $this->users()->updateExistingPivot($userID, [
-            'status'       => TestUserStatus::PARTICIPATED,
             'grades'       => json_encode($grades),
             'graded_at'    => Carbon::now(),
             'graded_by'    => Auth::id(),
@@ -138,9 +139,19 @@ class Test extends Model {
         $studentCanSave = $this->status == TestStatus::STARTED
             || ($this->status == TestStatus::FINISHED && Carbon::now()->lte(Carbon::parse($this->finished_at)));
         if (!$studentCanSave) {
-            throw new InvalidOperationException('Test is not saveable', []);
+            throw new InvalidOperationException('Test is not savable', []);
         }
-        return $this->users()->updateExistingPivot($userID, $this->constructAnswersFields($answers, $final));
+
+        $this->users()->updateExistingPivot($userID, $this->constructAnswersFields($answers, $final));
+
+        if ($final && config('services.firebase.enabled')) {
+            $student = Auth::user();
+            $firebase = app('firebase');
+            $firebase->update([
+                'status' => TestUserStatus::PARTICIPATED,
+                'answered_at' => Carbon::now()->toDateTimeString(),
+            ], 'tests/' . $this->id . '/students/' . $student->id);
+        }
     }
 
     private function constructAnswersFields(array $answers, $final) {
@@ -154,6 +165,7 @@ class Test extends Model {
         $field_date .= '_at';
 
         return [
+            'status'       => TestUserStatus::PARTICIPATED,
             $field_data => json_encode($answers),
             $field_date => Carbon::now(),
         ];
@@ -166,7 +178,6 @@ class Test extends Model {
 
         if (config('services.firebase.enabled')) {
             $firebase = app('firebase');
-
             $firebase->update([
                 'started_at' => $this->started_at->toDateTimeString(),
             ], 'tests/' . $this->id);
@@ -182,7 +193,6 @@ class Test extends Model {
 
         if (config('services.firebase.enabled')) {
             $firebase = app('firebase');
-
             $firebase->update([
                 'finished_at' => $this->finished_at->toDateTimeString(),
             ], 'tests/' . $this->id);

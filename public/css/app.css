@@ -10831,8 +10831,12 @@ strong {
   background-color: #2ab27b;
 }
 
-.label-submitted {
+.label-participated {
   background-color: #8eb4cb;
+}
+
+.label-left {
+  background-color: #bf5329;
 }
 
 textarea {

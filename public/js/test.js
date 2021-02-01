@@ -92,6 +92,8 @@ $('input.task-grade-points').on('change', function () {
   $(this).siblings('.input-group-btn').find('button').removeClass('btn-default').addClass('btn-primary');
 });
 
+$('.wrap-for-banners').addClass('col-xs-7');
+
 __webpack_require__(333);
 
 __webpack_require__(334);
@@ -159,27 +161,29 @@ testUtils.initializeRealtime = function () {
 testUtils.getTestData = function () {
   var testsRef = firebase.database().ref('tests/' + testData.test.id);
 
-  var eventAliases = ['test.started', 'test.finished', 'student.registered', 'student.left'];
+  var eventAliases = ['test.started', 'test.finished', 'student.registered', 'student.updated', 'student.left'];
 
   if (userData && userData.role == 'professor') {
+    var triggerStudentChanged = function triggerStudentChanged(id, student) {
+      realtime.executeEvent('student.changed', {
+        id: id,
+        name: student.name,
+        registered_at: student.registered_at,
+        status: student.status
+      });
+    };
+
     var studentsRef = firebase.database().ref('tests/' + testData.test.id + '/students');
 
     studentsRef.on('child_added', function (data) {
-      var student = data.val();
-      realtime.executeEvent('student.registered', {
-        id: data.key,
-        name: student.name,
-        registered_at: student.registered_at
-      });
+      triggerStudentChanged(data.key, data.val());
+    });
+    studentsRef.on('child_changed', function (data) {
+      triggerStudentChanged(data.key, data.val());
     });
 
     studentsRef.on('child_removed', function (data) {
-      var student = data.val();
-      realtime.executeEvent('student.left', {
-        id: data.key,
-        name: student.name,
-        registered_at: student.registered_at
-      });
+      triggerStudentChanged(data.key, data.val());
     });
   }
 
@@ -209,9 +213,18 @@ realtime.on('student.registered', function (student) {
   studentRow.html(testUtils.buildStudentRowColumns(student.id, student.name, moment(student.registered_at).fromNow(), 'registered'));
 });
 
-realtime.on('student.left', function (student) {
-  $("#test-registered-students .table tr.student-" + student.id).remove();
+realtime.on('student.changed', function (student) {
+  var table = $("#test-registered-students .table");
+  if (!table.find("#student-" + student.id)) {
+    table.append('<tr ' + testUtils.buildStudentRowAttributes(student.id) + '></tr>');
+  }
+  var studentRow = table.find("#student-" + student.id);
+  studentRow.html(testUtils.buildStudentRowColumns(student.id, student.name, moment(student.registered_at).fromNow(), student.status));
 });
+//
+// realtime.on('student.left', function (student) {
+//   $("#test-registered-students .table tr.student-" + student.id).remove();
+// });
 
 /***/ }),
 

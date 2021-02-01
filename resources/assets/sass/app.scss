@@ -33,8 +33,11 @@ b, strong {
 .label-graded {
   background-color: $label-graded;
 }
-.label-submitted {
-  background-color: $label-submitted;
+.label-participated {
+  background-color: $label-participated;
+}
+.label-left {
+  background-color: $label-left;
 }
 
 textarea {
