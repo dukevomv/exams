@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TaskType;
+use App\Enums\TestUserStatus;
 use App\Enums\UserRole;
 use App\Models\User;
 use App\Util\Demo;
@@ -25,101 +26,117 @@ class DemoSeeder extends Seeder {
         }
 
         $timestamp = Carbon::now()->timestamp;
-        $userRoles = UserRole::values();
-        $userRoleData = [];
-        $users = [];
-
         $demoUserId = DB::table('demo_users')->insertGetId(['email' => $email, 'email_timestamp' => $timestamp]);
 
-        $nameData = [];
-        if (!is_null($email)) {
-            $nameData = ['name' => Demo::generateNameFromEmail($email)];
-        }
-        foreach ($userRoles as $role) {
-            $userRoleData[$role] = !is_null($email) ? array_merge($nameData, [
-                'email' => Demo::generateEmailForRole($timestamp, $role),
-            ]) : [];
-        }
+        $users = self::generateUsersForEmail($email, $timestamp, [
+            UserRole::ADMIN     => 1,
+            UserRole::PROFESSOR => 1,
+            UserRole::STUDENT   => 16,
+        ]);
 
-        foreach ($userRoleData as $role => $data) {
-            $users[$role] = factory(User::class)->states([$role])->create($data);
-        }
         $lesson = self::createLessonForUsers($users);
-        $testCount = 0;
-        $draft = TestBuilder::instance()
-                            ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
-                            ->draft()
-                            ->withUser($users[UserRole::STUDENT]->id)
-                            ->inLesson($lesson->id)
-                            ->withSegmentTasks(self::getPredefinedSegment('numbers'))
-                            ->withSegmentTasks(self::getPredefinedSegment('random'))
-                            ->build();
 
-        $published = TestBuilder::instance()
-                                ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
-                                ->published(Carbon::now()->addMinutes(2))
-                                ->withUser($users[UserRole::STUDENT]->id)
-                                ->inLesson($lesson->id)
-                                ->withSegmentTasks(self::getPredefinedSegment('numbers'))
-                                ->withSegmentTasks(self::getPredefinedSegment('random'))
-                                ->build();
+        $testData = [
+            [
+                'status' => 'draft',
+            ],
+            [
+                'status'    => 'published',
+                'published' => Carbon::now()->addMinutes(2),
+            ],
+            [
+                'status'  => 'started',
+                'started' => Carbon::now()->addMinutes(2),
+            ],
+            [
+                'status'  => 'started',
+                'started' => Carbon::now()->subMinutes(60),
+            ],
+            [
+                'status'   => 'finished',
+                'finished' => Carbon::now()->addMinutes(2),
+            ],
+            [
+                'status'   => 'finished',
+                'finished' => Carbon::now()->subMinutes(2),
+            ],
+        ];
 
-        $started = TestBuilder::instance()
-                              ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
-                              ->started(Carbon::now()->addMinutes(2))
-                              ->withUser($users[UserRole::STUDENT]->id)
-                              ->inLesson($lesson->id)
-                              ->withSegmentTasks(self::getPredefinedSegment('numbers'))
-                              ->withSegmentTasks(self::getPredefinedSegment('random'))
-                              ->build();
-
-        $started_expired = TestBuilder::instance()
-                                      ->appendAttributes(['duration' => 60,'name'=>$lesson->name.' no '.++$testCount])
-                                      ->started(Carbon::now()->subMinutes(60))
-                                      ->withUser($users[UserRole::STUDENT]->id)
-                                      ->inLesson($lesson->id)
-                                      ->withSegmentTasks(self::getPredefinedSegment('numbers'))
-                                      ->withSegmentTasks(self::getPredefinedSegment('random'))
-                                      ->build();
-
-        $finished = TestBuilder::instance()
-                               ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
-                               ->finished(Carbon::now()->addMinutes(2))
-                               ->withUser($users[UserRole::STUDENT]->id)
-                               ->inLesson($lesson)
-                               ->withSegmentTasks(self::getPredefinedSegment('numbers'))
-                               ->withSegmentTasks(self::getPredefinedSegment('random'))
-                               ->build();
-
-        $finished_expired = TestBuilder::instance()
-                                       ->appendAttributes(['name'=>$lesson->name.' no '.++$testCount])
-                                       ->finished(Carbon::now()->subMinutes(2))
-                                       ->withUser($users[UserRole::STUDENT]->id)
-                                       ->inLesson($lesson)
-                                       ->withSegmentTasks(self::getPredefinedSegment('numbers'))
-                                       ->withSegmentTasks(self::getPredefinedSegment('random'))
-                                       ->build();
+        for ($t = 1; $t <= count($testData); $t++) {
+            $tests[] = self::createPredefinedTest(array_merge([
+                'lesson' => $lesson,
+                'users'  => $users[UserRole::STUDENT],
+                'count'  => $t,
+            ], $testData[$t - 1]));
+        }
 
         DB::table('demo_users')->where('id', $demoUserId)->update(['finished' => true]);
         return $timestamp;
+    }
 
-        //todo make demo:
-        // - give option to user by adding a name to generarte 3 users with email and pass and autogenerated tests and lessons
-        // - in register form you can proceed with full demo generation OR manual explain what is generated
-        // - going register manually on demo, you are always activated
-        // - make cases for free-text and corrrespondence
-        // - make able to generate new user emails if exists
-        // demo user must apply name and have correct name: Duke Professor etc.
-        // create pages to  inform businness logic and  demo utilities
+    private static function createPredefinedTest($data) {
+        $builder = TestBuilder::instance()
+                              ->appendAttributes(['name' => $data['lesson']->name . ' no ' . $data['count']])
+                              ->withSegmentTasks(self::getPredefinedSegment('random'))
+                              ->withSegmentTasks(self::getPredefinedSegment('numbers'))
+                              ->{$data['status']}()
+                              ->inLesson($data['lesson']->id);
+
+        for($u=0;$u<count($data['users']);$u++) {
+            $builder->withUser($data['users'][$u]->id,[
+                'created_at' => Carbon::now()->subMinutes($u*7),
+                'status'     => TestUserStatus::REGISTERED,
+            ]);
+        }
+
+        return $builder->build();
+    }
+
+    private static function generateUsersForEmail($email, $timestamp, $rolesCounts) {
+        $userData = [];
+        $users = [];
+
+        if (!is_null($email)) {
+            $name = Demo::generateNameFromEmail($email);
+        }
+        foreach ($rolesCounts as $role => $count) {
+            for ($i = 1; $i <= $count; $i++) {
+                $generatedName = Demo::generateNameFromEmail($email);
+                $generatedEmail = Demo::generateEmailForRole($timestamp, $role);
+                if ($i > 1) {
+                    $generatedEmail .= $i;
+                    $generatedName = ucfirst($role) . ' ' . $generatedName . ' ' . $i;
+                }
+                $attr = [
+                    'email' => $generatedEmail,
+                    'name'  => $generatedName,
+                ];
+                if (!isset($userData[$role])) {
+                    $userData[$role] = [];
+                }
+                $userData[$role][] = !is_null($email) ? $attr : [];
+            }
+        }
+
+        foreach ($userData as $role => $data) {
+            foreach ($data as $uData) {
+                if (!isset($users[$role])) {
+                    $users[$role] = [];
+                }
+                $users[$role][] = factory(User::class)->states([$role])->create($uData);
+            }
+        }
+        return $users;
     }
 
     private static function newLessonId($users) {
         return self::createLessonForUsers($users)->id;
     }
+
     private static function createLessonForUsers($users) {
         return LessonBuilder::instance()
-                            ->withUser($users[UserRole::PROFESSOR]->id)
-                            ->withUser($users[UserRole::STUDENT]->id)
+                            ->withUser($users[UserRole::PROFESSOR][0]->id)
+                            ->withUser($users[UserRole::STUDENT][0]->id)
                             ->build();
     }
 

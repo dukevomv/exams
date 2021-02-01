@@ -296,7 +296,6 @@ class TestService implements TestServiceInterface {
     private function toArrayUsers($users) {
         $data = [];
         foreach ($users as $u) {
-            \Log::info($u->pivot);
             $data[] = $this->toArrayUser($u);
         }
         return $data;

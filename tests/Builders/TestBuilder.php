@@ -115,15 +115,15 @@ class TestBuilder extends ModelBuilder {
         //todo add here the basic logic  of statuses (left|participated|graded)
         if ($pivot == null) {
             $pivot = [
-                'entered_at' => Carbon::now(),
+                'created_at' => Carbon::now(),
                 'status'     => TestUserStatus::REGISTERED,
             ];
         } elseif (array_key_exists('answers', $pivot)) {
-            $pivot['entered_at'] = Carbon::now()->subMinutes(10);
+            $pivot['created_at'] = Carbon::now()->subMinutes(10);
             $pivot['answered_at'] = Carbon::now();
             $pivot['status'] = TestUserStatus::PARTICIPATED;
         } elseif (array_key_exists('published_grades', $pivot)) {
-            $pivot['entered_at'] = Carbon::now()->subMinutes(20);
+            $pivot['created_at'] = Carbon::now()->subMinutes(20);
             $pivot['answered_at'] = Carbon::now()->subMinutes(10);
             $pivot['answered_at'] = Carbon::now();
             $pivot['status'] = TestUserStatus::GRADED;
@@ -134,8 +134,8 @@ class TestBuilder extends ModelBuilder {
 
     public function withUserLeft($userId){
         return $this->withUser($userId,[
-            'entered_at' => Carbon::now()->subMinutes(10),
-            'entered_at' => Carbon::now(),
+            'created_at' => Carbon::now()->subMinutes(10),
+            'left_at' => Carbon::now(),
             'status'     => TestUserStatus::LEFT,
         ]);
     }
@@ -150,7 +150,7 @@ class TestBuilder extends ModelBuilder {
         $this->buildSegments($test);
 
         foreach ($this->users as $userId => $pivot) {
-            $test->users()->attach($userId, Arr::only($pivot, ['status', 'answers']));
+            $test->users()->attach($userId, $pivot);
         }
 
         return $test;
