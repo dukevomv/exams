@@ -79,6 +79,38 @@ class TestService implements TestServiceInterface {
                    ->firstOrFail();
     }
 
+    public function updateOrCreate($id,$fields,$segments) {
+        $test = Test::updateOrCreate(['id' => $id], $fields);
+
+        $ordered_segments = [];
+        $count = 1;
+        foreach ($segments as $req_segment) {
+            $ordered_segments[$req_segment] = ['position' => $count];
+            $count++;
+        }
+
+        $test->segments()->sync($ordered_segments);
+
+        $test = $this->updatePublishedData($test);
+        return $test;
+    }
+
+    public function updatePublishedData(Test $test){
+        switch($test->status){
+            case TestStatus::DRAFT:
+                $test->unpublishSegmentData();
+                break;
+            case TestStatus::PUBLISHED:
+            case TestStatus::STARTED:
+            case TestStatus::FINISHED:
+            case TestStatus::GRADED:
+                $test->publishSegmentData($this->prepareForPublish($test));
+                break;
+            default:
+        }
+        return $test;
+    }
+
     public function calculateUserPoints(Test $test, $userId) {
         $this->forUserId($userId)
              ->withCorrectAnswers()
@@ -256,6 +288,13 @@ class TestService implements TestServiceInterface {
         return str_replace('task_id_', '', $taskId);
     }
 
+    public function prepareForPublish(Test $test) {
+        $this->includeUserAnswers = false;
+        $this->includeUserCalculatedPoints = false;
+        $this->includeCorrectAnswers = true;
+        return $this->toArraySegments($test,false);
+    }
+
     public function prepareForUser(Test $test) {
         if (Auth::user()->role === UserRole::STUDENT) {
             $this->forUserId(Auth::id())->withUserAnswers();
@@ -347,9 +386,9 @@ class TestService implements TestServiceInterface {
         ];
     }
 
-    public function toArraySegments(Test $test) {
+    public function toArraySegments(Test $test,$withGrades = true) {
         $segments = $test->segments;
-        $grades = $this->getUserGrades($test);
+        $grades = $withGrades ? $this->getUserGrades($test) : [];
         $data = [];
         foreach ($segments as $s) {
             $data[] = $this->toArraySegment($s, $grades);
@@ -372,12 +411,15 @@ class TestService implements TestServiceInterface {
                 'position'       => $t->position,
                 'description'    => $t->description,
                 'points'         => $t->points,
-                'manually_saved' => false,
                 'calculative'    => true,
             ];
 
-            $taskGrade = $this->getTaskGradeFromUserGrades($grades, $t->id);
-            $taskGradeExists = !is_null($taskGrade);
+            $taskGradeExists = false;
+            if($this->includeUserCalculatedPoints){
+                $task['manually_saved'] = false;
+                $taskGrade = $this->getTaskGradeFromUserGrades($grades, $t->id);
+                $taskGradeExists = !is_null($taskGrade);
+            }
 
             switch ($t->type) {
                 case TaskType::CMC:

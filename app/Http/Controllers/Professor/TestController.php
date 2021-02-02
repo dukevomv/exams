@@ -46,20 +46,13 @@ class TestController extends Controller {
         ]);
 
         $fields = $request->only(['lesson_id', 'name', 'description', 'scheduled_at', 'duration', 'status']);
-        if (array_key_exists('scheduled_at', $fields) && !is_null($fields['scheduled_at'])) {
+        if($fields['status'] == TestStatus::DRAFT){
+            $fields['scheduled_at'] = null;
+        }elseif ($fields['status'] == TestStatus::PUBLISHED && array_key_exists('scheduled_at', $fields) && !is_null($fields['scheduled_at'])) {
             $fields['scheduled_at'] = Carbon::createFromFormat('Y-m-d\TH:i', $fields['scheduled_at']);
         }
 
-        $test = Test::updateOrCreate(['id' => $request->input('id', null)], $fields);
-        $ordered_segments = [];
-        $count = 1;
-        foreach ($request->input('segments', []) as $req_segment) {
-            $ordered_segments[$req_segment] = ['position' => $count];
-            $count++;
-        }
-        $test->segments()->sync($ordered_segments);
-
-        return $test;
+        return $this->service->updateOrCreate($request->input('id', null),$fields,$request->input('segments', []));
     }
 
     public function delete($id = null) {

@@ -135,6 +135,20 @@ class Test extends Model {
         ]);
     }
 
+    public function getPublishedSegmentData() {
+        return json_decode($this->segment_data,true);
+    }
+    public function publishSegmentData($data) {
+        $this->segment_data = json_encode($data);
+        $this->save();
+        return $this;
+    }
+    public function unpublishSegmentData() {
+        $this->segment_data = null;
+        $this->save();
+        return $this;
+    }
+
     public function saveStudentsAnswers($userID, array $answers, $final = false) {
         $studentCanSave = $this->status == TestStatus::STARTED
             || ($this->status == TestStatus::FINISHED && Carbon::now()->lte(Carbon::parse($this->finished_at)));

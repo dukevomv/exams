@@ -16,11 +16,15 @@ interface TestServiceInterface {
 
     public function prepareForUser(Test $test);
 
+    public function prepareForPublish(Test $test);
+
+    public function updatePublishedData(Test $test);
+
     public function toArray(Test $test);
 
     public function toArraySegment($segment, $grades = []);
 
-    public function toArraySegments(Test $test);
+    public function toArraySegments(Test $test, $withGrades = true);
 
     //todo include the TestService used functions and what i want to have published
 }
