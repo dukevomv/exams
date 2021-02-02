@@ -6,6 +6,7 @@ use App\Enums\TaskType;
 use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Models\Test;
+use App\Services\TestServiceInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Tests\Builders\Traits\AddsLessonId;
@@ -17,10 +18,16 @@ use Tests\Builders\Traits\AddsLessonId;
  */
 class TestBuilder extends ModelBuilder {
 
-    use AddsLessonId;
-
+    private $service;
     private $segments = [];
     private $users    = [];
+
+    use AddsLessonId;
+
+    public function __construct() {
+        $this->service = app()->make(TestServiceInterface::class);
+    }
+
 
     /**
      * @param null $date
@@ -132,10 +139,10 @@ class TestBuilder extends ModelBuilder {
         return $this;
     }
 
-    public function withUserLeft($userId){
-        return $this->withUser($userId,[
+    public function withUserLeft($userId) {
+        return $this->withUser($userId, [
             'created_at' => Carbon::now()->subMinutes(10),
-            'left_at' => Carbon::now(),
+            'left_at'    => Carbon::now(),
             'status'     => TestUserStatus::LEFT,
         ]);
     }
@@ -148,6 +155,7 @@ class TestBuilder extends ModelBuilder {
 
         $test = factory(Test::class)->create($attrs);
         $this->buildSegments($test);
+        $test = $this->service->updatePublishedData($test);
 
         foreach ($this->users as $userId => $pivot) {
             $test->users()->attach($userId, $pivot);
