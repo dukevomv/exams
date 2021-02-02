@@ -52,7 +52,7 @@ if($manually_saved){
     @endif
 </div>
 
-{{--show input  on click
+{{-- todo show input  on click
 hide input on click
 on save update points and save on test
 create function to use input values and generate pills and colors (not on load)

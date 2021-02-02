@@ -13,7 +13,7 @@
         @endphp
         @include('includes.preview.segments.task_points', array_merge($testData,[
             'calculative' => $task['calculative'],
-            'manually_saved' =>  $task['manually_saved'],
+            'manually_saved' =>  array_key_exists('manually_saved',$task) ? $task['manually_saved'] : false,
             'task_id' => $task['id'],
             'given' => array_key_exists('given_points',$task) ? $task['given_points'] : 0,
             'total' => $task['points']
