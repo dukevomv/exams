@@ -7,6 +7,7 @@ use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Enums\UserRole;
 use App\Models\Lesson;
+use App\Models\Segments\Segment;
 use App\Models\Segments\Task;
 use App\Models\Test;
 use App\Models\User;
@@ -544,7 +545,13 @@ class TestService implements TestServiceInterface {
                 }
             }
         }
+        $segment['changed'] = $this->isPublishedSegmentChanged($segment['id']);
         return $segment;
+    }
+
+    private function isPublishedSegmentChanged($segmentId){
+        $segment = Segment::find($segmentId);
+        return Carbon::make($segment->updated_at)->gt($this->test->published_at);
     }
 
     private function mergeUserAnswersToTask($task) {

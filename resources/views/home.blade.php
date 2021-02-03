@@ -30,11 +30,30 @@
                 @php
                     $new_commits = [
                         [
+                            'title' => 'Segment Updates',
+                            'date' => '3 February 2021',
+                            'tags' => ['front'],
+                            'body' => '<p>Show in professor\'s view a <b>warning</b> if the segment has changed after the test\'s publication.</p>'
+                        ],
+                        [
+                            'title' => 'Segment Re-usability',
+                            'date' => '3 February 2021',
+                            'tags' => ['back'],
+                            'body' => '<p>Refactor backend logic to fetch data from cached test when published in order to <b>avoid changing an old test</b> by updating the segments used.</p>'
+                        ],
+                        [
                             'title' => 'One Time Passwords',
                             'date' => '19 January 2021',
                             'tags' => ['front','back'],
-                            'body' => 'All users now can have <b>OTP</b> as a second step verification after they login.</p>'
+                            'body' => '<p>All users now can have <b>OTP</b> as a second step verification after they login.</p>'
                         ],
+                    ];
+
+                    for($i=0;$i<count($new_commits);$i++){
+                        $new_commits[$i]['tags'][] = 'new';
+                    }
+
+                    $commits = array_merge($new_commits,[
                         [
                             'title' => 'Test Grading',
                             'date' => '4 January 2021',
@@ -71,13 +90,6 @@
                             'tags' => ['front','back'],
                             'body' => '<p>A new task type was added that is named <b>Correspondence</b>. It provides the ability to match pairs.</p>'
                         ],
-                    ];
-
-                    for($i=0;$i<count($new_commits);$i++){
-                        $new_commits[$i]['tags'][] = 'new';
-                    }
-
-                    $commits = array_merge($new_commits,[
                         [
                             'title' => 'User Administration',
                             'date' => '28 July 2018',

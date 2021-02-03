@@ -21,6 +21,12 @@
                                         @endif
                                     </h4>
 
+                                    @if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($segment['changed']) && $segment['changed'])
+                                        <div class="alert alert-warning" role="alert">
+                                            <b>Warning!</b> This <a href="{{URL::to('segments/'.$segment['id'].'/preview')}}" target="_blank">Segment <i class="fa fa-external-link" aria-hidden="true"></i></a> has changed since the time this test was published.
+                                        </div>
+                                    @endif
+
                                     @foreach($segment['tasks'] as $task)
                                         @php
                                             $data = [

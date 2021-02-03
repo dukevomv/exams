@@ -18,7 +18,7 @@ class Test extends Model {
     private   $search   = ['name'];
     protected $appends  = ['user_on_test', 'can_register', 'register_time'];
     public    $fillable = ['lesson_id', 'name', 'description', 'scheduled_at', 'duration', 'status'];
-    protected $dates    = ['scheduled_at', 'started_at', 'finished_at', 'graded_at'];
+    protected $dates    = ['scheduled_at','published_at', 'started_at', 'finished_at', 'graded_at'];
 
     public function lesson() {
         return $this->belongsTo(Lesson::class);
@@ -143,6 +143,7 @@ class Test extends Model {
     }
     public function publishSegmentData($data) {
         $this->segment_data = json_encode($data);
+        $this->published_at = Carbon::now();
         $this->save();
         return $this;
     }
