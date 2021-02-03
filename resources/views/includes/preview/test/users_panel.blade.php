@@ -1,8 +1,9 @@
+
+
 <div class="panel panel-default" id="test-registered-students">
     <table class="table">
         <tr>
             <th>Student Name</th>
-            <th>Entered At</th>
             <th>Status</th>
             <th>Grade</th>
             <th class="text-center">Action</th>
@@ -10,7 +11,6 @@
         @foreach($users as $user)
             <tr data-id="{{$user['id']}}" id="student-{{$user['id']}}">
                 <td>{{$user['name']}}</td>
-                <td>{{$user['entered_at']}}</td>
                 <td><span class="label label-{{$user['status']}}">{{ucfirst($user['status'])}}</span></td>
                 <td>@if(is_null($user['given_points']) && is_null($user['total_points'])) - @else {{\App\Util\Points::getWithPercentage($user['given_points'],$user['total_points'])}} @endif</td>
                 <th class="text-center">
@@ -25,6 +25,7 @@
 </div>
 
 <script>
+  //todo remove realtime events on non started tests (no need of realtime on users)
 
 
   function jsUcfirst(string) {
@@ -38,7 +39,6 @@
     }
     testUtils.buildStudentRowColumns = function(id,name,entered_at,status,grades='-'){
       return '<td>' + name + '</td>\
-              <td>' + entered_at + '</td>\
               <td><span class="label label-'+status+'">'+jsUcfirst(status)+'</span></td>\
               <td>'+grades+'</td>\
               <th class="text-center">\

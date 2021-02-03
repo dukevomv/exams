@@ -8,7 +8,6 @@ use App\Enums\TestUserStatus;
 use App\Enums\UserRole;
 use App\Models\Lesson;
 use App\Models\Segments\Segment;
-use App\Models\Segments\Task;
 use App\Models\Test;
 use App\Models\User;
 use Auth;
@@ -301,7 +300,7 @@ class TestService implements TestServiceInterface {
 
     private function saveUserGrades(array $grades) {
         $given = array_sum($grades);
-        $total = array_sum(Arr::pluck($this->toArray()['segments'], 'total_points'));
+        $total = array_sum(Arr::pluck($this->toArraySegments(), 'total_points'));
         $this->test->saveProfessorGrade($this->forUserId, $grades, $given, $total);
     }
 
@@ -360,8 +359,11 @@ class TestService implements TestServiceInterface {
             'with_grades'   => $this->includeUserCalculatedPoints,
         ];
 
-        if (Auth::user()->role == UserRole::PROFESSOR && !is_null($this->forUserId)) {
-            $final['for_student'] = $this->toArrayStudent($final['segments']);
+        if (Auth::user()->role == UserRole::PROFESSOR) {
+            $final['auto_calculative'] = self::isTestAutoCalculative($final['segments']);
+            if (!is_null($this->forUserId)) {
+                $final['for_student'] = $this->toArrayStudent($final['segments']);
+            }
         }
 
         $userOnTest = $this->test->user_on_test;
@@ -369,6 +371,16 @@ class TestService implements TestServiceInterface {
             $final['current_user'] = $this->toArrayCurrentUser($userOnTest);
         }
         return $final;
+    }
+
+    private static function isTestAutoCalculative($segments) {
+        $itIs = true;
+        foreach ($segments as $segment) {
+            if (!$segment['auto_calculative']) {
+                $itIs = false;
+            }
+        }
+        return $itIs;
     }
 
     private function toArrayUsers() {
@@ -391,6 +403,15 @@ class TestService implements TestServiceInterface {
         ];
     }
 
+    private function gradesArePublishable($student, $segments) {
+        $gradedTaskCount = count($this->grades);
+        $totalTasks = 0;
+        foreach ($segments as $segment) {
+            $totalTasks += count($segment['tasks']);
+        }
+        return $student->pivot->status !== TestUserStatus::GRADED && $gradedTaskCount == $totalTasks;
+    }
+
     private function toArrayStudent(array $segmentsArray) {
         $student = $this->test->getUser($this->forUserId);
         if (is_null($student)) {
@@ -402,8 +423,7 @@ class TestService implements TestServiceInterface {
             $total += $segm['total_points'];
         }
 
-        $main['publishable'] = $student->pivot->status !== TestUserStatus::GRADED
-            && $total == $student->pivot->total_points;
+        $main['publishable'] = $this->gradesArePublishable($student, $segmentsArray);
 
         return $main;
     }
@@ -432,7 +452,7 @@ class TestService implements TestServiceInterface {
 
         $data = [];
         foreach ($segments as $s) {
-            $data[] = $this->toArraySegment($s,$isPublished);
+            $data[] = $this->toArraySegment($s, $isPublished);
         }
         return $data;
     }
@@ -441,9 +461,10 @@ class TestService implements TestServiceInterface {
         return $test->status !== TestStatus::DRAFT && $test->hasPublishedSegmentData();
     }
 
-    public function toArraySegment($s,$fromPublished) {
+    public function toArraySegment($s, $fromPublished) {
         return $fromPublished ? $this->toArrayDBSegment($s) : $this->toArrayEloquentSegment($s);
     }
+
     //stores basic info and correct answers to db
     public function toArrayEloquentSegment($s) {
         $segment = [
@@ -453,6 +474,7 @@ class TestService implements TestServiceInterface {
             'tasks'        => [],
             'total_points' => 0,
         ];
+        $isAutoCalculative = true;
         foreach ($s->tasks as $t) {
             $task = [
                 'id'          => $t->id,
@@ -514,18 +536,22 @@ class TestService implements TestServiceInterface {
                 default:
             }
             $segment['total_points'] += $task['points'];
+            if (!$task['calculative']) {
+                $isAutoCalculative = false;
+            }
             $segment['tasks'][] = $task;
         }
+        $segment['auto_calculative'] = $isAutoCalculative;
         return $segment;
     }
 
     public function toArrayDBSegment($segment) {
-        for($t=0;$t<count($segment['tasks']);$t++) {
+        for ($t = 0; $t < count($segment['tasks']); $t++) {
             switch ($segment['tasks'][$t]['type']) {
                 case TaskType::CMC:
                 case TaskType::RMC:
                 case TaskType::CORRESPONDENCE:
-                    foreach($segment['tasks'][$t]['choices'] as $key => $choice) {
+                    foreach ($segment['tasks'][$t]['choices'] as $key => $choice) {
                         if (!$this->includeCorrectAnswers) {
                             unset($segment['tasks'][$t]['choices'][$key]['correct']);
                         }
@@ -549,7 +575,7 @@ class TestService implements TestServiceInterface {
         return $segment;
     }
 
-    private function isPublishedSegmentChanged($segmentId){
+    private function isPublishedSegmentChanged($segmentId) {
         $segment = Segment::find($segmentId);
         return Carbon::make($segment->updated_at)->gt($this->test->published_at);
     }

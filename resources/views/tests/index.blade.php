@@ -53,7 +53,7 @@
               <th>Duration</th>
               <th>Scheduled at</th>
               <th>Status</th>
-              @if(Auth::user()->role == \App\Enums\UserRole::STUDENT)<th>Grade</th>@endif
+              <th>Grade</th>
               <th class="text-center">Action</th>
             </tr>
             @foreach($tests as $test)
@@ -63,17 +63,16 @@
                 <td>@if(!is_null($test->duration)){{$test->duration}}'@endif</td>
                 <td>{{ !is_null($test->scheduled_at) ? $test->scheduled_at->format('d M Y, H:i') : '-'}}</td>
                 <td>{{ucfirst($test->status)}}</td>
-                @if(Auth::user()->role == \App\Enums\UserRole::STUDENT)
-                  @php
-                    $grade = '-';
-                    $testUser = is_null($test->user_on_test) ? null : $test->user_on_test->pivot;
-                    if($testUser && $testUser->status == \App\Enums\TestUserStatus::GRADED){
-                        $grade = \App\Util\Points::getWithPercentage($testUser->given_points,$testUser->total_points);
-                    }
-                  //todo make this to calculate test user grades if graded
-                  @endphp
-                  <td>{{$grade}}</td>
-                @endif
+                @php
+                  $grade = '-';
+                  $testUser = is_null($test->user_on_test) ? null : $test->user_on_test->pivot;
+
+                  if(Auth::user()->role == \App\Enums\UserRole::STUDENT && $testUser && $testUser->status == \App\Enums\TestUserStatus::GRADED){
+                      $grade = \App\Util\Points::getWithPercentage($testUser->given_points,$testUser->total_points);
+                  }
+                //todo make this to calculate test user grades if graded
+                @endphp
+                <td>{{$grade}}</td>
                 <td class="text-center">
                   @if(true)
                     <a href="{{url('tests/'.$test->id)}}" type="button" class="btn btn-primary btn-xs">
