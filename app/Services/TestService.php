@@ -400,7 +400,6 @@ class TestService implements TestServiceInterface {
         foreach ($segmentsArray as $segm) {
             $total += $segm['total_points'];
         }
-        \Log::info('ss'.$total.' '.$student->pivot->total_points);
 
         $main['publishable'] = $student->pivot->status !== TestUserStatus::GRADED
             && $total == $student->pivot->total_points;
@@ -597,7 +596,7 @@ class TestService implements TestServiceInterface {
                     //0 points are given if any wrong option is selected
                     for ($o = 0; $o < count($task['choices']); $o++) {
                         $isCorrect = $task['choices'][$o]['correct'] == 1;
-                        $isSelected = $task['choices'][$o]['selected'] == 1;
+                        $isSelected = isset($task['choices'][$o]['selected']) && $task['choices'][$o]['selected'] == 1;
                         if ($isCorrect && $isSelected) {
                             $given_points = $task['points'];
                             break;
@@ -615,10 +614,9 @@ class TestService implements TestServiceInterface {
                     //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
                     $correctPoints = ($task['counts']['correct'] == 0 ? 0 : round(+$precision * ($task['points'] / $task['counts']['correct']))); //Positive multiplied with precision and rounded
                     $wrongPoints = ($task['counts']['wrong'] == 0 ? 0 : round(-$precision * ($task['points'] / $task['counts']['wrong'])));   //Negative in order to subtract from positive points
-
                     for ($o = 0; $o < count($task['choices']); $o++) {
                         $isCorrect = $task['choices'][$o]['correct'] == 1;
-                        $isSelected = $task['choices'][$o]['selected'] == 1;
+                        $isSelected = isset($task['choices'][$o]['selected']) && $task['choices'][$o]['selected'] == 1;
                         if ($isSelected) {
                             $option_points = $isCorrect ? $correctPoints : $wrongPoints;
                             $given_points += $option_points;
@@ -632,7 +630,7 @@ class TestService implements TestServiceInterface {
                     foreach ($task['choices'] as $a => $b) {
                         $isCorrect = false;
                         if (array_key_exists('selected', $task['choices'][$a])) {
-                            $isCorrect = $task['choices'][$a]['correct'] == $task['choices'][$a]['selected'];
+                            $isCorrect = isset($task['choices'][$a]['selected']) && $task['choices'][$a]['selected'] == $task['choices'][$a]['correct'];
                         }
                         if ($isCorrect) {
                             $given_points += $task['points'] / $total;
