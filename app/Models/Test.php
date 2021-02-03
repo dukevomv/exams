@@ -7,6 +7,7 @@ use App\Enums\TestUserStatus;
 use App\Exceptions\InvalidOperationException;
 use App\Models\Segments\Segment;
 use App\Traits\Searchable;
+use App\Util\FirebaseControl;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -92,16 +93,21 @@ class Test extends Model {
 
     public function register() {
         $student = Auth::user();
-        if (config('services.firebase.enabled')) {
-            $firebase = app('firebase');
-            $firebase->update([
-                'name'          => $student->name,
+        FirebaseControl::createOrUpdate('tests/' . $this->id . '/students/' . $student->id,
+            self::constructFirebaseStudent([
                 'registered_at' => Carbon::now()->toDateTimeString(),
                 'status'        => TestUserStatus::REGISTERED,
-            ], 'tests/' . $this->id . '/students/' . $student->id);
-        }
+            ])
+        );
 
         $this->users()->attach(Auth::id(), ['status' => TestUserStatus::REGISTERED]);
+    }
+
+    private static function constructFirebaseStudent($payload){
+        $student = Auth::user();
+        return array_merge([
+            'name' => $student->name,
+        ],$payload);
     }
 
     public function leave() {
@@ -162,14 +168,14 @@ class Test extends Model {
 
         $this->users()->updateExistingPivot($userID, $this->constructAnswersFields($answers, $final));
 
-        if ($final && config('services.firebase.enabled')) {
-            $student = Auth::user();
-            $firebase = app('firebase');
-            $firebase->update([
+        $student = Auth::user();
+        FirebaseControl::createOrUpdate('tests/' .$this->id . '/students/' . $student->id,
+            self::constructFirebaseStudent([
                 'status' => TestUserStatus::PARTICIPATED,
                 'answered_at' => Carbon::now()->toDateTimeString(),
-            ], 'tests/' . $this->id . '/students/' . $student->id);
-        }
+            ])
+        );
+
     }
 
     private function constructAnswersFields(array $answers, $final) {
@@ -194,12 +200,9 @@ class Test extends Model {
         $this->started_at = Carbon::now()->addSeconds(config('app.bm.test_timer.start_delay_in_seconds'));
         $this->started_by_user = Auth::id();
 
-        if (config('services.firebase.enabled')) {
-            $firebase = app('firebase');
-            $firebase->update([
-                'started_at' => $this->started_at->toDateTimeString(),
-            ], 'tests/' . $this->id);
-        }
+        FirebaseControl::createOrUpdate('tests/' . $this->id,[
+            'started_at' => $this->started_at->toDateTimeString(),
+        ]);
 
         $this->save();
     }
@@ -209,12 +212,9 @@ class Test extends Model {
         $this->finished_at = Carbon::now()->addSeconds(config('app.bm.test_timer.finish_delay_in_seconds'));
         $this->finished_by_user = Auth::id();
 
-        if (config('services.firebase.enabled')) {
-            $firebase = app('firebase');
-            $firebase->update([
-                'finished_at' => $this->finished_at->toDateTimeString(),
-            ], 'tests/' . $this->id);
-        }
+        FirebaseControl::createOrUpdate('tests/' . $this->id,[
+            'finished_at' => $this->finished_at->toDateTimeString(),
+        ]);
 
         $this->save();
     }
