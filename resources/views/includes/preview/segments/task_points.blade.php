@@ -1,8 +1,10 @@
 @php
-    $ratio = (isset($given) && isset($total) && $total > 0) ? $given/$total : 0;
+    $ratio = (isset($given) && !is_null($given) && isset($total) && !is_null($total) && $total > 0) ? $given/$total : null;
     $class = 'default';
 
-    if($ratio == 0){
+    if(is_null($ratio)){
+        $class = 'default';
+    } elseif($ratio === 0){
         $class = 'danger';
     } elseif($ratio <= 0.5){
         $class = 'warning';

@@ -15,7 +15,7 @@
             'calculative' => $task['calculative'],
             'manually_saved' =>  array_key_exists('manually_saved',$task) ? $task['manually_saved'] : false,
             'task_id' => $task['id'],
-            'given' => array_key_exists('given_points',$task) ? $task['given_points'] : 0,
+            'given' => array_key_exists('given_points',$task) ? $task['given_points'] : null,
             'total' => $task['points']
         ]))
     </div>
