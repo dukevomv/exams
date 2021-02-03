@@ -32,8 +32,6 @@
             </li>
             <div class="test-actions margin-top-30">
                 @if (Auth::user()->role == 'professor')
-                    {{--                    todo make test list to show current status and active should be very visible for students - and then show grades on tests--}}
-                    {{--                    todo add actions for grading and publishing grades for students--}}
                     <div class="margin-bottom-15 clearfix">
                         @if ($test['status'] == \App\Enums\TestStatus::PUBLISHED)
                             <button type="button" class="btn btn-success" id="start-test">Start in 30"

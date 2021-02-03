@@ -31,9 +31,9 @@ class TestController extends Controller {
     }
 
     public function preview($id, Request $request) {
-        $test = $this->service->fetchById($id);
+        $test = $this->service->setById($id);
 
-        $data = ['test' => $this->service->prepareForUser($test)];
+        $data = ['test' => $this->service->prepareForUser()];
         if ($test->status !== TestStatus::GRADED) {
             $data['timer'] = $this->service->calculateTimer($test);
         }

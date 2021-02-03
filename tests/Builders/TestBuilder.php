@@ -155,7 +155,8 @@ class TestBuilder extends ModelBuilder {
 
         $test = factory(Test::class)->create($attrs);
         $this->buildSegments($test);
-        $test = $this->service->updatePublishedData($test);
+        $this->service->setTest($test);
+        $test = $this->service->updatePublishedData();
 
         foreach ($this->users as $userId => $pivot) {
             $test->users()->attach($userId, $pivot);

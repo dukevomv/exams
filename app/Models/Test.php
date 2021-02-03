@@ -138,6 +138,9 @@ class Test extends Model {
     public function getPublishedSegmentData() {
         return json_decode($this->segment_data,true);
     }
+    public function hasPublishedSegmentData() {
+        return !is_null($this->segment_data);
+    }
     public function publishSegmentData($data) {
         $this->segment_data = json_encode($data);
         $this->save();

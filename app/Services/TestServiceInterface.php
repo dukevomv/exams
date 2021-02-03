@@ -7,24 +7,19 @@ use App\Models\Test;
 interface TestServiceInterface {
 
     public function get(array $params);
+    public function fetchById($id);
+    public function setById($id);
+    public function setTest(Test $test);
 
-    public function calculateUserPoints(Test $test, $userId);
+    public function calculateUserPoints($userId);
+    public function autoGradeUser();
+    public function gradeUserTask($payload);
 
-    public function gradeUserTask(Test $test, $payload);
+    public function updatePublishedData();
+    public function prepareForUser();
+    public function prepareForPublish();
 
-    public function autoGradeUser(Test $test);
-
-    public function prepareForUser(Test $test);
-
-    public function prepareForPublish(Test $test);
-
-    public function updatePublishedData(Test $test);
-
-    public function toArray(Test $test);
-
-    public function toArraySegment($segment, $grades = []);
-
-    public function toArraySegments(Test $test, $withGrades = true);
-
-    //todo include the TestService used functions and what i want to have published
+    public function toArray();
+    public function toArraySegments();
+    public function toArraySegment($s,$fromPublished);
 }

@@ -97,7 +97,7 @@ class SegmentController extends Controller {
             return redirect('segments');
         }
 
-        $data = $this->testService->toArraySegment($segment);
+        $data = $this->testService->toArraySegment($segment,false);
 
         if ($request->input('modal', 0) == 1) {
             return view('segments.modal_preview', ['segment' => $data])->render();

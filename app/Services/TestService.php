@@ -24,13 +24,16 @@ class TestService implements TestServiceInterface {
     private $includeUserAnswers          = false;
     private $includeCorrectAnswers       = false;
     private $includeUserCalculatedPoints = false;
-
-    public function __construct(Test $test) {
-        $this->test = $test;
-    }
+    private $userAnswers                 = [];
+    private $grades                      = [];
 
     public function forUserId($userId) {
         $this->forUserId = $userId;
+        return $this;
+    }
+
+    public function setTest(Test $test) {
+        $this->test = $test;
         return $this;
     }
 
@@ -39,18 +42,37 @@ class TestService implements TestServiceInterface {
         return $this;
     }
 
+    public function withoutCorrectAnswers() {
+        $this->includeCorrectAnswers = false;
+        return $this;
+    }
+
     public function withUserAnswers() {
         $this->includeUserAnswers = true;
+        $this->userAnswers = $this->getUserAnswers();
+        return $this;
+    }
+
+    public function withoutUserAnswers() {
+        $this->includeUserAnswers = false;
+        $this->userAnswers = [];
         return $this;
     }
 
     public function withUserCalculatedPoints() {
         $this->includeUserCalculatedPoints = true;
+        $this->grades = $this->getUserGrades();
+        return $this;
+    }
+
+    public function withoutUserCalculatedPoints() {
+        $this->includeUserCalculatedPoints = false;
+        $this->grades = [];
         return $this;
     }
 
     public function get(array $params = []) {
-        $tests = Test::withCount('segments')->whereIn('lesson_id', $this->getApprovedLessonIds());
+        $tests = Test::withCount('segments')->whereIn('lesson_id', self::getApprovedLessonIds());
 
         if (!is_null(Arr::get($params, 'lesson', null))) {
             $tests->where('lesson_id', Arr::get($params, 'lesson'));
@@ -74,12 +96,18 @@ class TestService implements TestServiceInterface {
     public function fetchById($id) {
         return Test::with('segments.tasks', 'users', 'user')
                    ->where('id', $id)
-                   ->whereIn('lesson_id', $this->getApprovedLessonIds())
+                   ->whereIn('lesson_id', self::getApprovedLessonIds())
                    ->withSegmentTaskAnswers()
                    ->firstOrFail();
     }
 
-    public function updateOrCreate($id,$fields,$segments) {
+    public function setById($id) {
+        $test = $this->fetchById($id);
+        $this->setTest($test);
+        return $test;
+    }
+
+    public function updateOrCreate($id, $fields, $segments) {
         $test = Test::updateOrCreate(['id' => $id], $fields);
 
         $ordered_segments = [];
@@ -90,28 +118,27 @@ class TestService implements TestServiceInterface {
         }
 
         $test->segments()->sync($ordered_segments);
-
-        $test = $this->updatePublishedData($test);
+        $test = $this->updatePublishedData();
         return $test;
     }
 
-    public function updatePublishedData(Test $test){
-        switch($test->status){
+    public function updatePublishedData() {
+        switch ($this->test->status) {
             case TestStatus::DRAFT:
-                $test->unpublishSegmentData();
+                $this->test->unpublishSegmentData();
                 break;
             case TestStatus::PUBLISHED:
             case TestStatus::STARTED:
             case TestStatus::FINISHED:
             case TestStatus::GRADED:
-                $test->publishSegmentData($this->prepareForPublish($test));
+                $this->test->publishSegmentData($this->prepareForPublish());
                 break;
             default:
         }
-        return $test;
+        return $this->test;
     }
 
-    public function calculateUserPoints(Test $test, $userId) {
+    public function calculateUserPoints($userId) {
         $this->forUserId($userId)
              ->withCorrectAnswers()
              ->withUserAnswers()
@@ -155,10 +182,27 @@ class TestService implements TestServiceInterface {
         return $timer;
     }
 
-    private function getApprovedLessonIds() {
+    private static function getApprovedLessonIds() {
         return Lesson::approved()->get()->pluck('id')->all();
     }
 
+    private function getUserAnswers() {
+        $user = $this->test->getUser($this->forUserId);
+        if (is_null($user)) {
+            return [];
+        }
+        $field = 'answers';
+        if (Auth::user()->role === UserRole::STUDENT) {
+            $userData = $this->toArrayCurrentUser($user);
+            if ($userData['has_draft']) {
+                $field = 'answers_draft';
+            }
+        }
+        $data = json_decode($user->pivot->{$field}, true);
+        return is_null($data) ? [] : $data;
+    }
+
+    //todo :deprecated
     public function mergeUserAnswersToTest($test) {
         $user = $test->getUser($this->forUserId);
         if (is_null($user)) {
@@ -215,18 +259,18 @@ class TestService implements TestServiceInterface {
      *
      * @return array
      */
-    public function autoGradeUser(Test $test) {
-        $existingGrades = $this->getUserGrades($test);
-        $testData = $this->prepareForUser($test);
-        foreach($testData['segments'] as $segment){
-            foreach($segment['tasks'] as $task){
-                if(!$task['manually_saved'] && $task['calculative']){
+    public function autoGradeUser() {
+        $existingGrades = $this->getUserGrades();
+        $testData = $this->prepareForUser();
+        foreach ($testData['segments'] as $segment) {
+            foreach ($segment['tasks'] as $task) {
+                if (!$task['manually_saved'] && $task['calculative']) {
                     $gradedTaskIds[] = $task['id'];
                     $existingGrades[$this->getGradeTaskKey($task['id'])] = $task['given_points'];
                 }
             }
         }
-        $this->saveUserGrades($test, $existingGrades);
+        $this->saveUserGrades($existingGrades);
         //todo return value that is needed for ajax call
         return [];
     }
@@ -237,8 +281,8 @@ class TestService implements TestServiceInterface {
      *
      * @return array
      */
-    public function gradeUserTask(Test $test, $payload) {
-        $existingGrades = $this->getUserGrades($test);
+    public function gradeUserTask($payload) {
+        $existingGrades = $this->getUserGrades();
         $gradeExisted = false;
         foreach ($existingGrades as $taskId => $grade) {
             if ($taskId === $this->getGradeTaskKey($payload['task_id'])) {
@@ -249,98 +293,92 @@ class TestService implements TestServiceInterface {
         if (!$gradeExisted) {
             $existingGrades[$this->getGradeTaskKey($payload['task_id'])] = $payload['points'];
         }
-        $this->saveUserGrades($test, $existingGrades);
+        $this->saveUserGrades($existingGrades);
         //todo return value that is needed for ajax call
         return [];
     }
 
-    private function saveUserGrades(Test $test, array $grades) {
-        $gradedTaskIds = [];
-        $given = 0;
-        foreach ($grades as $taskId => $grade) {
-            $gradedTaskIds[] = $this->stripGradeTaskKey($taskId);
-            $given += $grade;
-        }
-        $total = Task::whereIn('id', $gradedTaskIds)->sum('points');
-        $test->saveProfessorGrade($this->forUserId, $grades, $given, $total);
+    private function saveUserGrades(array $grades) {
+        $given = array_sum($grades);
+        $total = array_sum(Arr::pluck($this->toArray()['segments'], 'total_points'));
+        $this->test->saveProfessorGrade($this->forUserId, $grades, $given, $total);
     }
 
-    private function getUserGrades(Test $test) {
-        $user = $test->getUser($this->forUserId);
+    private function getUserGrades() {
+        $user = $this->test->getUser($this->forUserId);
         return (is_null($user) || is_null($user->pivot->grades)) ? [] : json_decode($user->pivot->grades, true);
     }
 
-    private function getTaskGradeFromUserGrades($existingGrades, $taskId) {
+    private static function getTaskGradeFromUserGrades($existingGrades, $taskId) {
         $taskGrade = null;
         foreach ($existingGrades as $taskKey => $grade) {
-            if ($taskKey === $this->getGradeTaskKey($taskId)) {
+            if ($taskKey === self::getGradeTaskKey($taskId)) {
                 $taskGrade = $existingGrades[$taskKey];
             }
         }
         return $taskGrade;
     }
 
-    private function getGradeTaskKey($taskId) {
+    private static function getGradeTaskKey($taskId) {
         return 'task_id_' . $taskId;
     }
 
-    private function stripGradeTaskKey($taskId) {
+    private static function stripGradeTaskKey($taskId) {
         return str_replace('task_id_', '', $taskId);
     }
 
-    public function prepareForPublish(Test $test) {
-        $this->includeUserAnswers = false;
-        $this->includeUserCalculatedPoints = false;
-        $this->includeCorrectAnswers = true;
-        return $this->toArraySegments($test,false);
+    public function prepareForPublish() {
+        $this->withoutUserAnswers()
+             ->withoutUserCalculatedPoints()
+             ->withCorrectAnswers();
+        return $this->toArraySegments();
     }
 
-    public function prepareForUser(Test $test) {
+    public function prepareForUser() {
         if (Auth::user()->role === UserRole::STUDENT) {
             $this->forUserId(Auth::id())->withUserAnswers();
         }
-        $test = $this->mergeUserAnswersToTest($test);
-        return $this->toArray($test);
+        return $this->toArray();
     }
 
-    public function toArray(Test $test) {
-        $initial = $test->toArray();
+    public function toArray() {
+        $initial = $this->test->toArray();
         $final = [
-            'id'           => $test->id,
-            'name'         => $test->name,
-            'description'  => $test->description,
-            'status'       => $test->status,
-            'can_register' => $test->can_register,
-            'register_time' => $test->register_time,
-            'duration'     => $test->duration,
-            'lesson'       => $test->lesson->name,
-            'segments'     => $this->toArraySegments($test),
-            'users'        => $this->toArrayUsers($test->users),
-            'scheduled_at' => (!is_null($test->scheduled_at) ? $test->scheduled_at->format('d M, H:i') : '-'),
-            'initial'      => $initial,
-            'with_grades'  => $this->includeUserCalculatedPoints,
+            'id'            => $this->test->id,
+            'name'          => $this->test->name,
+            'description'   => $this->test->description,
+            'status'        => $this->test->status,
+            'can_register'  => $this->test->can_register,
+            'register_time' => $this->test->register_time,
+            'duration'      => $this->test->duration,
+            'lesson'        => $this->test->lesson->name,
+            'segments'      => $this->toArraySegments(),
+            'users'         => $this->toArrayUsers(),
+            'scheduled_at'  => (!is_null($this->test->scheduled_at) ? $this->test->scheduled_at->format('d M, H:i') : '-'),
+            'initial'       => $initial,
+            'with_grades'   => $this->includeUserCalculatedPoints,
         ];
 
         if (Auth::user()->role == UserRole::PROFESSOR && !is_null($this->forUserId)) {
-            $final['for_student'] = $this->toArrayStudent($test, $final['segments']);
+            $final['for_student'] = $this->toArrayStudent($final['segments']);
         }
 
-        $userOnTest = $test->user_on_test;
+        $userOnTest = $this->test->user_on_test;
         if (Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
             $final['current_user'] = $this->toArrayCurrentUser($userOnTest);
         }
         return $final;
     }
 
-    private function toArrayUsers($users) {
+    private function toArrayUsers() {
         $data = [];
-        foreach ($users as $u) {
-            $data[] = $this->toArrayUser($u);
+        foreach ($this->test->users as $u) {
+            $data[] = self::toArrayUser($u);
         }
         return $data;
     }
 
-    private function toArrayUser(User $u) {
+    private static function toArrayUser(User $u) {
         return [
             'id'           => $u->id,
             'name'         => $u->name,
@@ -352,15 +390,17 @@ class TestService implements TestServiceInterface {
         ];
     }
 
-    private function toArrayStudent(Test $test, array $segmentsArray) {
-        $student = $test->getUser($this->forUserId);
-        if(is_null($student))
+    private function toArrayStudent(array $segmentsArray) {
+        $student = $this->test->getUser($this->forUserId);
+        if (is_null($student)) {
             return null;
+        }
         $main = $this->toArrayUser($student);
         $total = 0;
         foreach ($segmentsArray as $segm) {
             $total += $segm['total_points'];
         }
+        \Log::info('ss'.$total.' '.$student->pivot->total_points);
 
         $main['publishable'] = $student->pivot->status !== TestUserStatus::GRADED
             && $total == $student->pivot->total_points;
@@ -386,17 +426,26 @@ class TestService implements TestServiceInterface {
         ];
     }
 
-    public function toArraySegments(Test $test,$withGrades = true) {
-        $segments = $test->segments;
-        $grades = $withGrades ? $this->getUserGrades($test) : [];
+    public function toArraySegments() {
+        $isPublished = self::isPublished($this->test);
+        $segments = $isPublished ? $this->test->getPublishedSegmentData() : $this->test->segments;
+
         $data = [];
         foreach ($segments as $s) {
-            $data[] = $this->toArraySegment($s, $grades);
+            $data[] = $this->toArraySegment($s,$isPublished);
         }
         return $data;
     }
 
-    public function toArraySegment($s, $grades = []) {
+    private static function isPublished(Test $test) {
+        return $test->status !== TestStatus::DRAFT && $test->hasPublishedSegmentData();
+    }
+
+    public function toArraySegment($s,$fromPublished) {
+        return $fromPublished ? $this->toArrayDBSegment($s) : $this->toArrayEloquentSegment($s);
+    }
+    //stores basic info and correct answers to db
+    public function toArrayEloquentSegment($s) {
         $segment = [
             'id'           => $s->id,
             'title'        => $s->title,
@@ -406,20 +455,13 @@ class TestService implements TestServiceInterface {
         ];
         foreach ($s->tasks as $t) {
             $task = [
-                'id'             => $t->id,
-                'type'           => $t->type,
-                'position'       => $t->position,
-                'description'    => $t->description,
-                'points'         => $t->points,
-                'calculative'    => true,
+                'id'          => $t->id,
+                'type'        => $t->type,
+                'position'    => $t->position,
+                'description' => $t->description,
+                'points'      => $t->points,
+                'calculative' => true,
             ];
-
-            $taskGradeExists = false;
-            if($this->includeUserCalculatedPoints){
-                $task['manually_saved'] = false;
-                $taskGrade = $this->getTaskGradeFromUserGrades($grades, $t->id);
-                $taskGradeExists = !is_null($taskGrade);
-            }
 
             switch ($t->type) {
                 case TaskType::CMC:
@@ -431,18 +473,11 @@ class TestService implements TestServiceInterface {
                     ];
                     $choices = [];
                     foreach ($t->{$t->type} as $choice) {
-                        $choiceData = [
+                        $choices[] = [
                             'id'          => $choice->id,
                             'description' => $choice->description,
+                            'correct'     => $choice->correct,
                         ];
-                        if ($this->includeUserAnswers) {
-                            $choiceData['selected'] = $choice->selected;
-                        }
-                        if ($this->includeCorrectAnswers) {
-                            $choiceData['correct'] = $choice->correct;
-                        }
-
-                        $choices[] = $choiceData;
 
                         $counts['total']++;
                         if ($choice->correct) {
@@ -451,6 +486,7 @@ class TestService implements TestServiceInterface {
                     }
                     $counts['wrong'] = $counts['total'] - $counts['correct'];
                     $task['choices'] = $choices;
+                    $task['counts'] = $counts;
                     break;
                 case TaskType::CORRESPONDENCE:
                     $choices = [];
@@ -458,106 +494,156 @@ class TestService implements TestServiceInterface {
                     foreach ($t->{$t->type} as $choice) {
                         $pairs[$choice->side_a] = $choice->side_b;
                     }
-                    $answers = [];
-                    if ($this->includeUserAnswers && isset($t->answer)) {
-                        foreach ($t->answer as $choice) {
-                            $answers[$choice['side_a']] = $choice['side_b'];
-                        }
-                    }
-
                     $sideA = array_keys($pairs);
                     $sideB = array_values($pairs);
                     shuffle($sideB);
                     shuffle($sideA);
 
                     foreach ($sideA as $a) {
-                        $payload = ['available' => $sideB];
-                        if ($this->includeUserAnswers && array_key_exists($a, $answers)) {
-                            $payload['selected'] = $answers[$a];
-                        }
-                        if ($this->includeCorrectAnswers) {
-                            $payload['correct'] = $pairs[$a];
-                        }
-                        $choices[$a] = $payload;
+                        $choices[$a] = [
+                            'available' => $sideB,
+                            'correct'   => $pairs[$a],
+                        ];;
                     }
-
                     $task['choices'] = $choices;
                     break;
                 case TaskType::FREE_TEXT:
-                    if ($this->includeUserAnswers && isset($t->answer)) {
-                        $task['answer'] = $t->answer;
-                    }
                     $task['calculative'] = false;
+                    $task['answer'] = isset($t->answer) ? $t->answer : '';
                     break;
                 default:
-            }
-            if ($this->includeUserCalculatedPoints) {
-                $given_points = 0;
-                if ($taskGradeExists) {
-                    $given_points = $taskGrade;
-                    $task['manually_saved'] = true;
-                } elseif ($task['calculative']) {
-                    switch ($t->type) {
-                        case TaskType::RMC:
-                            //FULL points are given if correct option is selected
-                            //0 points are given if any wrong option is selected
-                            for ($o = 0; $o < count($task['choices']); $o++) {
-                                $isCorrect = $task['choices'][$o]['correct'] == 1;
-                                $isSelected = $task['choices'][$o]['selected'] == 1;
-                                if ($isCorrect && $isSelected) {
-                                    $given_points = $task['points'];
-                                    break;
-                                }
-                            }
-                            break;
-                        case TaskType::CMC:
-                            //FULL points are given if only all correct options are selected
-                            //0 points are given if all options are selected
-                            //formula = ( correct_selected_options * (points/total_correct_options) ) - ( wrong_selected_options * (points/total_wrong_options) )
-                            //with no negative results
-                            //this happens in order to 'punish' those who select all options regardless of correct/wrong
-                            $precision = 100;
-
-                            //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
-                            $correctPoints = ($counts['correct'] == 0 ? 0 : round(+$precision * ($task['points'] / $counts['correct']))); //Positive multiplied with precision and rounded
-                            $wrongPoints = ($counts['wrong'] == 0 ? 0 : round(-$precision * ($task['points'] / $counts['wrong'])));   //Negative in order to subtract from positive points
-
-                            for ($o = 0; $o < count($task['choices']); $o++) {
-                                $isCorrect = $task['choices'][$o]['correct'] == 1;
-                                $isSelected = $task['choices'][$o]['selected'] == 1;
-                                if ($isSelected) {
-                                    $option_points = $isCorrect ? $correctPoints : $wrongPoints;
-                                    $given_points += $option_points;
-                                    $task['choices'][$o]['given_points'] = $option_points / $precision;
-                                }
-                            }
-                            $given_points = $given_points / $precision;
-                            break;
-                        case TaskType::CORRESPONDENCE:
-                            $total = count($task['choices']);
-                            foreach ($task['choices'] as $a => $b) {
-                                $isCorrect = false;
-                                if (array_key_exists('selected', $task['choices'][$a])) {
-                                    $isCorrect = $task['choices'][$a]['correct'] == $task['choices'][$a]['selected'];
-                                }
-                                if ($isCorrect) {
-                                    $given_points += $task['points'] / $total;
-                                }
-                            }
-                            break;
-                    }
-                }
-
-                //Making sure no negative grading will be applied to the task
-                $task['given_points'] = $given_points <= 0 ? 0 : round($given_points, 2);
-                if (!array_key_exists('total_given_points', $segment)) {
-                    $segment['total_given_points'] = 0;
-                }
-                $segment['total_given_points'] += $task['given_points'];
             }
             $segment['total_points'] += $task['points'];
             $segment['tasks'][] = $task;
         }
         return $segment;
+    }
+
+    public function toArrayDBSegment($segment) {
+        for($t=0;$t<count($segment['tasks']);$t++) {
+            switch ($segment['tasks'][$t]['type']) {
+                case TaskType::CMC:
+                case TaskType::RMC:
+                case TaskType::CORRESPONDENCE:
+                    foreach($segment['tasks'][$t]['choices'] as $key => $choice) {
+                        if (!$this->includeCorrectAnswers) {
+                            unset($segment['tasks'][$t]['choices'][$key]['correct']);
+                        }
+                    }
+                    break;
+            }
+
+            if ($this->includeUserAnswers) {
+                $segment['tasks'][$t] = $this->mergeUserAnswersToTask($segment['tasks'][$t]);
+                if ($this->includeUserCalculatedPoints) {
+                    $segment['tasks'][$t] = $this->mergeUserCalculatedPoints($segment['tasks'][$t]);
+                    if (!array_key_exists('total_given_points', $segment)) {
+                        $segment['total_given_points'] = 0;
+                    }
+                    $segment['total_given_points'] += $segment['tasks'][$t]['given_points'];
+                    $segment['total_points'] += $segment['tasks'][$t]['points'];
+                }
+            }
+        }
+        return $segment;
+    }
+
+    private function mergeUserAnswersToTask($task) {
+        foreach ($this->userAnswers as $answer) {
+            if ($task['id'] == $answer['id']) {
+                switch ($task['type']) {
+                    case TaskType::CMC:
+                    case TaskType::RMC:
+                        for ($c = 0; $c < count($task['choices']); $c++) {
+                            foreach ($answer['data'] as $answeredChoice) {
+                                if ($answeredChoice['id'] == $task['choices'][$c]['id']) {
+                                    $task['choices'][$c]['selected'] = $answeredChoice['correct'];
+                                }
+                            }
+                        }
+                        break;
+                    case  TaskType::CORRESPONDENCE:
+                        if (array_key_exists('data', $answer)) {
+                            foreach ($answer['data'] as $choice) {
+                                $task['choices'][$choice['side_a']]['selected'] = $choice['side_b'];
+                            }
+                        }
+                        break;
+                    case TaskType::FREE_TEXT:
+                        if (array_key_exists('data', $answer)) {
+                            $task['answer'] = $answer['data'];
+                        }
+                    default:
+                        //code
+                }
+            }
+        }
+        return $task;
+    }
+
+    private function mergeUserCalculatedPoints($task) {
+        $task['manually_saved'] = false;
+        $taskGrade = self::getTaskGradeFromUserGrades($this->grades, $task['id']);
+        $taskGradeExists = !is_null($taskGrade);
+
+        $given_points = 0;
+        if ($taskGradeExists) {
+            $given_points = $taskGrade;
+            $task['manually_saved'] = true;
+        } elseif ($task['calculative']) {
+            switch ($task['type']) {
+                case TaskType::RMC:
+                    //FULL points are given if correct option is selected
+                    //0 points are given if any wrong option is selected
+                    for ($o = 0; $o < count($task['choices']); $o++) {
+                        $isCorrect = $task['choices'][$o]['correct'] == 1;
+                        $isSelected = $task['choices'][$o]['selected'] == 1;
+                        if ($isCorrect && $isSelected) {
+                            $given_points = $task['points'];
+                            break;
+                        }
+                    }
+                    break;
+                case TaskType::CMC:
+                    //FULL points are given if only all correct options are selected
+                    //0 points are given if all options are selected
+                    //formula = ( correct_selected_options * (points/total_correct_options) ) - ( wrong_selected_options * (points/total_wrong_options) )
+                    //with no negative results
+                    //this happens in order to 'punish' those who select all options regardless of correct/wrong
+                    $precision = 100;
+
+                    //making sure we wont divide something with 0 by accident and we always have integers to add or subtract
+                    $correctPoints = ($task['counts']['correct'] == 0 ? 0 : round(+$precision * ($task['points'] / $task['counts']['correct']))); //Positive multiplied with precision and rounded
+                    $wrongPoints = ($task['counts']['wrong'] == 0 ? 0 : round(-$precision * ($task['points'] / $task['counts']['wrong'])));   //Negative in order to subtract from positive points
+
+                    for ($o = 0; $o < count($task['choices']); $o++) {
+                        $isCorrect = $task['choices'][$o]['correct'] == 1;
+                        $isSelected = $task['choices'][$o]['selected'] == 1;
+                        if ($isSelected) {
+                            $option_points = $isCorrect ? $correctPoints : $wrongPoints;
+                            $given_points += $option_points;
+                            $task['choices'][$o]['given_points'] = $option_points / $precision;
+                        }
+                    }
+                    $given_points = $given_points / $precision;
+                    break;
+                case TaskType::CORRESPONDENCE:
+                    $total = count($task['choices']);
+                    foreach ($task['choices'] as $a => $b) {
+                        $isCorrect = false;
+                        if (array_key_exists('selected', $task['choices'][$a])) {
+                            $isCorrect = $task['choices'][$a]['correct'] == $task['choices'][$a]['selected'];
+                        }
+                        if ($isCorrect) {
+                            $given_points += $task['points'] / $total;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        //Making sure no negative grading will be applied to the task
+        $task['given_points'] = $given_points <= 0 ? 0 : round($given_points, 2);
+        return $task;
     }
 }

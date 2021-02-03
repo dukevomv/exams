@@ -105,24 +105,24 @@ class TestController extends Controller {
     }
 
     public function userPreview($id, $userId, Request $request) {
-        $test = $this->service->fetchById($id);
+        $test = $this->service->setById($id);
         if (in_array($test->status, [TestStatus::STARTED, TestStatus::PUBLISHED])) {
             return redirect('/tests/' . $id);
         }
-        $this->service->calculateUserPoints($test, $userId);
+        $this->service->calculateUserPoints($userId);
 
         return view('tests.preview', [
-            'test'    => $this->service->prepareForUser($test),
+            'test'    => $this->service->prepareForUser(),
             'forUser' => $userId,
         ]);
     }
 
-    public function autoGrade($id, $userId, Request $request) {
-        //saves task points that havent been saved yet
-        $test = $this->service->fetchById($id);
+    public function autoGrade($id, $userId) {
+        //saves task points that haven't been saved yet
+        $this->service->setById($id);
         //todo the below line is to set the forUserId for the student is being graded
-        $this->service->calculateUserPoints($test, $userId);
-        $this->service->autoGradeUser($test);
+        $this->service->calculateUserPoints($userId);
+        $this->service->autoGradeUser();
         return back();
     }
 
@@ -132,10 +132,10 @@ class TestController extends Controller {
             'points'  => 'required|numeric',
         ]);
 
-        $test = $this->service->fetchById($id);
+        $this->service->setById($id);
         //todo the below line is to set the forUserId for the student is being graded
-        $this->service->calculateUserPoints($test, $userId);
-        $this->service->gradeUserTask($test, $request->only('task_id', 'points'));
+        $this->service->calculateUserPoints($userId);
+        $this->service->gradeUserTask($request->only('task_id', 'points'));
         //todo make this an ajax call
         return back();
     }
