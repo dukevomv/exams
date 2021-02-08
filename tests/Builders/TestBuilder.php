@@ -74,6 +74,20 @@ class TestBuilder extends ModelBuilder {
     }
 
     /**
+     * @param null $date
+     *
+     * @return $this
+     */
+    public function graded($date = null) {
+        $this->attributes['status'] = TestStatus::GRADED;
+        $this->attributes['scheduled_at'] = !is_null($date) ? $date : Carbon::now()->subMinutes(20);
+        $this->attributes['started_at'] = !is_null($date) ? $date : Carbon::now()->subMinutes(10);
+        $this->attributes['finished_at'] = !is_null($date) ? $date : Carbon::now()->subMinutes(2);
+        $this->attributes['graded_at'] = !is_null($date) ? $date : Carbon::now();
+        return $this;
+    }
+
+    /**
      * Adds segment with tasks on test creation
      * Receives array of tasks containing their details in associative array.
      *
@@ -158,11 +172,65 @@ class TestBuilder extends ModelBuilder {
         $this->service->setTest($test);
         $test = $this->service->updatePublishedData();
 
+        $segments = $this->service->prepareForPublish();
+
         foreach ($this->users as $userId => $pivot) {
+            if(!in_array($pivot['status'],[TestUserStatus::REGISTERED,TestUserStatus::LEFT]) && !isset($pivot['answers'])) {
+                $pivot['answers'] = json_encode($this->generateRandomStudentAnswersFromSegments($segments));
+            }
             $test->users()->attach($userId, $pivot);
         }
 
+        if($test->status == TestStatus::GRADED){
+            $this->service->autoGradeUsers();
+        }
+
         return $test;
+    }
+
+    private function generateRandomStudentAnswersFromSegments($segments){
+        $answers = [];
+        foreach($segments as $segment){
+            foreach($segment['tasks'] as $task){
+                $taskData = [
+                    'id' => $task['id'],
+                    'type' => $task['type'],
+                ];
+                switch ($task['type']) {
+                    case TaskType::CMC:
+                    case TaskType::RMC:
+                        $taskData['data'] = [];
+                        foreach($task['choices'] as $choice){
+                            $taskData['data'][] = [
+                                'id' => $choice['id'],
+                                'correct' => rand(0,1)
+                            ];
+                        }
+                        break;
+                    case TaskType::CORRESPONDENCE:
+                        $taskData['data'] = [];
+                        $initializedChoices = false;
+                        $unusedChoices = [];
+                        foreach($task['choices'] as $a => $b){
+                            if(!$initializedChoices){
+                                $initializedChoices = true;
+                                $unusedChoices = $b['available'];
+                            }
+                            $choiceIndex = array_rand($unusedChoices,1);
+                            $taskData['data'][] = [
+                                'side_a' => $a,
+                                'side_b' => $unusedChoices[$choiceIndex]
+                            ];
+                            unset($unusedChoices[$choiceIndex]);
+                        }
+                        break;
+                    case TaskType::FREE_TEXT:
+                        $taskData['data'] = $this->faker->sentence(10);
+                }
+                $answers[] = $taskData;
+            }
+            return $answers;
+        }
     }
 
     private function buildSegments(Test $test) {

@@ -13,7 +13,14 @@ use Tests\Builders\LessonBuilder;
 use Tests\Builders\TestBuilder;
 
 class DemoSeeder extends Seeder {
-
+/*
+ * todo
+ * - create tests that contain student answers
+ * - update a test's segments after its published date in order to show segment warning (make it finished as well)
+ * - create tests that need manual grading
+ * - create tests that can be auto graded from lobby
+ * - create tests that are valid questions
+ */
     /**
      * @param null $email
      *
@@ -31,39 +38,49 @@ class DemoSeeder extends Seeder {
         $users = self::generateUsersForEmail($email, $timestamp, [
             UserRole::ADMIN     => 1,
             UserRole::PROFESSOR => 1,
-            UserRole::STUDENT   => 16,
+            UserRole::STUDENT   => 35,
         ]);
 
         $lesson = self::createLessonForUsers($users);
 
         $testData = [
             [
-                'status' => 'draft',
+                'status' => \App\Enums\TestStatus::DRAFT,
             ],
             [
-                'status'    => 'published',
+                'status'    => \App\Enums\TestStatus::PUBLISHED,
                 'users'  => $users[UserRole::STUDENT],
                 'published' => Carbon::now()->addMinutes(2),
             ],
             [
-                'status'  => 'started',
+                'status'  => \App\Enums\TestStatus::STARTED,
                 'users'  => $users[UserRole::STUDENT],
                 'started' => Carbon::now()->addMinutes(2),
             ],
             [
-                'status'  => 'started',
+                'status'  => \App\Enums\TestStatus::STARTED,
                 'users'  => $users[UserRole::STUDENT],
                 'started' => Carbon::now()->subMinutes(60),
             ],
             [
-                'status'   => 'finished',
+                'status'   => \App\Enums\TestStatus::FINISHED,
                 'users'  => $users[UserRole::STUDENT],
                 'finished' => Carbon::now()->addMinutes(2),
             ],
             [
-                'status'   => 'finished',
+                'status'   => \App\Enums\TestStatus::FINISHED,
                 'users'  => $users[UserRole::STUDENT],
                 'finished' => Carbon::now()->subMinutes(2),
+            ],
+            [
+                'status'   => \App\Enums\TestStatus::GRADED,
+                'users'  => $users[UserRole::STUDENT],
+                'graded' => Carbon::now()->addMinutes(5),
+            ],
+            [
+                'status'   => \App\Enums\TestStatus::GRADED,
+                'users'  => $users[UserRole::STUDENT],
+                'graded' => Carbon::now()->subMinutes(5),
             ],
         ];
 
@@ -90,12 +107,27 @@ class DemoSeeder extends Seeder {
             for($u=0;$u<count($data['users']);$u++) {
                 $builder->withUser($data['users'][$u]->id,[
                     'created_at' => Carbon::now()->subMinutes($u*7),
-                    'status'     => TestUserStatus::REGISTERED,
+                    'status'     => self::getRandomStudentStatusBasedOnTestStatus($data['status']),
                 ]);
             }
         }
 
         return $builder->build();
+    }
+
+    private static function getRandomStudentStatusBasedOnTestStatus($testStatus){
+        $map = [
+          \App\Enums\TestStatus::PUBLISHED => [TestUserStatus::REGISTERED,TestUserStatus::LEFT],
+          \App\Enums\TestStatus::STARTED => [TestUserStatus::REGISTERED,TestUserStatus::LEFT,TestUserStatus::PARTICIPATED],
+          \App\Enums\TestStatus::FINISHED => [TestUserStatus::REGISTERED,TestUserStatus::LEFT,TestUserStatus::PARTICIPATED],
+          \App\Enums\TestStatus::GRADED => [TestUserStatus::REGISTERED,TestUserStatus::LEFT,TestUserStatus::PARTICIPATED,TestUserStatus::GRADED],
+        ];
+
+        if(!isset($map[$testStatus])){
+            return null;
+        }
+
+        return $map[$testStatus][rand ( 0 , count($map[$testStatus])-1 )];
     }
 
     private static function generateUsersForEmail($email, $timestamp, $rolesCounts) {
@@ -173,12 +205,7 @@ class DemoSeeder extends Seeder {
                             '2'   => false,
                             '170' => true,
                         ],
-                    ],
-                    [
-                        'type'        => TaskType::FREE_TEXT,
-                        'points'      => 4,
-                        'description' => 'Explain differences for integer and float numbers.',
-                    ],
+                    ]
                 ],
             ],
             'random'  => [
