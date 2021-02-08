@@ -324,10 +324,7 @@ function makeAjaxPost(path) {
       callback();
     }
   }).fail(function (e) {
-    var errorDOM = '<div class="alert alert-danger alert-dismissible" role="alert">\
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>\
-        </button>' + e.responseJSON.message + '</div>';
-    $('.wrap-for-banners').append(errorDOM);
+    showValidatorErrors(e);
   });
 }
 
@@ -368,7 +365,7 @@ testUtils.saveTest = function () {
     answers.push(GetTaskAnswers($(this), task_type));
   });
 
-  $.post(testsURL + testData.test.id + '/' + 'submit', { final: final ? 1 : 0, answers: answers, _token: CSRF }, function () {
+  makeAjaxPost(testsURL + testData.test.id + '/' + 'submit', { final: final ? 1 : 0, answers: answers }, function () {
     testUtils.toggleButton($('#save-test'), 'enable', 'Submit' + (final ? '' : ' (1)'));
     testUtils.toggleButton($('#save-draft-test'), 'disable');
 

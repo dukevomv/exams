@@ -19,13 +19,13 @@
         </ul>
         <br>
         <p>
-        <form action="{{ url('/demo/generate') }}" method="POST">
-            <input type="hidden" value="{{ csrf_token() }}" name="_token">
-            <input type="email" name="email" class="form-control input-lg" placeholder="Your Email" required>
-            <br>
-            <button type="submit" class="btn btn-info btn-lg" role="button">Generate DEMO data
-            </button>
-        </form>
+            <form action="{{ url('/demo/generate') }}" method="POST">
+                <input type="hidden" value="{{ csrf_token() }}" name="_token">
+                <input type="email" name="email" class="form-control input-lg" placeholder="Your Email" required>
+                <br>
+                <button type="submit" class="btn btn-info btn-lg" role="button">Generate DEMO data
+                </button>
+            </form>
         </p>
     </div>
 @endif

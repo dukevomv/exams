@@ -5,7 +5,8 @@ window.showValidatorErrors = function(data){
   var errors = '<div class="alert alert-danger ajax-errors"><ul>'
   const allErrors = data.responseJSON.errors ? data.responseJSON.errors : data.responseJSON;
   $.each(allErrors,function(key,val){
-    errors += '<li>'+val[0]+'</li>'
+    let content = Array.isArray(val) ? val[0] : val;
+    errors += '<li>'+content+'</li>'
   });
   errors += '</ul></div>'
   $('.wrap-for-banners').append(errors)
