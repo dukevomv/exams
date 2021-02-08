@@ -14,7 +14,7 @@ testUtils.getTestData = function() {
     'student.left',
   ];
 
-  if (userData && userData.role == 'professor') {
+  if (userData && userData.role === 'professor' && testData.test.status !== 'finished' && testData.test.status !== 'graded') {
     var studentsRef = firebase.database().ref('tests/' + testData.test.id + '/students');
 
     studentsRef.on('child_added', function (data) {
