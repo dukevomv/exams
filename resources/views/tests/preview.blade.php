@@ -4,13 +4,18 @@
     <div class="container">
         <div class="test-preview">
             <div class="row">
-                @include('includes.preview.test.sidebar', ['test' => $test])
+                @include('includes.preview.test.sidebar', ['test' => $test,'timer' => isset($timer)? $timer:null])
                 <div class="main col-xs-8 pull-right main-panel">
                     @if ((Auth::user()->role == \App\Enums\UserRole::STUDENT
                             && (($test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay'])
                                 || ($test['status'] == \App\Enums\TestStatus::FINISHED && $timer['in_delay'])))
                         || (Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($forUser) && in_array($test['status'],[\App\Enums\TestStatus::FINISHED,\App\Enums\TestStatus::GRADED])))
                         <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0">
+                            @if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test['for_student']) && in_array($test['for_student']['status'],[\App\Enums\TestUserStatus::LEFT,\App\Enums\TestUserStatus::REGISTERED]))
+                                <div class="alert alert-danger" role="alert">
+                                    <b>Warning!</b> The current student has <b>not</b> participated in the test.
+                                </div>
+                            @endif
                             @foreach($test['segments'] as $segment)
                                 <div class="segment-tasks-wrap" id="list-segment-id-{{$segment['id']}}">
                                     <h4 class="clearfix">{{$segment['title']}}
@@ -43,7 +48,7 @@
                             @endforeach
                         </div>
                     @elseif (Auth::user()->role == 'professor')
-                        @include('includes.preview.test.users_panel', ['users' => $test['users'],'testId'=>$test['id']])
+                        @include('includes.preview.test.users_panel', ['users' => $test['users'],'testId'=>$test['id'],'stats' => isset($test['stats']) ? $test['stats'] : null])
                     @endif
                 </div>
             </div>

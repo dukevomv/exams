@@ -163,7 +163,7 @@ testUtils.getTestData = function () {
 
   var eventAliases = ['test.started', 'test.finished', 'student.registered', 'student.updated', 'student.left'];
 
-  if (userData && userData.role == 'professor') {
+  if (userData && userData.role === 'professor' && testData.test.status !== 'finished' && testData.test.status !== 'graded') {
     var triggerStudentChanged = function triggerStudentChanged(id, student) {
       realtime.executeEvent('student.changed', {
         id: id,
@@ -278,6 +278,8 @@ testUtils.setTimerTo = function (seconds) {
 /***/ 337:
 /***/ (function(module, exports) {
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 var testsURL = baseURL + '/tests/';
 
 $('body').scrollspy({ target: '#segment-list' });
@@ -288,25 +290,46 @@ $('.task-value').on('change', function () {
 });
 
 $('#start-test').on('click', function (e) {
-  $.post(testsURL + testData.test.id + '/' + 'start', { _token: CSRF }, function () {
+  makeAjaxPost(testsURL + testData.test.id + '/' + 'start', { _token: CSRF }, function () {
     $('#start-test').removeClass('btn-success').addClass('btn-default').prop('disabled', false);
   });
 });
 $('#finish-test').on('click', function (e) {
-  $.post(testsURL + testData.test.id + '/' + 'finish', { _token: CSRF }, function () {
+  makeAjaxPost(testsURL + testData.test.id + '/' + 'finish', {}, function () {
     $('#finish-test').removeClass('btn-danger').addClass('btn-default').prop('disabled', false);
   });
 });
 $('#publish-grade').on('click', function (e) {
-  $.post(testsURL + testData.test.id + '/users/' + testData.test.for_student.id + '/publish-grade', { _token: CSRF }, function () {
-    location.reload();
-  });
+  makeAjaxPost(testsURL + testData.test.id + '/users/' + testData.test.for_student.id + '/publish-grade');
 });
 $('#auto-grade').on('click', function (e) {
-  $.post(testsURL + testData.test.id + '/users/' + testData.test.for_student.id + '/auto-grade', { _token: CSRF }, function () {
-    location.reload();
-  });
+  makeAjaxPost(testsURL + testData.test.id + '/users/' + testData.test.for_student.id + '/auto-grade');
 });
+$('#auto-calculate-test').on('click', function (e) {
+  makeAjaxPost(testsURL + testData.test.id + '/auto-calculate');
+});
+$('#publish-test-grades').on('click', function (e) {
+  makeAjaxPost(testsURL + testData.test.id + '/publish-grades');
+});
+
+function makeAjaxPost(path) {
+  var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var callback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+  var final = Object.assign.apply(Object, [{ _token: CSRF }].concat(_toConsumableArray(data)));
+  $.post(path, final, function () {
+    if (!callback) {
+      location.reload();
+    } else {
+      callback();
+    }
+  }).fail(function (e) {
+    var errorDOM = '<div class="alert alert-danger alert-dismissible" role="alert">\
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>\
+        </button>' + e.responseJSON.message + '</div>';
+    $('.wrap-for-banners').append(errorDOM);
+  });
+}
 
 //todo these are not working
 // - saving test and reloading

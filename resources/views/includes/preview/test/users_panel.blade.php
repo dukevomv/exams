@@ -1,5 +1,3 @@
-
-
 <div class="panel panel-default" id="test-registered-students">
     <table class="table">
         <tr>
@@ -14,10 +12,12 @@
                 <td><span class="label label-{{$user['status']}}">{{ucfirst($user['status'])}}</span></td>
                 <td>@if(is_null($user['given_points']) && is_null($user['total_points'])) - @else {{\App\Util\Points::getWithPercentage($user['given_points'],$user['total_points'])}} @endif</td>
                 <th class="text-center">
-                    <a href="{{url('/tests/'.$testId.'/users/'.$user['id'])}}" type="button"
-                       class="btn btn-xs btn-primary">
-                        <i class="fa fa-eye"></i>
-                    </a>
+                    @if($user['gradable'])
+                        <a href="{{url('/tests/'.$testId.'/users/'.$user['id'])}}" type="button"
+                           class="btn btn-xs btn-primary">
+                            <i class="fa fa-eye"></i>
+                        </a>
+                    @endif
                 </th>
             </tr>
         @endforeach

@@ -90,8 +90,11 @@
                   $grade = '-';
                   $testUser = is_null($test->user_on_test) ? null : $test->user_on_test->pivot;
 
-                  if(Auth::user()->role == \App\Enums\UserRole::STUDENT && $testUser && $testUser->status == \App\Enums\TestUserStatus::GRADED){
-                      $grade = \App\Util\Points::getWithPercentage($testUser->given_points,$testUser->total_points);
+                  if(Auth::user()->role == \App\Enums\UserRole::STUDENT && $test->status == \App\Enums\TestStatus::GRADED && $testUser && $testUser->status == \App\Enums\TestUserStatus::GRADED){
+                        $grade = \App\Util\Points::getWithPercentage($testUser->given_points,$testUser->total_points);
+                  }
+                  if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test->stats)){
+                        $grade = 'avg: '.$test->stats['average'];
                   }
                 //todo make this to calculate test user grades if graded
                 @endphp

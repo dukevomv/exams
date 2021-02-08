@@ -10961,8 +10961,8 @@ textarea {
 }
 
 .wrap-for-banners.with-sidebar {
-  margin-right: 14%;
-  width: 50%;
+  margin-right: 20%;
+  width: 40%;
   float: right;
 }
 
@@ -10972,7 +10972,7 @@ textarea {
 
 .test-preview .fixed-toolbar {
   padding: 0 15px;
-  margin-top: 70px;
+  margin-top: 80px;
   max-width: 350px;
 }
 

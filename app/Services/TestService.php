@@ -10,6 +10,7 @@ use App\Models\Lesson;
 use App\Models\Segments\Segment;
 use App\Models\Test;
 use App\Models\User;
+use App\Util\Points;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -94,7 +95,15 @@ class TestService implements TestServiceInterface {
                 break;
         }
 
-        return is_null(Arr::get($params, 'paginate', null)) ? $tests->get() : $tests->paginate(10);
+        $results = is_null(Arr::get($params, 'paginate', null)) ? $tests->get() : $tests->paginate(10);
+
+        if(Auth::user()->role == UserRole::PROFESSOR){
+            for($i=0;$i<count($results);$i++){
+                $this->setTest($results[$i]);
+                $results[$i]->stats = self::generateResults($this->toArrayUsers());
+            }
+        }
+    return $results;
     }
 
     public function fetchById($id) {
@@ -113,6 +122,7 @@ class TestService implements TestServiceInterface {
 
     public function updateOrCreate($id, $fields, $segments) {
         $test = Test::updateOrCreate(['id' => $id], $fields);
+        $this->setTest($test);
 
         $ordered_segments = [];
         $count = 1;
@@ -196,7 +206,7 @@ class TestService implements TestServiceInterface {
             return [];
         }
         $field = 'answers';
-        if (Auth::user()->role === UserRole::STUDENT) {
+        if ($this->forUserId == Auth::id() && Auth::user()->role === UserRole::STUDENT) {
             $userData = $this->toArrayCurrentUser($user);
             if ($userData['has_draft']) {
                 $field = 'answers_draft';
@@ -255,29 +265,59 @@ class TestService implements TestServiceInterface {
         }
         return $test;
     }
+    public function autoGradeUsers() {
+        if(!self::isTestAutoCalculative($this->toArraySegments()))
+            abort(400,'Test contains tasks that can not be auto graded.');
+        $users = $this->test->users()->get()->all();
+        foreach($users as $user){
+            if(!in_array($user->pivot->status,[TestUserStatus::LEFT,TestUserStatus::REGISTERED]))
+                $this->autoGradeForUser($user->id,true);
+        }
+        return [];
+    }
+    public function publishTestGrades() {
+        if(!$this->isTestGradesArePublishable())
+            abort(400,'There are participated students that are not yet graded.');
+        $this->test->grade();
+        return [];
+    }
 
+    private function isTestGradesArePublishable(){
+        $publishable = true;
+        $users = $this->test->users()->get()->all();
+        foreach($users as $user){
+            if($user->pivot->status == TestUserStatus::PARTICIPATED) {
+                $publishable = false;
+                break;
+            }
+        }
+        return $publishable;
+    }
 
-    /**
-     * @param \App\Models\Test $test
-     * @param $payload
-     *
-     * @return array
-     */
-    public function autoGradeUser() {
-        $existingGrades = $this->getUserGrades();
-        $testData = $this->prepareForUser();
-        foreach ($testData['segments'] as $segment) {
+    public function autoGradeForUser($userId,$publish = false) {
+        $existingGrades = $this->getUserGrades($userId);
+        $this->calculateUserPoints($userId);
+        $testData = $this->prepareForUser($userId);
+        if(!self::userIsGradable($this->test->getUser($userId)))
+            return [];
+        $existingGrades = self::calculateGrades($existingGrades,$testData);
+        $this->saveUserGrades($existingGrades);
+        if($publish)
+            $this->test->publishProfessorGrade($userId);
+    }
+
+    private static function calculateGrades($existingGrades,$testContents){
+        foreach ($testContents['segments'] as $segment) {
             foreach ($segment['tasks'] as $task) {
-                if (!$task['manually_saved'] && $task['calculative']) {
-                    $gradedTaskIds[] = $task['id'];
-                    $existingGrades[$this->getGradeTaskKey($task['id'])] = $task['given_points'];
+                if ($task['calculative'] && !$task['manually_saved']) {
+                    $existingGrades[self::getGradeTaskKey($task['id'])] = $task['given_points'];
                 }
             }
         }
-        $this->saveUserGrades($existingGrades);
-        //todo return value that is needed for ajax call
-        return [];
+        return $existingGrades;
     }
+
+
 
     /**
      * @param \App\Models\Test $test
@@ -286,30 +326,36 @@ class TestService implements TestServiceInterface {
      * @return array
      */
     public function gradeUserTask($payload) {
+        if(!self::userIsGradable($this->test->getUser($this->forUserId)))
+            return [];
         $existingGrades = $this->getUserGrades();
         $gradeExisted = false;
         foreach ($existingGrades as $taskId => $grade) {
-            if ($taskId === $this->getGradeTaskKey($payload['task_id'])) {
+            if ($taskId === self::getGradeTaskKey($payload['task_id'])) {
                 $existingGrades[$taskId] = $payload['points'];
                 $gradeExisted = true;
             }
         }
         if (!$gradeExisted) {
-            $existingGrades[$this->getGradeTaskKey($payload['task_id'])] = $payload['points'];
+            $existingGrades[self::getGradeTaskKey($payload['task_id'])] = $payload['points'];
         }
         $this->saveUserGrades($existingGrades);
-        //todo return value that is needed for ajax call
         return [];
     }
 
+    private static function userIsGradable(User $user) {
+        return !in_array($user->pivot->status,[TestUserStatus::REGISTERED,TestUserStatus::LEFT]);
+    }
     private function saveUserGrades(array $grades) {
         $given = array_sum($grades);
         $total = array_sum(Arr::pluck($this->toArraySegments(), 'total_points'));
         $this->test->saveProfessorGrade($this->forUserId, $grades, $given, $total);
     }
 
-    private function getUserGrades() {
-        $user = $this->test->getUser($this->forUserId);
+    private function getUserGrades($userId = null) {
+        if(is_null($userId))
+            $userId = $this->forUserId;
+        $user = $this->test->getUser($userId);
         return (is_null($user) || is_null($user->pivot->grades)) ? [] : json_decode($user->pivot->grades, true);
     }
 
@@ -338,11 +384,14 @@ class TestService implements TestServiceInterface {
         return $this->toArraySegments();
     }
 
-    public function prepareForUser() {
+    public function prepareForCurrentUser() {
         if (Auth::user()->role === UserRole::STUDENT) {
-            $this->forUserId(Auth::id())->withUserAnswers();
+            $this->prepareForUser(Auth::id());
         }
         return $this->toArray();
+    }
+    public function prepareForUser($userId) {
+        return $this->forUserId($userId)->withUserAnswers()->toArray();
     }
 
     public function toArray() {
@@ -363,18 +412,65 @@ class TestService implements TestServiceInterface {
             'with_grades'   => $this->includeUserCalculatedPoints,
         ];
 
-        if (Auth::user()->role == UserRole::PROFESSOR) {
-            $final['auto_calculative'] = self::isTestAutoCalculative($final['segments']);
-            if (!is_null($this->forUserId)) {
-                $final['for_student'] = $this->toArrayStudent($final['segments']);
+        if(Auth::user()){
+            if (Auth::user()->role == UserRole::PROFESSOR) {
+                $final['auto_calculative'] = self::isTestAutoCalculative($final['segments']);
+                if(in_array($this->test->status,[TestStatus::FINISHED,TestStatus::GRADED])){
+                    $final['stats'] = self::generateResults($final['users']);
+                }
+                if (!is_null($this->forUserId)) {
+                    $final['for_student'] = $this->toArrayStudent($final['segments']);
+                }
+            }
+
+            $userOnTest = $this->test->user_on_test;
+            if (Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
+                $final['current_user'] = $this->toArrayCurrentUser($userOnTest);
             }
         }
-
-        $userOnTest = $this->test->user_on_test;
-        if (Auth::user()->role == UserRole::STUDENT && !is_null($userOnTest)) {
-            $final['current_user'] = $this->toArrayCurrentUser($userOnTest);
-        }
         return $final;
+    }
+
+    private static function generateResults($users){
+        if(count($users) == 0){
+            return null;
+        }
+        $results = [
+            'max' => 0,
+            'min' => 0,
+            'test_max_points' => $users[0]['total_points'],
+            'sum_total_points' => 0,
+            'sum_given_points' => 0,
+            'students' => [
+                'participated' => 0,
+                'passed' => 0,
+                'dodged' => 0,
+            ]
+        ];
+        $results['baseline'] = $results['test_max_points']/2;
+        foreach($users as $user){
+            if(in_array($user['status'],[TestUserStatus::REGISTERED,TestUserStatus::LEFT])){
+                $results['students']['dodged']++;
+            } else {
+                $results['students']['participated']++;
+                $results['test_max_points'] = $user['total_points'];
+                $results['sum_total_points'] += $user['total_points'];
+                $results['sum_given_points'] += $user['given_points'];
+                if($results['max'] < $user['given_points'])
+                    $results['max'] = $user['given_points'];
+                if($results['min'] > $user['given_points'])
+                    $results['min'] = $user['given_points'];
+                if($results['baseline'] < $user['given_points'])
+                    $results['students']['passed']++;
+            }
+        }
+        if($results['students']['participated'] == 0 || $results['test_max_points'] == 0){
+            return null;
+        }
+        $results['average'] = Points::getWithPercentage(round($results['sum_given_points']/$results['students']['participated'],2),$results['test_max_points']);
+        $results['min'] = Points::getWithPercentage($results['min'],$results['test_max_points']);
+        $results['max'] = Points::getWithPercentage($results['max'],$results['test_max_points']);
+        return $results;
     }
 
     private static function isTestAutoCalculative($segments) {
@@ -385,6 +481,10 @@ class TestService implements TestServiceInterface {
             }
         }
         return $itIs;
+    }
+
+    public function autoCalculateTestGradesForStudent($student) {
+        return $this->test->publishProfessorGrade($student->id);
     }
 
     private function toArrayUsers() {
@@ -404,6 +504,7 @@ class TestService implements TestServiceInterface {
             'entered_at'   => Carbon::parse($u->pivot->created_at)->diffForHumans(),
             'given_points' => $u->pivot->given_points,
             'total_points' => $u->pivot->total_points,
+            'gradable' => self::userIsGradable($u),
         ];
     }
 

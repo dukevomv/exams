@@ -12,11 +12,12 @@ interface TestServiceInterface {
     public function setTest(Test $test);
 
     public function calculateUserPoints($userId);
-    public function autoGradeUser();
+    public function autoGradeForUser($userId);
     public function gradeUserTask($payload);
+    public function publishTestGrades();
 
     public function updatePublishedData();
-    public function prepareForUser();
+    public function prepareForCurrentUser();
     public function prepareForPublish();
 
     public function toArray();

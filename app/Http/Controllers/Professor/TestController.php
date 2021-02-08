@@ -70,7 +70,7 @@ class TestController extends Controller {
                     ->with('users')->first();
 
         if (is_null($test)) {
-            return back()->with(['error' => 'You can not start this test.']);
+            abort(400,'You can not start this test.');
         }
 //        if (!Carbon::parse($test->scheduled_at)->isToday()) {
 //            return back()->with(['error' => 'This test can not start today.']);
@@ -79,7 +79,7 @@ class TestController extends Controller {
             return $value->pivot->status == 'registered';
         });
         if (count($registered_users) == 0) {
-            return back()->with(['error' => 'This test require registered users to start.']);
+            abort(400,'This test require registered users to start.');
         }
         $test->start();
         if ($request->wantsJson()) {
@@ -94,7 +94,7 @@ class TestController extends Controller {
                     ->where('status', TestStatus::STARTED)
                     ->first();
         if (is_null($test)) {
-            return back()->with(['error' => 'You can not finish this test.']);
+            abort(400,'You can not finish this test.');
         }
         $test->finish();
         if ($request->wantsJson()) {
@@ -112,7 +112,7 @@ class TestController extends Controller {
         $this->service->calculateUserPoints($userId);
 
         return view('tests.preview', [
-            'test'    => $this->service->prepareForUser(),
+            'test'    => $this->service->prepareForCurrentUser(),
             'forUser' => $userId,
         ]);
     }
@@ -120,9 +120,21 @@ class TestController extends Controller {
     public function autoGrade($id, $userId) {
         //saves task points that haven't been saved yet
         $this->service->setById($id);
-        //todo the below line is to set the forUserId for the student is being graded
-        $this->service->calculateUserPoints($userId);
-        $this->service->autoGradeUser();
+        $this->service->autoGradeForUser($userId);
+        return back();
+    }
+
+    public function autoCalculateGrades($id) {
+        //todo make sure db value is valid!!!!!!
+        //todo make sure tests with non calc can not auto grade everyone at once
+        //make sure test is not graded already
+        $this->service->setById($id);
+        $this->service->autoGradeUsers();
+        return back();
+    }
+    public function publishGrades($id) {
+        $this->service->setById($id);
+        $this->service->publishTestGrades();
         return back();
     }
 
@@ -136,7 +148,6 @@ class TestController extends Controller {
         //todo the below line is to set the forUserId for the student is being graded
         $this->service->calculateUserPoints($userId);
         $this->service->gradeUserTask($request->only('task_id', 'points'));
-        //todo make this an ajax call
         return back();
     }
 

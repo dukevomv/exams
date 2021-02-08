@@ -8,25 +8,44 @@ $('.task-value').on('change',function(){
 });
 
 $('#start-test').on('click',function(e){
-  $.post(testsURL+testData.test.id+'/'+'start',{_token:CSRF},function() {
+  makeAjaxPost(testsURL+testData.test.id+'/'+'start',{_token:CSRF},function() {
     $('#start-test').removeClass('btn-success').addClass('btn-default').prop('disabled',false)
   });
 });
 $('#finish-test').on('click',function(e){
-  $.post(testsURL+testData.test.id+'/'+'finish',{_token:CSRF},function() {
+  makeAjaxPost(testsURL+testData.test.id+'/'+'finish',{},function() {
     $('#finish-test').removeClass('btn-danger').addClass('btn-default').prop('disabled',false)
   });
 });
 $('#publish-grade').on('click',function(e){
-  $.post(testsURL+testData.test.id+'/users/'+testData.test.for_student.id+'/publish-grade',{_token:CSRF},function() {
-    location.reload()
-  });
+  makeAjaxPost(testsURL+testData.test.id+'/users/'+testData.test.for_student.id+'/publish-grade');
 });
 $('#auto-grade').on('click',function(e){
-  $.post(testsURL+testData.test.id+'/users/'+testData.test.for_student.id+'/auto-grade',{_token:CSRF},function() {
-    location.reload()
-  });
+  makeAjaxPost(testsURL+testData.test.id+'/users/'+testData.test.for_student.id+'/auto-grade');
 });
+$('#auto-calculate-test').on('click',function(e){
+  makeAjaxPost(testsURL+testData.test.id+'/auto-calculate');
+});
+$('#publish-test-grades').on('click',function(e){
+  makeAjaxPost(testsURL+testData.test.id+'/publish-grades');
+});
+
+function makeAjaxPost(path,data = {},callback = null){
+  const final = Object.assign({_token:CSRF},...data)
+  $.post(path,final,function() {
+    if(!callback){
+      location.reload()
+    } else{
+      callback()
+    }
+  }).fail(function(e) {
+    let errorDOM = '<div class="alert alert-danger alert-dismissible" role="alert">\
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>\
+        </button>'+e.responseJSON.message+'</div>';
+    $('.wrap-for-banners').append(errorDOM)
+  })
+}
+
 
 //todo these are not working
 // - saving test and reloading

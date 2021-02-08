@@ -19,7 +19,7 @@ class Test extends Model {
     private   $search   = ['name'];
     protected $appends  = ['user_on_test', 'can_register', 'register_time'];
     public    $fillable = ['lesson_id', 'name', 'description', 'scheduled_at', 'duration', 'status'];
-    protected $dates    = ['scheduled_at','published_at', 'started_at', 'finished_at', 'graded_at'];
+    protected $dates    = ['scheduled_at', 'published_at', 'started_at', 'finished_at', 'graded_at'];
 
     public function lesson() {
         return $this->belongsTo(Lesson::class);
@@ -103,11 +103,11 @@ class Test extends Model {
         $this->users()->attach(Auth::id(), ['status' => TestUserStatus::REGISTERED]);
     }
 
-    private static function constructFirebaseStudent($payload){
+    private static function constructFirebaseStudent($payload) {
         $student = Auth::user();
         return array_merge([
             'name' => $student->name,
-        ],$payload);
+        ], $payload);
     }
 
     public function leave() {
@@ -116,7 +116,7 @@ class Test extends Model {
             $firebase = app('firebase');
             $firebase->delete('tests/' . $this->id . '/students/' . $student->id);
         }
-        $this->users()->updateExistingPivot($student->id, ['status'  => TestUserStatus::LEFT, 'left_at' => Carbon::now(),
+        $this->users()->updateExistingPivot($student->id, ['status' => TestUserStatus::LEFT, 'left_at' => Carbon::now(),
         ]);
     }
 
@@ -142,17 +142,20 @@ class Test extends Model {
     }
 
     public function getPublishedSegmentData() {
-        return json_decode($this->segment_data,true);
+        return json_decode($this->segment_data, true);
     }
+
     public function hasPublishedSegmentData() {
         return !is_null($this->segment_data);
     }
+
     public function publishSegmentData($data) {
         $this->segment_data = json_encode($data);
         $this->published_at = Carbon::now();
         $this->save();
         return $this;
     }
+
     public function unpublishSegmentData() {
         $this->segment_data = null;
         $this->save();
@@ -169,13 +172,12 @@ class Test extends Model {
         $this->users()->updateExistingPivot($userID, $this->constructAnswersFields($answers, $final));
 
         $student = Auth::user();
-        FirebaseControl::createOrUpdate('tests/' .$this->id . '/students/' . $student->id,
+        FirebaseControl::createOrUpdate('tests/' . $this->id . '/students/' . $student->id,
             self::constructFirebaseStudent([
-                'status' => TestUserStatus::PARTICIPATED,
+                'status'      => TestUserStatus::PARTICIPATED,
                 'answered_at' => Carbon::now()->toDateTimeString(),
             ])
         );
-
     }
 
     private function constructAnswersFields(array $answers, $final) {
@@ -189,7 +191,7 @@ class Test extends Model {
         $field_date .= '_at';
 
         return [
-            'status'       => TestUserStatus::PARTICIPATED,
+            'status'    => TestUserStatus::PARTICIPATED,
             $field_data => json_encode($answers),
             $field_date => Carbon::now(),
         ];
@@ -200,7 +202,7 @@ class Test extends Model {
         $this->started_at = Carbon::now()->addSeconds(config('app.bm.test_timer.start_delay_in_seconds'));
         $this->started_by_user = Auth::id();
 
-        FirebaseControl::createOrUpdate('tests/' . $this->id,[
+        FirebaseControl::createOrUpdate('tests/' . $this->id, [
             'started_at' => $this->started_at->toDateTimeString(),
         ]);
 
@@ -212,8 +214,20 @@ class Test extends Model {
         $this->finished_at = Carbon::now()->addSeconds(config('app.bm.test_timer.finish_delay_in_seconds'));
         $this->finished_by_user = Auth::id();
 
-        FirebaseControl::createOrUpdate('tests/' . $this->id,[
+        FirebaseControl::createOrUpdate('tests/' . $this->id, [
             'finished_at' => $this->finished_at->toDateTimeString(),
+        ]);
+
+        $this->save();
+    }
+
+    public function grade() {
+        $this->status = TestStatus::GRADED;
+        $this->graded_at = Carbon::now();
+        $this->graded_by_user = Auth::id();
+
+        FirebaseControl::createOrUpdate('tests/' . $this->id, [
+            'graded_at' => $this->graded_at->toDateTimeString(),
         ]);
 
         $this->save();

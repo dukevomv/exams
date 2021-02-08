@@ -40,12 +40,29 @@
                             <button type="button" class="btn btn-danger" id="finish-test">Finish in
                                 30"
                             </button>
-                        @elseif ($test['status'] == \App\Enums\TestStatus::FINISHED && array_key_exists('for_student',$test))
-                            <button type="button" class="btn btn-success" id="publish-grade" @if(!$test['for_student']['publishable']) disabled @endif>Publish Grades
-                            </button><button type="button" class="btn btn-primary pull-right" id="auto-grade"><i class="fa fa-save"></i> Save Auto
-                            </button><br>
-                        <!-- todo make  the below to be automatic save to all auto-calculated -->
-                            <small><i class="fa fa-warning"></i> To publish student's grades you must first save each task's points.</small>
+                        @elseif ($test['status'] == \App\Enums\TestStatus::FINISHED && !$timer['in_delay'])
+                            @if(array_key_exists('for_student',$test))
+                                <button type="button" class="btn btn-success" id="publish-grade"
+                                        @if(!$test['for_student']['publishable'] || !$test['for_student']['gradable']) disabled @endif>Publish Grades
+                                </button>
+                                <button type="button" class="btn btn-primary pull-right" id="auto-grade"
+                                        @if(!$test['for_student']['gradable']) disabled @endif><i
+                                            class="fa fa-save"></i> Save Auto
+                                </button><br>
+                                <small><i class="fa fa-warning"></i> To publish student's grades you must first save
+                                    each task's points.</small>
+                            @else
+                                @if(Auth::user()->role == 'professor' && $test['status'] == \App\Enums\TestStatus::FINISHED)
+                                    <button type="button" class="btn btn btn-success margin-bottom-15" id="publish-test-grades">Publish Grades</button>
+                                @endif
+                                <button type="button" class="btn btn-primary" id="auto-calculate-test"
+                                        @if(!$test['auto_calculative']) disabled @endif>Auto Calculate Grades
+                                </button><br>
+                                @if(!$test['auto_calculative'])
+                                    <small><i class="fa fa-warning"></i> Test must not include task types that can not
+                                        be auto graded in order to auto calculate all students' grades.</small>
+                                @endif
+                            @endif
                         @endif
                     </div>
                 @elseif (Auth::user()->role == 'student')
@@ -61,7 +78,8 @@
                                     </button>
                                     @if(!$test['can_register'])
                                         <br>
-                                        <small><i class="fa fa-warning"></i> In {{$test['register_time']->fromNow()}} you  will be able to register to this test.</small>
+                                        <small><i class="fa fa-warning"></i> In {{$test['register_time']->fromNow()}}
+                                            you will be able to register to this test.</small>
                                     @endif
                                 </form>
                             @endif
@@ -91,7 +109,7 @@
                 @endif
             </div>
         </div>
-        @if (Auth::user()->role == 'professor' || isset($timer) && $test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay'])
+        @if ((Auth::user()->role == 'professor' && $test['status'] == \App\Enums\TestStatus::FINISHED) || (isset($timer) && $test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay']))
             <div id="segment-list" class="list-group">
                 @foreach($test['segments'] as $segment)
                     @php
@@ -116,4 +134,24 @@
             <button type="submit" class="btn btn-danger" id="test-leave">Leave Test</button>
         </form>
     @endif
+        @if(isset($test['stats']) && !array_key_exists('for_student',$test))
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Results</h3>
+                </div>
+                <div class="panel-body">
+                    <span>Participated: <b>{{$test['stats']['students']['participated']}}/{{$test['stats']['students']['participated']+$test['stats']['students']['dodged']}} students</b></span>
+                    <br>
+                    <span>Above 50%: <b>{{$test['stats']['students']['passed']}} students</b></span>
+                    <br>
+                    <br>
+                    <span>Minimum: <b>{{$test['stats']['min']}}</b></span>
+                    <br>
+                    <span>Maximum: <b>{{$test['stats']['max']}}</b></span>
+                    <br>
+                    <span>Average: <b>{{$test['stats']['average']}}</b></span>
+                </div>
+            </div>
+        @endif
+
 </div>

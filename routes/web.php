@@ -90,6 +90,8 @@ Route::group(['middleware' => ['auth']], function () {
 
                 Route::post('{id}/start', 'TestController@start');
                 Route::post('{id}/finish', 'TestController@finish');
+                Route::post('{id}/auto-calculate', 'TestController@autoCalculateGrades');
+                Route::post('{id}/publish-grades', 'TestController@publishGrades');
 
                 Route::get('{id}/users/{userId}', 'TestController@userPreview');
                 Route::post('{id}/users/{userId}/grade-task', 'TestController@gradeUserTask');
