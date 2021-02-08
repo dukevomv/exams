@@ -82,6 +82,10 @@ class TestService implements TestServiceInterface {
             $tests->search(Arr::get($params, 'search'));
         }
 
+        if (!is_null(Arr::get($params, 'status', null))) {
+            $tests->where('status', Arr::get($params, 'status'));
+        }
+
         switch (Auth::user()->role) {
             case UserRole::STUDENT:
                 $tests->where('status', '!=', TestStatus::DRAFT);

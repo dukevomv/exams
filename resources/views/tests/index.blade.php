@@ -9,22 +9,45 @@
             <div class="btn-group pull-left">
               <button id="lesson" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <?php
-                  $selected_lesson = Request::input('lesson','All');
-                  foreach($lessons as $lesson){
-                    if($selected_lesson == $lesson->id){
-                      $selected_lesson = $lesson->name;
-                      break;
-                    }
+                $selected_lesson = Request::input('lesson','All');
+                foreach($lessons as $lesson){
+                  if($selected_lesson == $lesson->id){
+                    $selected_lesson = $lesson->name;
+                    break;
                   }
+                }
                 ?>
-                {{$selected_lesson}} <span class="caret"></span>
+                Lesson: {{$selected_lesson}} <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
-                <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('tests_index',Request::except('page'))}}">All</a></li>
+                <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('tests_index',Request::except('page','lesson'))}}">All</a></li>
                 <li role="separator" class="divider"></li>
                 @foreach($lessons as $lesson)
                   <li @if(Request::input('lesson','') == $lesson->id)class="active"@endif>
                     <a href="{{route('tests_index',array_merge(Request::except('page'),['lesson'=>$lesson->id]))}}">{{$lesson->name}}</a>
+                  </li>
+                @endforeach
+              </ul>
+            </div>
+            <div class="btn-group pull-left margin-left-15">
+              <button id="lesson" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <?php
+                $selected_status = Request::input('status','All');
+                foreach(\App\Enums\TestStatus::values() as $status){
+                  if($selected_status == $status){
+                    $selected_status = ucFirst($status);
+                    break;
+                  }
+                }
+                ?>
+                Status: {{$selected_status}} <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li @if(Request::input('status','') == '')class="active"@endif><a href="{{route('tests_index',Request::except('page','status'))}}">All</a></li>
+                <li role="separator" class="divider"></li>
+                @foreach(\App\Enums\TestStatus::values() as $status)
+                  <li @if(Request::input('status','') == $status)class="active"@endif>
+                    <a href="{{route('tests_index',array_merge(Request::except('page'),['status'=>$status]))}}">{{ucfirst($status)}}</a>
                   </li>
                 @endforeach
               </ul>

@@ -21,7 +21,7 @@ class TestController extends Controller {
 
     public function index(Request $request) {
         $lessons = Lesson::approved()->get();
-        $filters = $request->only(['search', 'lesson']);
+        $filters = $request->only(['search', 'lesson','status']);
         $filters['paginate'] = General::DEFAULT_PAGINATION;
 
         return view('tests.index', [
@@ -33,7 +33,7 @@ class TestController extends Controller {
     public function preview($id, Request $request) {
         $test = $this->service->setById($id);
 
-        $data = ['test' => $this->service->prepareForUser()];
+        $data = ['test' => $this->service->prepareForCurrentUser()];
         if ($test->status !== TestStatus::GRADED) {
             $data['timer'] = $this->service->calculateTimer($test);
         }
