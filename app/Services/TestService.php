@@ -121,6 +121,10 @@ class TestService implements TestServiceInterface {
     }
 
     public function updateOrCreate($id, $fields, $segments) {
+        $existing = $this->fetchById($id);
+        if(!in_array($existing->status,[TestStatus::PUBLISHED,TestStatus::DRAFT])){
+            abort(400,'You cannot update this test');
+        }
         $test = Test::updateOrCreate(['id' => $id], $fields);
         $this->setTest($test);
 
