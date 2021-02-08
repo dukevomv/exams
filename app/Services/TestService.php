@@ -414,6 +414,7 @@ class TestService implements TestServiceInterface {
             'scheduled_at'  => (!is_null($this->test->scheduled_at) ? $this->test->scheduled_at->format('d M, H:i') : '-'),
             'initial'       => $initial,
             'with_grades'   => $this->includeUserCalculatedPoints,
+            'grades_publishable'   => $this->isTestGradesArePublishable(),
         ];
 
         if(Auth::user()){

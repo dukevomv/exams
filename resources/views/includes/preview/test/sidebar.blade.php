@@ -53,7 +53,7 @@
                                     each task's points.</small>
                             @else
                                 @if(Auth::user()->role == 'professor' && $test['status'] == \App\Enums\TestStatus::FINISHED)
-                                    <button type="button" class="btn btn btn-success margin-bottom-15" id="publish-test-grades">Publish Grades</button>
+                                    <button type="button" class="btn btn btn-success margin-bottom-15" id="publish-test-grades" @if(!$test['grades_publishable']) disabled @endif>Publish Grades</button>
                                 @endif
                                 <button type="button" class="btn btn-primary" id="auto-calculate-test"
                                         @if(!$test['auto_calculative']) disabled @endif>Auto Calculate Grades
