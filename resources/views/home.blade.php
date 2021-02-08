@@ -30,6 +30,12 @@
                 @php
                     $new_commits = [
                         [
+                            'title' => 'Auto Grading Tests',
+                            'date' => '8 February 2021',
+                            'tags' => ['back','front'],
+                            'body' => '<p>New actions have been added for the professor view in Test Lobby, providing the ability to <b>auto grade all test students</b> (when of course the test contains auto-calculative tasks).</p>'
+                        ],
+                        [
                             'title' => 'Segment Updates',
                             'date' => '3 February 2021',
                             'tags' => ['front'],

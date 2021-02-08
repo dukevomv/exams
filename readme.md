@@ -1,13 +1,30 @@
 Exams
 ============
 
-This platform was developed as an e-assesment platform for Universities or other parties. 
+This platform was developed as an e-assessment platform for Universities or other parties. 
 It provides the ability to organize your users by role and authorize actions to them.
 
 * **Admins** manage the Lessons and the users of the platform.
 * **Professors** subscribe to lessons creating and publishing tests for students.
 * **Students** subscribe to lessons and participate on the tests.
 
+
+### Tests
+
+Professors can create Tests including their segments.
+
+The **tests** may have statuses of:
+ * `DRAFT` - Saved from professor but not yet ready (NOT visible to Students)
+ * `PUBLISHED` - Saved from professor with a scheduled date visible to Students
+ * `STARTED` - Started by the professor when students have registered
+ * `FINISHED` - Finished by the professor
+ * `GRADED` - Flagged from professor to enable students to see their grades
+
+The **students** can have test statuses of:
+ * `REGISTERED` - Students can register to published tests
+ * `LEFT` - Students that don't want to participate in published can Leave the test
+ * `PARTICIPATED` - Students that published their answers at least once on a started test
+ * `GRADED` - Students that have published answers and are graded by a professor
 
 ## Running the Project
 
