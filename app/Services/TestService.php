@@ -99,8 +99,10 @@ class TestService implements TestServiceInterface {
 
         if(Auth::user()->role == UserRole::PROFESSOR){
             for($i=0;$i<count($results);$i++){
-                $this->setTest($results[$i]);
-                $results[$i]->stats = self::generateResults($this->toArrayUsers());
+                if(!is_null($results[$i]->segment_data)){
+                    $this->setTest($results[$i]);
+                    $results[$i]->stats = self::generateResults($this->toArrayUsers(),$results[$i]->segment_data);
+                }
             }
         }
     return $results;
@@ -421,7 +423,7 @@ class TestService implements TestServiceInterface {
             if (Auth::user()->role == UserRole::PROFESSOR) {
                 $final['auto_calculative'] = self::isTestAutoCalculative($final['segments']);
                 if(in_array($this->test->status,[TestStatus::FINISHED,TestStatus::GRADED])){
-                    $final['stats'] = self::generateResults($final['users']);
+                    $final['stats'] = self::generateResults($final['users'],$final['segments']);
                 }
                 if (!is_null($this->forUserId)) {
                     $final['for_student'] = $this->toArrayStudent($final['segments']);
@@ -436,14 +438,18 @@ class TestService implements TestServiceInterface {
         return $final;
     }
 
-    private static function generateResults($users){
+    private static function calculateTotalPoints($segments) {
+        return collect($segments)->sum('total_points');
+    }
+
+    private static function generateResults($users,$segments){
         if(count($users) == 0){
             return null;
         }
         $results = [
             'max' => 0,
             'min' => 0,
-            'test_max_points' => $users[0]['total_points'],
+            'test_max_points' => self::calculateTotalPoints($segments),
             'sum_total_points' => 0,
             'sum_given_points' => 0,
             'students' => [
@@ -458,7 +464,6 @@ class TestService implements TestServiceInterface {
                 $results['students']['dodged']++;
             } else {
                 $results['students']['participated']++;
-                $results['test_max_points'] = $user['total_points'];
                 $results['sum_total_points'] += $user['total_points'];
                 $results['sum_given_points'] += $user['given_points'];
                 if($results['max'] < $user['given_points'])
