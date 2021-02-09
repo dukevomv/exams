@@ -278,8 +278,6 @@ testUtils.setTimerTo = function (seconds) {
 /***/ 337:
 /***/ (function(module, exports) {
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 var testsURL = baseURL + '/tests/';
 
 $('body').scrollspy({ target: '#segment-list' });
@@ -316,8 +314,8 @@ function makeAjaxPost(path) {
   var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var callback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-  var final = Object.assign.apply(Object, [{ _token: CSRF }].concat(_toConsumableArray(data)));
-  $.post(path, final, function () {
+  Object.assign(data, { _token: CSRF });
+  $.post(path, data, function () {
     if (!callback) {
       location.reload();
     } else {

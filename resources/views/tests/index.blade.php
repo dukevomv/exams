@@ -93,10 +93,9 @@
                   if(Auth::user()->role == \App\Enums\UserRole::STUDENT && $test->status == \App\Enums\TestStatus::GRADED && $testUser && $testUser->status == \App\Enums\TestUserStatus::GRADED){
                         $grade = \App\Util\Points::getWithPercentage($testUser->given_points,$testUser->total_points);
                   }
-                  if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test->stats)){
+                  if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test->stats) && $test->stats['students']['graded'] > 0){
                         $grade = 'avg: '.$test->stats['average'];
                   }
-                //todo make this to calculate test user grades if graded
                 @endphp
                 <td>{{$grade}}</td>
                 <td class="text-center">

@@ -99,9 +99,9 @@ class TestService implements TestServiceInterface {
 
         if(Auth::user()->role == UserRole::PROFESSOR){
             for($i=0;$i<count($results);$i++){
-                if(!is_null($results[$i]->segment_data)){
+                if(in_array($results[$i]->status,[TestStatus::GRADED,TestStatus::FINISHED])){
                     $this->setTest($results[$i]);
-                    $results[$i]->stats = self::generateResults($this->toArrayUsers(),$results[$i]->segment_data);
+                    $results[$i]->stats = self::generateResults($this->toArrayUsers(),$results[$i]->getPublishedSegmentData());
                 }
             }
         }
@@ -454,6 +454,7 @@ class TestService implements TestServiceInterface {
             'sum_total_points' => 0,
             'sum_given_points' => 0,
             'students' => [
+                'graded' => 0,
                 'participated' => 0,
                 'passed' => 0,
                 'dodged' => 0,
@@ -465,6 +466,9 @@ class TestService implements TestServiceInterface {
                 $results['students']['dodged']++;
             } else {
                 $results['students']['participated']++;
+                if($user['status'] === TestUserStatus::GRADED) {
+                    $results['students']['graded']++;
+                }
                 $results['sum_total_points'] += $user['total_points'];
                 $results['sum_given_points'] += $user['given_points'];
                 if($results['max'] < $user['given_points'])

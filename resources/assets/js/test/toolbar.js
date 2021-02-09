@@ -31,8 +31,8 @@ $('#publish-test-grades').on('click',function(e){
 });
 
 function makeAjaxPost(path,data = {},callback = null){
-  const final = Object.assign({_token:CSRF},...data)
-  $.post(path,final,function() {
+  Object.assign(data,{_token:CSRF})
+  $.post(path,data,function() {
     if(!callback){
       location.reload()
     } else{
