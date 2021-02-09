@@ -677,7 +677,8 @@ class TestService implements TestServiceInterface {
                         $segment['total_given_points'] = 0;
                     }
                     $segment['total_given_points'] += $segment['tasks'][$t]['given_points'];
-                    $segment['total_points'] += $segment['tasks'][$t]['points'];
+                    //total points are calculated from Eloquent object
+                    //$segment['total_points'] += $segment['tasks'][$t]['points'];
                 }
             }
         }
