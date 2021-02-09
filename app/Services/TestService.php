@@ -108,12 +108,13 @@ class TestService implements TestServiceInterface {
     return $results;
     }
 
-    public function fetchById($id) {
-        return Test::with('segments.tasks', 'users', 'user')
+    public function fetchById($id,$firstOrFail = true) {
+        $query = Test::with('segments.tasks', 'users', 'user')
                    ->where('id', $id)
                    ->whereIn('lesson_id', self::getApprovedLessonIds())
-                   ->withSegmentTaskAnswers()
-                   ->firstOrFail();
+                   ->withSegmentTaskAnswers();
+
+        return $firstOrFail ? $query->firstOrFail() : $query->first();
     }
 
     public function setById($id) {
@@ -123,8 +124,8 @@ class TestService implements TestServiceInterface {
     }
 
     public function updateOrCreate($id, $fields, $segments) {
-        $existing = $this->fetchById($id);
-        if(!in_array($existing->status,[TestStatus::PUBLISHED,TestStatus::DRAFT])){
+        $existing = $this->fetchById($id,false);
+        if(!is_null($existing) && !in_array($existing->status,[TestStatus::PUBLISHED,TestStatus::DRAFT])){
             abort(400,'You cannot update this test');
         }
         $test = Test::updateOrCreate(['id' => $id], $fields);
