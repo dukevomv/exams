@@ -126,7 +126,7 @@
           <input type="text" class="margin-bottom-15 form-control search-field" placeholder="Search">
           <div class="btn-group dropdown-custom">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              @if($test) {{$lessons->where('id', $test->lesson_id)->first()->name}} @else Lesson @endif <span class="caret"></span>
+              @if($test) {{$lessons->where('id', $test->lesson_id)->first()->name}} @else Course @endif <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
               <li class="@if(!$test) active @endif dropdown-value-default"><a href="#" data-dropdown-value="default">Lesson</a></li>
