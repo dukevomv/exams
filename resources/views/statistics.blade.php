@@ -7,7 +7,7 @@
             <div class="col-md-4">
                 <div class="jumbotron text-center">
                     <h1>{{$lessons}} </h1>
-                    <h4>Total Lessons</h4>
+                    <h4>Total Courses</h4>
                     <h1><i class="fa fa-book" aria-hidden="true"></i></h1>
                 </div>
             </div>

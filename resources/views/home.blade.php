@@ -106,7 +106,7 @@
                             'title' => 'URL filters on Lists and Search',
                             'date' => '11 May 2018',
                             'tags' => ['front'],
-                            'body' => '<p><b>Filters</b> are available to all lists <b>Users</b>, <b>Lessons</b> and <b>Tests</b>inside url for permanent and sharable filtering.</p>
+                            'body' => '<p><b>Filters</b> are available to all lists <b>Users</b>, <b>Courses</b> and <b>Tests</b>inside url for permanent and sharable filtering.</p>
                                 <p><b>Search</b> is also added to the lists and provides the ability to look into custom fields based on the list.</p>'
                         ],
                         [
@@ -171,11 +171,11 @@
                             </p>'
                         ],
                         [
-                            'title' => 'Lessons Logic',
+                            'title' => 'Courses Logic',
                             'date' => '23 August 2017',
                             'tags' => ['front','back'],
                             'body' => '<p>
-                                A new Tab <a href="'.url('/lessons').'" target="_blank">Lessons</a> is added to the
+                                A new Tab <a href="'.url('/lessons').'" target="_blank">Courses</a> is added to the
                                 Navigation Bar, along with its
                                 own basic listing functionalities.
                             </p>

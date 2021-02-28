@@ -74,19 +74,19 @@
           <div class="panel-body">
             <div class="col-md-2 row-margin-bottom">
               <input type="hidden" id="segment-id" @if($segment) value="{{$segment->id}}" @endif>
-              <label>Lesson:</label>
+              <label>Course:</label>
               <div class="btn-group dropdown-custom">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  @if($segment) {{$lessons->where('id', $segment->lesson_id)->first()->name}} @else Select Lesson @endif <span class="caret"></span>
+                  @if($segment) {{$lessons->where('id', $segment->lesson_id)->first()->name}} @else Select Course @endif <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                  <li class="@if(!$segment) active @endif dropdown-value-default"><a href="#" data-dropdown-value="default">Select Lesson</a></li>
+                  <li class="@if(!$segment) active @endif dropdown-value-default"><a href="#" data-dropdown-value="default">Select Course</a></li>
                   @foreach($lessons as $lesson)
                     <li @if($segment && $segment->lesson_id == $lesson->id) class="active" @endif><a href="#" data-dropdown-value="{{$lesson->id}}">{{$lesson->name}}</a></li>
                   @endforeach
                 </ul>
                 <select class="hidden dropdown-select" id="segment-lesson">
-                  <option value="default">Select Lesson</option>
+                  <option value="default">Select Course</option>
                   @foreach($lessons as $lesson)
                     <option value="{{$lesson->id}}"  @if($segment && $segment->lesson_id == $lesson->id) selected @endif>{{$lesson->name}}</option>
                   @endforeach

@@ -57,7 +57,7 @@
                             </li>
                         @endif
                             <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
-                                <a href="{{ url('/lessons') }}">Lessons</a>
+                                <a href="{{ url('/lessons') }}">Courses</a>
                             </li>
                         @if(\App\Util\UserIs::professorOrStudent($user))
                             <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">

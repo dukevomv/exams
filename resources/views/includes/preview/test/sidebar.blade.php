@@ -9,7 +9,7 @@
             <p>{{$test['description']}}</p>
         </div>
         <div class="panel-body">
-            <p><strong>Lesson: </strong>{{ $test['lesson'] }}</p>
+            <p><strong>Course: </strong>{{ $test['lesson'] }}</p>
             <p><strong>Scheduled at: </strong>{{$test['scheduled_at']}}</p>
             <p><strong>Total duration: </strong>{{$test['duration']}}</p>
             <p><strong>Status: </strong>{{ucfirst($test['status'])}}</p>

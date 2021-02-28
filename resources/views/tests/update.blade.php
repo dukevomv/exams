@@ -35,20 +35,20 @@
             </div>
             
             <div class="col-md-4 row-margin-bottom">
-              <label>Lesson:</label>
+              <label>Course:</label>
               <div class="btn-group dropdown-custom col-xs-12 no-padding">
                 <button type="button" class="btn btn-default dropdown-toggle btn-block btn-dropdown-overflow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <span class="btn-label">@if($test) {{$lessons->where('id', $test->lesson_id)->first()->name}} @else Select Lesson @endif</span>
+                  <span class="btn-label">@if($test) {{$lessons->where('id', $test->lesson_id)->first()->name}} @else Select Course @endif</span>
                   <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                  <li class="@if(!$test) active @endif dropdown-value-default"><a href="#" data-dropdown-value="default">Select Lesson</a></li>
+                  <li class="@if(!$test) active @endif dropdown-value-default"><a href="#" data-dropdown-value="default">Select Course</a></li>
                   @foreach($lessons as $lesson)
                     <li @if($test && $test->lesson_id == $lesson->id) class="active" @endif><a href="#" data-dropdown-value="{{$lesson->id}}">{{$lesson->name}}</a></li>
                   @endforeach
                 </ul>
                 <select class="hidden dropdown-select" id="test-lesson">
-                  <option value="default">Select Lesson</option>
+                  <option value="default">Select Course</option>
                   @foreach($lessons as $lesson)
                     <option value="{{$lesson->id}}"  @if($test && $test->lesson_id == $lesson->id) selected @endif>{{$lesson->name}}</option>
                   @endforeach

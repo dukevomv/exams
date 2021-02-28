@@ -17,7 +17,7 @@
                   }
                 }
                 ?>
-                Lesson: {{$selected_lesson}} <span class="caret"></span>
+                Course: {{$selected_lesson}} <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
                 <li @if(Request::input('lesson','') == '')class="active"@endif><a href="{{route('tests_index',Request::except('page','lesson'))}}">All</a></li>

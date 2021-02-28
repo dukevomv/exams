@@ -6,7 +6,7 @@
         After generating your demo session
         <ul class="text-lg">
             <li>Users of all roles will be created and approved: <b>Admin, Professor, Student</b>.</li>
-            <li>A <b>Lesson</b> will be created with Student and Professor registered on it.</li>
+            <li>A <b>Course</b> will be created with Student and Professor registered on it.</li>
             <li>A <b>Draft test</b> created by Professor with no students attached on it.</li>
             <li>A <b>Scheduled test</b> created by Professor with Student registered on it.</li>
             <li>A <b>Started test</b> created by Professor with Student currently taking it.</li>
