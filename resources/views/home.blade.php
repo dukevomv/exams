@@ -18,6 +18,7 @@
                     @include('includes.demo-jumbotron')
                 @else
                     <div class="jumbotron">
+                        <img class="col-xs-4 pull-right" src="{{URL::to('images/professor.png')}}" alt="professor-illustration">
                         <h1>Hi, {{Auth::user()->name}}</h1>
                         <p><span class="label label-danger">NEW</span><br>The Current feature is added in the latest
                             group of updates.</p>

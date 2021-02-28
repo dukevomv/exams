@@ -1,6 +1,6 @@
 @if(config('app.demo.enabled') && !Session::has('demo'))
-        <img class="col-xs-5 col-xs-offset-3" src="{{URL::to('images/professor.png')}}" alt="professor-illustration">
     <div class="jumbotron">
+        <img class="col-xs-4 pull-right" src="{{URL::to('images/professor.png')}}" alt="professor-illustration">
         <h1>DEMO Mode</h1>
         <p>The current environment can be used as <b>DEMO</b> mode. <br>You can generate some <b>test data</b> in
             order to try the platform and it's features.</p>
