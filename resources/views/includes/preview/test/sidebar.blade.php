@@ -140,16 +140,22 @@
                     <h3 class="panel-title">Results</h3>
                 </div>
                 <div class="panel-body">
-                    <span>Participated: <b>{{$test['stats']['students']['participated']}}/{{$test['stats']['students']['participated']+$test['stats']['students']['dodged']}} students</b></span>
+                    <span>Participated: <b>{{$test['stats']['students']['participated']}}/{{$test['stats']['students']['total']}} students</b></span>
                     <br>
                     <span>Above 50%: <b>{{$test['stats']['students']['passed']}} students</b></span>
                     <br>
+                    <br>
+                    <span>Graded: <b>{{$test['stats']['students']['graded']}}/{{$test['stats']['students']['total']}} students</b></span>
                     <br>
                     <span>Minimum: <b>{{$test['stats']['min']}}</b></span>
                     <br>
                     <span>Maximum: <b>{{$test['stats']['max']}}</b></span>
                     <br>
+                    <span>Range: <b>{{$test['stats']['range']}}</b></span>
+                    <br>
                     <span>Average: <b>{{$test['stats']['average']}}</b></span>
+                    <br>
+                    <span>Standard Deviation: <b>{{$test['stats']['standard_deviation']}}</b></span>
                 </div>
             </div>
         @endif

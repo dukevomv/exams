@@ -447,10 +447,13 @@ class TestService implements TestServiceInterface {
         if(count($users) == 0){
             return null;
         }
+        $total = self::calculateTotalPoints($segments);
         $results = [
             'max' => 0,
-            'min' => 0,
-            'test_max_points' => self::calculateTotalPoints($segments),
+            'min' => $total,
+            'range' => 0,
+            'standard_deviation' => 0,
+            'test_max_points' => $total,
             'sum_total_points' => 0,
             'sum_given_points' => 0,
             'students' => [
@@ -458,33 +461,39 @@ class TestService implements TestServiceInterface {
                 'participated' => 0,
                 'passed' => 0,
                 'dodged' => 0,
+                'total' => 0,
             ]
         ];
-        $results['baseline'] = $results['test_max_points']/2;
+        $results['baseline'] = $total/2;
+        $gradesArr = [];
         foreach($users as $user){
+            $results['students']['total']++;
             if(in_array($user['status'],[TestUserStatus::REGISTERED,TestUserStatus::LEFT])){
                 $results['students']['dodged']++;
             } else {
                 $results['students']['participated']++;
                 if($user['status'] === TestUserStatus::GRADED) {
                     $results['students']['graded']++;
+                    $gradesArr[] = $user['given_points'];
+                    $results['sum_total_points'] += $user['total_points'];
+                    $results['sum_given_points'] += $user['given_points'];
+                    if($results['max'] < $user['given_points'])
+                        $results['max'] = $user['given_points'];
+                    if($results['min'] > $user['given_points'])
+                        $results['min'] = $user['given_points'];
+                    if($results['baseline'] < $user['given_points'])
+                        $results['students']['passed']++;
                 }
-                $results['sum_total_points'] += $user['total_points'];
-                $results['sum_given_points'] += $user['given_points'];
-                if($results['max'] < $user['given_points'])
-                    $results['max'] = $user['given_points'];
-                if($results['min'] > $user['given_points'])
-                    $results['min'] = $user['given_points'];
-                if($results['baseline'] < $user['given_points'])
-                    $results['students']['passed']++;
             }
         }
-        if($results['students']['participated'] == 0 || $results['test_max_points'] == 0){
+        if($results['students']['participated'] == 0 || $total == 0 || ($results['students']['graded'] == 0)){
             return null;
         }
-        $results['average'] = Points::getWithPercentage(round($results['sum_given_points']/$results['students']['participated'],2),$results['test_max_points']);
-        $results['min'] = Points::getWithPercentage($results['min'],$results['test_max_points']);
-        $results['max'] = Points::getWithPercentage($results['max'],$results['test_max_points']);
+        $results['average'] = Points::getWithPercentage(round($results['sum_given_points']/$results['students']['participated'],2),$total);
+        $results['range'] = Points::getWithPercentage($results['max'] - $results['min'],$total);
+        $results['min'] = Points::getWithPercentage($results['min'],$total);
+        $results['max'] = Points::getWithPercentage($results['max'],$total);
+        $results['standard_deviation'] = Points::getWithPercentage(Points::calcStandardDeviation($gradesArr),$total);
         return $results;
     }
 
