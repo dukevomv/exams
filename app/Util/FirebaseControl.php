@@ -4,10 +4,10 @@ namespace App\Util;
 
 class FirebaseControl {
 
-    public static function createOrUpdate($path,$payload) {
+    public static function createOrUpdate($path, $payload) {
         if (config('services.firebase.enabled')) {
             $firebase = app('firebase');
-            $firebase->update($payload,$path);
+            $firebase->update($payload, $path);
         }
     }
 }

@@ -48,13 +48,13 @@ class TestController extends Controller {
         ]);
 
         $fields = $request->only(['lesson_id', 'name', 'description', 'scheduled_at', 'duration', 'status']);
-        if($fields['status'] == TestStatus::DRAFT){
+        if ($fields['status'] == TestStatus::DRAFT) {
             $fields['scheduled_at'] = null;
-        }elseif ($fields['status'] == TestStatus::PUBLISHED && array_key_exists('scheduled_at', $fields) && !is_null($fields['scheduled_at'])) {
+        } elseif ($fields['status'] == TestStatus::PUBLISHED && array_key_exists('scheduled_at', $fields) && !is_null($fields['scheduled_at'])) {
             $fields['scheduled_at'] = Carbon::createFromFormat('Y-m-d\TH:i', $fields['scheduled_at']);
         }
 
-        return $this->service->updateOrCreate($request->input('id', null),$fields,$request->input('segments', []));
+        return $this->service->updateOrCreate($request->input('id', null), $fields, $request->input('segments', []));
     }
 
     public function delete($id = null) {
@@ -72,7 +72,7 @@ class TestController extends Controller {
                     ->with('users')->first();
 
         if (is_null($test)) {
-            abort(400,'You can not start this test.');
+            abort(400, 'You can not start this test.');
         }
 //        if (!Carbon::parse($test->scheduled_at)->isToday()) {
 //            return back()->with(['error' => 'This test can not start today.']);
@@ -81,7 +81,7 @@ class TestController extends Controller {
             return $value->pivot->status == 'registered';
         });
         if (count($registered_users) == 0) {
-            abort(400,'This test require registered users to start.');
+            abort(400, 'This test require registered users to start.');
         }
         $test->start();
         if ($request->wantsJson()) {
@@ -96,7 +96,7 @@ class TestController extends Controller {
                     ->where('status', TestStatus::STARTED)
                     ->first();
         if (is_null($test)) {
-            abort(400,'You can not finish this test.');
+            abort(400, 'You can not finish this test.');
         }
         $test->finish();
         if ($request->wantsJson()) {
@@ -134,6 +134,7 @@ class TestController extends Controller {
         $this->service->autoGradeUsers();
         return back();
     }
+
     public function publishGrades($id) {
         $this->service->setById($id);
         $this->service->publishTestGrades();
@@ -163,28 +164,28 @@ class TestController extends Controller {
     public function exportCSV($id, Request $request) {
         $test = $this->service->setById($id);
 
-        $filename = $test->name.' - '.Carbon::now()->toDateString();
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=".$filename.".csv",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0"
-        );
+        $filename = $test->name . ' - ' . Carbon::now()->toDateString();
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=" . $filename . ".csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0",
+        ];
 
-        $columns = array('Student ID','Student Name','Grade','Total','Percentage');
+        $columns = ['Student ID', 'Student Name', 'Grade', 'Total', 'Percentage'];
         $students = [];
-        foreach($this->service->toArrayUsers() as $st){
-            if($st['status'] === TestUserStatus::GRADED){
-                $percentage = Points::getPercentage($st['given_points'],$st['total_points']);
-                $students[] = [$st['id'],$st['name'],$st['given_points'],$st['total_points'],$percentage];
+        foreach ($this->service->toArrayUsers() as $st) {
+            if ($st['status'] === TestUserStatus::GRADED) {
+                $percentage = Points::getPercentage($st['given_points'], $st['total_points']);
+                $students[] = [$st['id'], $st['name'], $st['given_points'], $st['total_points'], $percentage];
             }
         }
 
-        $callback = function() use ($students, $columns) {
+        $callback = function () use ($students, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
-            foreach($students as $s) {
+            foreach ($students as $s) {
                 fputcsv($file, $s);
             }
             fclose($file);

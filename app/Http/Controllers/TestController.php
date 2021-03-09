@@ -21,7 +21,7 @@ class TestController extends Controller {
 
     public function index(Request $request) {
         $lessons = Lesson::approved()->get();
-        $filters = $request->only(['search', 'lesson','status']);
+        $filters = $request->only(['search', 'lesson', 'status']);
         $filters['paginate'] = General::DEFAULT_PAGINATION;
 
         return view('tests.index', [

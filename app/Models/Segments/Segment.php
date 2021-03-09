@@ -12,7 +12,7 @@ class Segment extends Model {
 
     use Searchable;
 
-    private $search = ['title', 'description'];
+    private $search   = ['title', 'description'];
     public  $fillable = ['lesson_id', 'title', 'description'];
 
     public function lesson() {
