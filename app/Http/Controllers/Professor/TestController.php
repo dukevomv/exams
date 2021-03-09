@@ -42,7 +42,7 @@ class TestController extends Controller {
             'description'  => 'required|string',
             'status'       => 'required|string|in:' . TestStatus::DRAFT . ',' . TestStatus::PUBLISHED,
             'scheduled_at' => 'required_if:status,' . TestStatus::PUBLISHED . '|nullable|date_format:Y-m-d\TH:i|after:today',
-            'duration'     => 'nullable|integer',
+            'duration'     => 'nullable|integer|max:500',
             'tasks'        => 'array',
             'tasks.*'      => 'required|integer|segments,id',
         ]);
