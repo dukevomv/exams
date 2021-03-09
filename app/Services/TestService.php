@@ -511,7 +511,7 @@ class TestService implements TestServiceInterface {
         return $this->test->publishProfessorGrade($student->id);
     }
 
-    private function toArrayUsers() {
+    public function toArrayUsers() {
         $data = [];
         foreach ($this->test->users as $u) {
             $data[] = self::toArrayUser($u);

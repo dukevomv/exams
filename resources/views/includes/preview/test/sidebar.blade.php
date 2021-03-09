@@ -158,6 +158,14 @@
                     <span>Standard Deviation: <b>{{$test['stats']['standard_deviation']}}</b></span>
                 </div>
             </div>
+
+            <div class="panel">
+                <div class="panel-body">
+                    <a href="{{URL::to('tests/'.$test['id'].'/export-csv')}}"><i class="fa fa-download"></i> Export grades in CSV</a>
+                </div>
+            </div>
+
+
         @endif
 
 </div>

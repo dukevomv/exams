@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Professor;
 
 use App\Enums\TestStatus;
+use App\Enums\TestUserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use App\Models\Test;
 use App\Services\TestServiceInterface;
+use App\Util\Points;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Log;
@@ -156,5 +158,37 @@ class TestController extends Controller {
         //todo make sure grades are publishable
         $test->publishProfessorGrade($userId);
         return [];
+    }
+
+    public function exportCSV($id, Request $request) {
+        $test = $this->service->setById($id);
+
+        $filename = $test->name.' - '.Carbon::now()->toDateString();
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=".$filename.".csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+
+        $columns = array('Student ID','Student Name','Grade','Total','Percentage');
+        $students = [];
+        foreach($this->service->toArrayUsers() as $st){
+            if($st['status'] === TestUserStatus::GRADED){
+                $percentage = Points::getPercentage($st['given_points'],$st['total_points']);
+                $students[] = [$st['id'],$st['name'],$st['given_points'],$st['total_points'],$percentage];
+            }
+        }
+
+        $callback = function() use ($students, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            foreach($students as $s) {
+                fputcsv($file, $s);
+            }
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
     }
 }

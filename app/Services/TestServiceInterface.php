@@ -21,6 +21,7 @@ interface TestServiceInterface {
     public function prepareForPublish();
 
     public function toArray();
+    public function toArrayUsers();
     public function toArraySegments();
     public function toArraySegment($s,$fromPublished);
 }

@@ -84,6 +84,7 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('create', 'TestController@updateView');
                 Route::get('{id}/edit', 'TestController@updateView');
                 Route::get('{id}/delete', 'TestController@delete');
+                Route::get('{id}/export-csv', 'TestController@exportCSV');
 
                 Route::post('update', 'TestController@update');
                 Route::post('{id}/edit', 'TestController@update');
