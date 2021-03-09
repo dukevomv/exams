@@ -31,6 +31,25 @@
                 @php
                     $new_commits = [
                         [
+                            'title' => 'Export to CSV',
+                            'date' => '9 March 2021',
+                            'tags' => ['back','front'],
+                            'body' => '<p>Allow professors to export test grades to csv.</p>'
+                        ],
+                        [
+                            'title' => 'Grading stats',
+                            'date' => '7 March 2021',
+                            'tags' => ['back','front'],
+                            'body' => '<p>Calculate grade range and standard deviation on test pages - professor view only.</p>'
+                        ]
+                    ];
+
+                    for($i=0;$i<count($new_commits);$i++){
+                        $new_commits[$i]['tags'][] = 'new';
+                    }
+
+                    $commits = array_merge($new_commits,[
+                        [
                             'title' => 'Auto Grading Tests',
                             'date' => '8 February 2021',
                             'tags' => ['back','front'],
@@ -54,13 +73,6 @@
                             'tags' => ['front','back'],
                             'body' => '<p>All users now can have <b>OTP</b> as a second step verification after they login.</p>'
                         ],
-                    ];
-
-                    for($i=0;$i<count($new_commits);$i++){
-                        $new_commits[$i]['tags'][] = 'new';
-                    }
-
-                    $commits = array_merge($new_commits,[
                         [
                             'title' => 'Test Grading',
                             'date' => '4 January 2021',
