@@ -180,10 +180,14 @@
     @if(true)
         <div class="panel panel-warning">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-info-circle"></i> Button Info</h3>
+                <h3 class="panel-title"><i class="fa fa-info-circle"></i> Action Info</h3>
             </div>
             <ul class="list-group">
                 @if($userIsStudent)
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseTimer" aria-expanded="true" aria-controls="collapseTimer"><b>Timer</b></a>
+                        <div id="collapseTimer" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseTimer">Start and Finish are initiated by the Professor only.<br><b>You can still submit your answers even when timer is 00:00 if the test is not Finished.</b></div>
+                    </li>
                     <li class="list-group-item">
                         <a class="text-muted" role="button" data-toggle="collapse" href="#collapseLeave" aria-expanded="true" aria-controls="collapseLeave"><b>Leave Test</b></a>
                         <div id="collapseLeave" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseLeave">Removes student from the current examination.<br><i>After leaving you will not be able to register again.</i></div>
@@ -197,6 +201,10 @@
                         <div id="collapseSubmit" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseSubmit">Submits your answers in order to be graded.<br><i>Answers can be submitted multiple times throughout the test examination.</i></div>
                     </li>
                 @elseif($userIsProfessor)
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseTimer" aria-expanded="true" aria-controls="collapseTimer"><b>Timer</b></a>
+                        <div id="collapseTimer" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseTimer">Start and Finish are initiated by the Professor only.<br><b>You can give extra time to your students by waiting after the timer has gone to 00:00.</b></div>
+                    </li>
                     <li class="list-group-item">
                         <a class="text-muted" role="button" data-toggle="collapse" href="#collapseStart" aria-expanded="true" aria-controls="collapseStart"><b>Start in 30"</b></a>
                         <div id="collapseStart" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseStart">Starts the examination process and shows the segment questions to students.<br><i>Has 30" delay for students to prepare.</i></div>
