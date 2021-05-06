@@ -69,7 +69,7 @@ class SegmentController extends Controller {
             'description'         => 'required|string',
             'tasks'               => 'array',
             'tasks.*.type'        => 'required|string',
-            'tasks.*.points'      => 'required|integer|max:255',
+            'tasks.*.points'      => 'required|integer|min:0|not_in:0|max:255',
             'tasks.*.description' => 'required|string',
             'tasks.*.position'    => 'required|integer|max:255',
         ]);
