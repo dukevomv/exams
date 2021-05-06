@@ -37395,6 +37395,9 @@ try {
     window.moment = __webpack_require__(0);
     __webpack_require__(304);
     window.queryString = __webpack_require__(305);
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
 } catch (e) {
     console.error(e);
 }

@@ -1,5 +1,17 @@
 <div class="sidebar col-xs-5 fixed-toolbar">
-    @if(array_key_exists('for_student',$test))
+
+    @php
+        $showBackButton = array_key_exists('for_student',$test);
+        $userIsProfessor = Auth::user()->role === \App\Enums\UserRole::PROFESSOR;
+        $userIsStudent = Auth::user()->role === \App\Enums\UserRole::STUDENT;
+        $testIsPublished = $test['status'] === \App\Enums\TestStatus::PUBLISHED;
+        $testIsStarted = $test['status'] === \App\Enums\TestStatus::STARTED;
+        $testIsFinished = $test['status'] === \App\Enums\TestStatus::FINISHED;
+        $testIsGraded = $test['status'] === \App\Enums\TestStatus::GRADED;
+        $showResults = isset($test['stats']) && !array_key_exists('for_student',$test);
+    @endphp
+
+    @if($showBackButton)
         <span><a href="{{URL::to('/tests/'.$test['id'])}}"><i class="fa fa-arrow-left"></i> Back</a></span>
         <h3>{{$test['for_student']['name']}}</h3>
     @endif
@@ -31,16 +43,16 @@
                 <div id="test-timer" class="test-timer"></div>
             </li>
             <div class="test-actions margin-top-30">
-                @if (Auth::user()->role == 'professor')
+                @if($userIsProfessor)
                     <div class="margin-bottom-15 clearfix">
-                        @if ($test['status'] == \App\Enums\TestStatus::PUBLISHED)
+                        @if($testIsPublished)
                             <button type="button" class="btn btn-success" id="start-test">Start in 30"
                             </button>
-                        @elseif ($test['status'] == \App\Enums\TestStatus::STARTED)
+                        @elseif ($testIsStarted)
                             <button type="button" class="btn btn-danger" id="finish-test">Finish in
                                 30"
                             </button>
-                        @elseif ($test['status'] == \App\Enums\TestStatus::FINISHED && !$timer['in_delay'])
+                        @elseif ($testIsFinished && !$timer['in_delay'])
                             @if(array_key_exists('for_student',$test))
                                 <button type="button" class="btn btn-success" id="publish-grade"
                                         @if(!$test['for_student']['publishable'] || !$test['for_student']['gradable']) disabled @endif>Publish Grades
@@ -52,7 +64,7 @@
                                 <small><i class="fa fa-warning"></i> To publish student's grades you must first save
                                     each task's points.</small>
                             @else
-                                @if(Auth::user()->role == 'professor' && $test['status'] == \App\Enums\TestStatus::FINISHED)
+                                @if($userIsProfessor && $testIsFinished)
                                     <button type="button" class="btn btn btn-success margin-bottom-15" id="publish-test-grades" @if(!$test['grades_publishable']) disabled @endif>Publish Grades</button>
                                 @endif
                                 <button type="button" class="btn btn-primary" id="auto-calculate-test"
@@ -65,7 +77,7 @@
                             @endif
                         @endif
                     </div>
-                @elseif (Auth::user()->role == 'student')
+                @elseif($userIsStudent)
                     <div class="margin-bottom-15 clearfix">
                         @if(!array_key_exists('current_user',$test))
                             @if (in_array($test['status'],[\App\Enums\TestStatus::PUBLISHED,\App\Enums\TestStatus::STARTED]))
@@ -84,7 +96,7 @@
                                 </form>
                             @endif
                         @elseif(in_array($test['current_user']['status'],[\App\Enums\TestUserStatus::REGISTERED,\App\Enums\TestUserStatus::PARTICIPATED]))
-                            @if ($test['status'] == \App\Enums\TestStatus::PUBLISHED)
+                            @if ($testIsPublished)
                                 <form method="POST" action="{{URL::to('tests')}}/{{ $test['id'] }}/leave"
                                       class="confirm-form" data-confirm-action="Leave"
                                       data-confirm-title="After leaving you will not be able to register again.">
@@ -93,9 +105,9 @@
                                         Test
                                     </button>
                                 </form>
-                            @elseif (Auth::user()->role == \App\Enums\UserRole::STUDENT
-                                    && (($test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay'])
-                                        || ($test['status'] == \App\Enums\TestStatus::FINISHED && $timer['in_delay'])))
+                            @elseif ($userIsStudent
+                                    && (($testisStarted && !$timer['in_delay'])
+                                        || ($testIsFinished && $timer['in_delay'])))
                                 <button type="button" class="btn btn-success"
                                         id="save-test" @if(!$test['current_user']['has_draft']) disabled @endif>
                                     Submit @if($test['current_user']['has_draft']) (1) @endif</button>
@@ -109,7 +121,7 @@
                 @endif
             </div>
         </div>
-        @if ((Auth::user()->role == 'professor' && $test['status'] == \App\Enums\TestStatus::FINISHED) || (isset($timer) && $test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay']))
+        @if (($userIsProfessor && $testIsFinished) || (isset($timer) && $testIsStarted && !$timer['in_delay']))
             <div id="segment-list" class="list-group">
                 @foreach($test['segments'] as $segment)
                     @php
@@ -126,7 +138,7 @@
         @endif
     </div>
 
-    @if (Auth::user()->role == 'student' && $test['status'] == 'started' && isset($test->user_on_test) && $test->user_on_test->pivot->status == 'registered')
+    @if ($userIsStudent && $testIsStarted && isset($test->user_on_test) && $test->user_on_test->pivot->status == 'registered')
         <form method="POST" action="{{URL::to('tests')}}/{{ $test['id'] }}/leave" class="confirm-form"
               data-confirm-action="Leave"
               data-confirm-title="After leaving you will not be able to register again.">
@@ -134,38 +146,84 @@
             <button type="submit" class="btn btn-danger" id="test-leave">Leave Test</button>
         </form>
     @endif
-        @if(isset($test['stats']) && !array_key_exists('for_student',$test))
-            <div class="panel panel-success">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Results</h3>
-                </div>
-                <div class="panel-body">
-                    <span>Participated: <b>{{$test['stats']['students']['participated']}}/{{$test['stats']['students']['total']}} students</b></span>
-                    <br>
-                    <span>Above 50%: <b>{{$test['stats']['students']['passed']}} students</b></span>
-                    <br>
-                    <br>
-                    <span>Graded: <b>{{$test['stats']['students']['graded']}}/{{$test['stats']['students']['total']}} students</b></span>
-                    <br>
-                    <span>Minimum: <b>{{$test['stats']['min']}}</b></span>
-                    <br>
-                    <span>Maximum: <b>{{$test['stats']['max']}}</b></span>
-                    <br>
-                    <span>Range: <b>{{$test['stats']['range']}}</b></span>
-                    <br>
-                    <span>Average: <b>{{$test['stats']['average']}}</b></span>
-                    <br>
-                    <span>Standard Deviation: <b>{{$test['stats']['standard_deviation']}}</b></span>
-                </div>
+    @if($showResults)
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3 class="panel-title">Results</h3>
             </div>
-
-            <div class="panel">
-                <div class="panel-body">
-                    <a href="{{URL::to('tests/'.$test['id'].'/export-csv')}}"><i class="fa fa-download"></i> Export grades in CSV</a>
-                </div>
+            <div class="panel-body">
+                <span>Participated: <b>{{$test['stats']['students']['participated']}}/{{$test['stats']['students']['total']}} students</b></span>
+                <br>
+                <span>Above 50%: <b>{{$test['stats']['students']['passed']}} students</b></span>
+                <br>
+                <br>
+                <span>Graded: <b>{{$test['stats']['students']['graded']}}/{{$test['stats']['students']['total']}} students</b></span>
+                <br>
+                <span>Minimum: <b>{{$test['stats']['min']}}</b></span>
+                <br>
+                <span>Maximum: <b>{{$test['stats']['max']}}</b></span>
+                <br>
+                <span>Range: <b>{{$test['stats']['range']}}</b></span>
+                <br>
+                <span>Average: <b>{{$test['stats']['average']}}</b></span>
+                <br>
+                <span>Standard Deviation: <b>{{$test['stats']['standard_deviation']}}</b></span>
             </div>
+        </div>
 
-
-        @endif
+        <div class="panel">
+            <div class="panel-body">
+                <a href="{{URL::to('tests/'.$test['id'].'/export-csv')}}"><i class="fa fa-download"></i> Export grades in CSV</a>
+            </div>
+        </div>
+    @endif
+    @if(true)
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-info-circle"></i> Button Info</h3>
+            </div>
+            <ul class="list-group">
+                @if($userIsStudent)
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseLeave" aria-expanded="true" aria-controls="collapseLeave"><b>Leave Test</b></a>
+                        <div id="collapseLeave" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseLeave">Removes student from the current examination.<br><i>After leaving you will not be able to register again.</i></div>
+                    </li>
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseSave" aria-expanded="true" aria-controls="collapseSave"><b>Save as Draft</b></a>
+                        <div id="collapseSave" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseSave">Saves your answers in order to not lose your current progress.<br><i>Answers can be saved multiple times throughout the test examination.</i></div>
+                    </li>
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseSubmit" aria-expanded="true" aria-controls="collapseSubmit"><b>Submit</b></a>
+                        <div id="collapseSubmit" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseSubmit">Submits your answers in order to be graded.<br><i>Answers can be submitted multiple times throughout the test examination.</i></div>
+                    </li>
+                @elseif($userIsProfessor)
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseStart" aria-expanded="true" aria-controls="collapseStart"><b>Start in 30"</b></a>
+                        <div id="collapseStart" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseStart">Starts the examination process and shows the segment questions to students.<br><i>Has 30" delay for students to prepare.</i></div>
+                    </li>
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseFinish" aria-expanded="true" aria-controls="collapseFinish"><b>Finish in 30"</b></a>
+                        <div id="collapseFinish" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseFinish">Finishes the test and stops students from being able to submit new answers.<br><i>Has 30" delay for students to prepare.</i></div>
+                    </li>
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseAutoCalc" aria-expanded="true" aria-controls="collapseAutoCalc"><b>Auto Calculate Grades</b></a>
+                        <div id="collapseAutoCalc" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseAutoCalc">Calculates student's grades and saves them.<br><i>Available when Test does not include task types that can not be auto graded. (Free Text)</i></div>
+                    </li>
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseAutoSave" aria-expanded="true" aria-controls="collapseAutoSave"><b>Save Auto</b></a>
+                        <div id="collapseAutoSave" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseAutoSave">Saves student answers only on auto-gradable task types.<br><i>Available only when previewing the a student's answers</i></div>
+                    </li>
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapsePublishGrades" aria-expanded="true" aria-controls="collapsePublishGrades"><b>Publish Grades</b></a>
+                        <div id="collapsePublishGrades" class="collapse collapsed" role="tabpanel" aria-labelledby="collapsePublishGrades">Makes saved grades available for student to see.<br><i>To publish student's grades you must first save each task's points (blue button).</i></div>
+                    </li>
+                    <li class="list-group-item">
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseExport" aria-expanded="true" aria-controls="collapseExport"><b>Export grades in CSV</b></a>
+                        <div id="collapseExport" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseExport">Downloads grades and student data into a CSV file</div>
+                    </li>
+                @endif
+            </ul>
+        </div>
+    @endif
 
 </div>
