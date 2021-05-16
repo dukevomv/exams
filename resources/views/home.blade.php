@@ -31,16 +31,22 @@
                 @php
                     $new_commits = [
                         [
+                            'title' => 'Demo Data Exclusion',
+                            'date' => '16 May 2021',
+                            'tags' => ['back'],
+                            'body' => '<p><b>Exclude</b> Demo data when user login normally.<br>Also <b>include</b> only current user\'s data when in demo mode.</p>'
+                        ],
+                        [
                             'title' => 'Image support',
                             'date' => '15 May 2021',
                             'tags' => ['back','front'],
-                            'body' => '<p>Allow professors to include images in the segment tasks.</p>'
+                            'body' => '<p>Allow professors to include <b>images</b> in the segment tasks.</p>'
                         ],
                         [
                             'title' => 'Test Guidelines',
                             'date' => '13 May 2021',
                             'tags' => ['front'],
-                            'body' => '<p>Explain the actions each user can do during the examination time. Including student and professor\'s buttons</p>'
+                            'body' => '<p><b>Explain the actions</b> each user can do during the examination time. Including student and professor\'s buttons</p>.'
                         ]
                     ];
 
@@ -53,13 +59,13 @@
                             'title' => 'Export to CSV',
                             'date' => '9 March 2021',
                             'tags' => ['back','front'],
-                            'body' => '<p>Allow professors to export test grades to csv.</p>'
+                            'body' => '<p>Allow professors to <b>export</b> test grades to csv.</p>'
                         ],
                         [
                             'title' => 'Grading stats',
                             'date' => '7 March 2021',
                             'tags' => ['back','front'],
-                            'body' => '<p>Calculate grade range and standard deviation on test pages - professor view only.</p>'
+                            'body' => '<p>Calculate <b>grade range and standard deviation</b> on test pages - professor view only.</p>'
                         ],
                         [
                             'title' => 'Auto Grading Tests',

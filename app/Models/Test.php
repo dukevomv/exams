@@ -5,14 +5,14 @@ namespace App\Models;
 use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Exceptions\InvalidOperationException;
+use App\Models\Demo\DemoableModel;
 use App\Models\Segments\Segment;
 use App\Traits\Searchable;
 use App\Util\FirebaseControl;
 use Auth;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 
-class Test extends Model {
+class Test extends DemoableModel {
 
     use Searchable;
 

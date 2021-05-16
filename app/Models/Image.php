@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HandlesUploads;
+use Illuminate\Database\Eloquent\Model;
 
-class Image extends Model
-{
+class Image extends Model {
     use HandlesUploads;
     protected $guarded = [];
     protected $appends = ['url'];

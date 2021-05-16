@@ -40,7 +40,7 @@ return [
         'enabled'       => env('DEMO_ENABLED', false),
         'email_suffix'  => 'exams.wiz',
         'default_role'  => \App\Enums\UserRole::PROFESSOR,
-        'session_field' => 'demo_user_timestamp',
+        'session_field' => 'demo_user_id',
     ],
 
     /*

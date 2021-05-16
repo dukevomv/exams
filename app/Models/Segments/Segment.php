@@ -3,12 +3,12 @@
 namespace App\Models\Segments;
 
 use App\Enums\TaskType;
+use App\Models\Demo\DemoableModel;
 use App\Models\Lesson;
 use App\Models\Test;
 use App\Traits\Searchable;
-use Illuminate\Database\Eloquent\Model;
 
-class Segment extends Model {
+class Segment extends DemoableModel {
 
     use Searchable;
 

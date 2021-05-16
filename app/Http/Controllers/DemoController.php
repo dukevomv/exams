@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Demo\DemoUser;
 use App\Models\User;
 use App\Util\Demo;
 use Illuminate\Http\Request;
@@ -15,22 +16,21 @@ class DemoController extends Controller {
         $request->validate([
             'email' => 'required|email',
         ]);
-        $demoUserTimestamp = Artisan::call('demo:seed', ['email' => $request->email]);
-        Session::put(config('app.demo.session_field'), $demoUserTimestamp);
-        $this->loginUserRole($demoUserTimestamp, config('app.demo.default_role'));
+        $demoUserId = Artisan::call('demo:seed', ['email' => $request->email]);
+        $this->loginUserRole($demoUserId, config('app.demo.default_role'));
         return back();
     }
 
     public function switchRole($role, Request $request) {
         if (Session::has(config('app.demo.session_field'))) {
-            $timestamp = Session::get(config('app.demo.session_field'));
-            $this->loginUserRole($timestamp, $role);
+            $demoUserId = Session::get(config('app.demo.session_field'));
+            $this->loginUserRole($demoUserId, $role);
         }
         return back();
     }
 
-    private function loginUserRole($timestamp, $role) {
-        $user = User::where('email', Demo::generateEmailForRole($timestamp, $role))->first();
-        Auth::login(User::where('email', Demo::generateEmailForRole($timestamp, $role))->first());
+    private function loginUserRole($demoUserId, $role) {
+        $demoUser = DemoUser::where('id',$demoUserId)->first();
+        Auth::login(User::where('email', Demo::generateEmailForRole($demoUser->email_timestamp, $role))->first());
     }
 }

@@ -5,10 +5,10 @@ namespace App\Models;
 use App\Traits\Searchable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Traits\Demoable;
 
 class User extends Authenticatable {
-
-    use Notifiable, Searchable;
+    use Notifiable, Searchable, Demoable;
 
     /**
      * The attributes that are mass assignable.

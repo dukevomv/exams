@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Demo\DemoableModel;
 use App\Traits\Searchable;
 use Auth;
 use DB;
-use Illuminate\Database\Eloquent\Model;
 
-class Lesson extends Model {
+class Lesson extends DemoableModel {
 
     use Searchable;
 

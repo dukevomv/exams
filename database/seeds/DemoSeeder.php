@@ -3,12 +3,14 @@
 use App\Enums\TaskType;
 use App\Enums\TestUserStatus;
 use App\Enums\UserRole;
+use App\Models\Demo\DemoUser;
 use App\Models\User;
 use App\Util\Demo;
 use Carbon\Carbon;
 use Dotenv\Exception\ValidationException;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Tests\Builders\LessonBuilder;
 use Tests\Builders\TestBuilder;
 
@@ -24,7 +26,6 @@ class DemoSeeder extends Seeder {
     /**
      * @param null $email
      *
-     * @return int
      * @throws \ReflectionException
      */
     public function run($email = null) {
@@ -33,7 +34,8 @@ class DemoSeeder extends Seeder {
         }
 
         $timestamp = Carbon::now()->timestamp;
-        $demoUserId = DB::table('demo_users')->insertGetId(['email' => $email, 'email_timestamp' => $timestamp]);
+        $demoUser = DemoUser::create(['email' => $email, 'email_timestamp' => $timestamp]);
+        Session::put(config('app.demo.session_field'), $demoUser->id);
 
         $users = self::generateUsersForEmail($email, $timestamp, [
             UserRole::ADMIN     => 1,
@@ -91,8 +93,8 @@ class DemoSeeder extends Seeder {
             ], $testData[$t]));
         }
 
-        DB::table('demo_users')->where('id', $demoUserId)->update(['finished' => true]);
-        return $timestamp;
+        DemoUser::where('id', $demoUser->id)->update(['finished' => true]);
+        return $demoUser->id;
     }
 
     private static function createPredefinedTest($data) {
