@@ -31,6 +31,25 @@
                 @php
                     $new_commits = [
                         [
+                            'title' => 'Image support',
+                            'date' => '15 May 2021',
+                            'tags' => ['back','front'],
+                            'body' => '<p>Allow professors to include images in the segment tasks.</p>'
+                        ],
+                        [
+                            'title' => 'Test Guidelines',
+                            'date' => '13 May 2021',
+                            'tags' => ['front'],
+                            'body' => '<p>Explain the actions each user can do during the examination time. Including student and professor\'s buttons</p>'
+                        ]
+                    ];
+
+                    for($i=0;$i<count($new_commits);$i++){
+                        $new_commits[$i]['tags'][] = 'new';
+                    }
+
+                    $commits = array_merge($new_commits,[
+                        [
                             'title' => 'Export to CSV',
                             'date' => '9 March 2021',
                             'tags' => ['back','front'],
@@ -41,14 +60,7 @@
                             'date' => '7 March 2021',
                             'tags' => ['back','front'],
                             'body' => '<p>Calculate grade range and standard deviation on test pages - professor view only.</p>'
-                        ]
-                    ];
-
-                    for($i=0;$i<count($new_commits);$i++){
-                        $new_commits[$i]['tags'][] = 'new';
-                    }
-
-                    $commits = array_merge($new_commits,[
+                        ],
                         [
                             'title' => 'Auto Grading Tests',
                             'date' => '8 February 2021',
