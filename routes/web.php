@@ -70,7 +70,14 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('{id}/delete', 'SegmentController@delete');
 
             Route::post('update', 'SegmentController@update');
-            Route::post('{id}/edit', 'SegmentController@update');
+            Route::post('{id}/edit', 'SegmentController@update');//might be deprecated
+        });
+
+        Route::group(['prefix' => 'tasks', 'middleware' => 'can:accessSegments'], function () {
+            //images
+            Route::post('{id}/images', 'ImageController@uploadOnTask');
+            Route::post('{id}/images/{image_id}', 'ImageController@update');
+            Route::post('{id}/images/{image_id}/remove', 'ImageController@remove');
         });
 
         Route::group(['prefix' => 'tests'], function () {

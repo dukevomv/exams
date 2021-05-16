@@ -607,6 +607,18 @@ class TestService implements TestServiceInterface {
         return $fromPublished ? $this->toArrayDBSegment($s) : $this->toArrayEloquentSegment($s);
     }
 
+    public function toArrayTaskImages($images) {
+        $final = [];
+        foreach($images as $i){
+            $final[] = [
+              'id' => $i->id,
+              'title' => $i->title,
+              'url' => $i->url,
+            ];
+        }
+        return $final;
+    }
+
     //stores basic info and correct answers to db
     public function toArrayEloquentSegment($s) {
         $segment = [
@@ -621,6 +633,7 @@ class TestService implements TestServiceInterface {
             $task = [
                 'id'          => $t->id,
                 'type'        => $t->type,
+                'images'      => $this->toArrayTaskImages($t->images),
                 'position'    => $t->position,
                 'description' => $t->description,
                 'points'      => $t->points,
