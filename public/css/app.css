@@ -10920,6 +10920,31 @@ textarea {
   opacity: 0.3;
 }
 
+.task-images {
+  border-bottom: 1px solid #d4d4d4;
+  padding-bottom: 15px;
+}
+
+.task-images .image-holder {
+  margin-bottom: 15px;
+}
+
+.task-images .image-holder img {
+  width: 100%;
+  float: left;
+  border: 1px;
+  margin-bottom: 10px;
+}
+
+.task-images .upload-wrap button, .task-images .upload-wrap input {
+  float: left;
+}
+
+#image-modal img {
+  max-width: 100%;
+  max-height: 1000px;
+}
+
 .changed-button i {
   color: #3097D1;
 }

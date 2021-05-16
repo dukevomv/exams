@@ -15,6 +15,9 @@
       <label>Points:</label>
       <input type="number" class="form-control" value="@if($fill && $task){{$task->points}}@endif">
     </div>
+    @if($fill && $task)
+      @include('includes.form.segments.task_images', ['task'=> $task])
+    @endif
     <div class="task-list">
       @if($fill && $task)
         @foreach($task->correspondence as $choice)

@@ -20,6 +20,8 @@
         ]))
     </div>
     <div class="panel-body">
+        @include('includes.preview.segments.task_images', ['task'=> $task])
         @include('includes.preview.segments.task_types.'.$task['type'], ['task' => $task])
     </div>
 </div>
+@include('includes.preview.segments.image_preview_modal')

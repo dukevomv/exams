@@ -106,7 +106,7 @@
                                     </button>
                                 </form>
                             @elseif ($userIsStudent
-                                    && (($testisStarted && !$timer['in_delay'])
+                                    && (($testIsStarted && !$timer['in_delay'])
                                         || ($testIsFinished && $timer['in_delay'])))
                                 <button type="button" class="btn btn-success"
                                         id="save-test" @if(!$test['current_user']['has_draft']) disabled @endif>
@@ -121,7 +121,7 @@
                 @endif
             </div>
         </div>
-        @if (($userIsProfessor && $testIsFinished) || (isset($timer) && $testIsStarted && !$timer['in_delay']))
+        @if (false || ($userIsProfessor && $testIsFinished) || (isset($timer) && $testIsStarted && !$timer['in_delay']))
             <div id="segment-list" class="list-group">
                 @foreach($test['segments'] as $segment)
                     @php

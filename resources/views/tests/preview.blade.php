@@ -70,4 +70,15 @@
       testUtils.initiateTimer()
         @endif
     </script>
+
+    <script type="text/javascript">
+
+        //this is duplicated
+        $('#image-modal').on('show.bs.modal', function (event) {
+            let button = $(event.relatedTarget)
+            let modal = $(this)
+            modal.find('.modal-title').text(button.data('title'))
+            modal.find('.modal-body img').attr('src',button.data('src'))
+        });
+    </script>
 @endsection

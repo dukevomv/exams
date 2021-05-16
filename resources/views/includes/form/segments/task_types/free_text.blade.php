@@ -16,6 +16,9 @@
       <label>Points:</label>
       <input type="number" class="form-control" value="@if($fill && $task){{$task->points}}@endif">
     </div>
+    @if($fill && $task)
+      @include('includes.form.segments.task_images', ['task'=> $task])
+    @endif
     <div class="col-md-12 row-margin-bottom task-free-text">
       <label>Answer Comments:</label>
       <input type="hidden" value="@if($fill && $task){{$task->free_text->id}}@endif">
