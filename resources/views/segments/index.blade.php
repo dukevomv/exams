@@ -47,7 +47,7 @@
           <table class="table">
             <tr>
               <th>Name</th>
-              <th>Lesson</th>
+              <th>Course</th>
               <th>Tests</th>
               <th class="text-center">Action</th>
             </tr>

@@ -72,7 +72,7 @@
           <table class="table">
             <tr>
               <th>Name</th>
-              <th>Lesson</th>
+              <th>Course</th>
               <th>Duration</th>
               <th>Scheduled at</th>
               <th>Status</th>
