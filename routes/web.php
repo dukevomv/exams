@@ -41,6 +41,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'users', 'middleware' => 'can:accessUsers'], function () {
             Route::get('/', 'UserController@index')->name('users_index');
             Route::post('toggle-approve', 'UserController@toggleApprove');
+            Route::get('{id}/delete', 'UserController@destroy');
+            Route::post('{id}/delete', 'UserController@destroy');
+            Route::get('{id}/restore', 'UserController@restore');
+            Route::post('{id}/restore', 'UserController@restore');
         });
 
         Route::group(['middleware' => 'can:viewStatistics'], function () {

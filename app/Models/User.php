@@ -6,9 +6,10 @@ use App\Traits\Searchable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\Demoable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable {
-    use Notifiable, Searchable, Demoable;
+    use Notifiable, Searchable, Demoable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

@@ -27,6 +27,15 @@
                 <li @if(Request::input('approved','') == '0')class="active"@endif><a href="{{route('users_index',array_merge(Request::except('page'),['approved'=>'0']))}}">Not Approved</a></li>
               </ul>
             </div>
+            <div class="btn-group margin-left-15 pull-left">
+              <button id="deleted" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{Request::input('deleted','0') == '1' ? 'Deleted' : 'Not Deleted'}} <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li @if(Request::input('deleted','0') == '1')class="active"@endif><a href="{{route('users_index',array_merge(Request::except('page'),['deleted'=>'1']))}}">Deleted</a></li>
+                <li @if(Request::input('deleted','0') == '0')class="active"@endif><a href="{{route('users_index',array_merge(Request::except('page'),['deleted'=>'0']))}}">Not Deleted</a></li>
+              </ul>
+            </div>
           </div>
           <div class="col-xs-3">
             @include('includes.assets.search-wrap', ['value'=>Request::input('search','')])
@@ -43,6 +52,7 @@
               <th>Email</th>
               <th>Role</th>
               <th class="text-center">Approved</th>
+              <th class="text-center">Delete</th>
             </tr>
             @foreach($users as $user)
               <tr>
@@ -56,6 +66,25 @@
                       'attributes'=>['data-user-id'=>$user->id],
                       'active' => $user->approved == 1
                     ])
+                  @endif
+                </td>
+                <td class="text-center">
+                  @if($user->id != Auth::user()->id)
+                    @if(is_null($user->deleted_at))
+                      <form method="POST" action="{{url('users/'.$user->id.'/delete')}}"
+                            class="confirm-form" data-confirm-action="Delete User"
+                            data-confirm-title="Deleting this user will make them incapable of using the platform.">
+                          <input type="hidden" name="_token" value="{{csrf_token()}}">
+                          <button type="submit" class="btn btn-danger btn-xs" id="test-leave"><i class="fa fa-trash"></i></button>
+                      </form>
+                    @else
+                      <form method="POST" action="{{url('users/'.$user->id.'/restore')}}"
+                            class="confirm-form" data-confirm-action="Restore User"
+                            data-confirm-title="By restoring this user will make them capable again, to use the platform.">
+                          <input type="hidden" name="_token" value="{{csrf_token()}}">
+                          <button type="submit" class="btn btn-success btn-xs" id="test-leave"><i class="fa fa-upload"></i></button>
+                      </form>
+                    @endif
                   @endif
                 </td>
               </tr>

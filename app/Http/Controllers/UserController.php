@@ -23,6 +23,10 @@ class UserController extends Controller {
             $users->search($request->search);
         }
 
+        if ($request->input('deleted', '0') != '0') {
+            $users->onlyTrashed();
+        }
+
         $users = $users->paginate(10);
 
         return view('users.index', ['users' => $users]);
@@ -33,5 +37,24 @@ class UserController extends Controller {
         $user->approved = !$user->approved;
         $user->save();
         return $user;
+    }
+    
+    public function destroy($id = null) {
+        $user = User::where('id', $id)->first();
+        if (is_null($id) || is_null($user)) {
+            return back()->with(['error' => 'User cannot be deleted.']);
+        }
+        $user->delete();
+        return back()->with(['success' => 'User deleted successfully']);
+    }
+    
+    
+    public function restore($id = null) {
+        $user = User::onlyTrashed()->where('id', $id)->first();
+        if (is_null($id) || is_null($user)) {
+            return back()->with(['error' => 'User cannot be restored.']);
+        }
+        $user->restore();
+        return back()->with(['success' => 'User deletion restored successfully']);
     }
 }
