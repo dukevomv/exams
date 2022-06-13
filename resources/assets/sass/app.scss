@@ -85,6 +85,8 @@ textarea {
   position: fixed;
   margin-top: 150px;
   max-width: 250px;
+  overflow-y: scroll;
+  max-height: calc(100vh - 150px);
   top: 0;
 }
 
@@ -204,6 +206,8 @@ textarea {
     padding:0 15px;
     margin-top: 80px;
     max-width: 350px;
+    overflow-y: scroll;
+    max-height: calc(100vh - 80px);
   }
 
   #test-student-segments {
