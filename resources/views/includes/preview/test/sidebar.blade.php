@@ -95,7 +95,7 @@
                                     @endif
                                 </form>
                             @endif
-                        @elseif(in_array($test['current_user']['status'],[\App\Enums\TestUserStatus::REGISTERED,\App\Enums\TestUserStatus::PARTICIPATED]))
+                        @else
                             @if ($testIsPublished)
                                 <form method="POST" action="{{URL::to('tests')}}/{{ $test['id'] }}/leave"
                                       class="confirm-form" data-confirm-action="Leave"
