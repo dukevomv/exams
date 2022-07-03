@@ -40,11 +40,11 @@
             <i class="fa fa-plus"></i> Correspondence
           </button>
         </div>
-        <div class="btn-group margin-bottom-15">
-          <button type="button" class="btn btn-default task-type" data-task-type="code">
-            <i class="fa fa-plus"></i> Code
-          </button>
-        </div>
+        <!--<div class="btn-group margin-bottom-15">-->
+        <!--  <button type="button" class="btn btn-default task-type" data-task-type="code">-->
+        <!--    <i class="fa fa-plus"></i> Code-->
+        <!--  </button>-->
+        <!--</div>-->
         <div class="hidden" id="tool-dom">
           <div class="task-dom" id="rmc-dom">
             @include('includes.form.segments.task_types.rmc',['fill'=>false])
