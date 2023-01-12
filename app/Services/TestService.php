@@ -685,7 +685,9 @@ class TestService implements TestServiceInterface {
                     $task['choices'] = $choices;
                     break;
                 case TaskType::FREE_TEXT:
-                    $task['calculative'] = false;
+                    $task['autocomplete'] = $t->free_text->autocomplete == 1;
+                    $task['calculative'] = $t->free_text->autocomplete == 1;
+                    $task['professor_answer'] = $t->free_text->description;
                     $task['answer'] = isset($t->answer) ? $t->answer : '';
                     break;
                 default:
@@ -711,6 +713,10 @@ class TestService implements TestServiceInterface {
                             unset($segment['tasks'][$t]['choices'][$key]['correct']);
                         }
                     }
+                    break;
+                case TaskType::FREE_TEXT:
+                    // $segment['tasks'][$t]['description'];
+                    // $segment['tasks'][$t]['autocomplete'];
                     break;
             }
 
@@ -823,6 +829,14 @@ class TestService implements TestServiceInterface {
                         }
                         if ($isCorrect) {
                             $given_points += $task['points'] / $total;
+                        }
+                    }
+                    break;
+                case TaskType::FREE_TEXT:
+                    if($task['autocomplete']) {
+                        $isCorrect = strtolower($task['answer']) == strtolower($task['professor_answer']);
+                        if($isCorrect){
+                            $given_points = $task['points'];
                         }
                     }
                     break;

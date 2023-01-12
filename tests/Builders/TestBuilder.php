@@ -195,11 +195,11 @@ class TestBuilder extends ModelBuilder {
                 $taskData = [
                     'id' => $task['id'],
                     'type' => $task['type'],
+                    'data' => []
                 ];
                 switch ($task['type']) {
                     case TaskType::CMC:
                     case TaskType::RMC:
-                        $taskData['data'] = [];
                         foreach($task['choices'] as $choice){
                             $taskData['data'][] = [
                                 'id' => $choice['id'],
@@ -208,7 +208,6 @@ class TestBuilder extends ModelBuilder {
                         }
                         break;
                     case TaskType::CORRESPONDENCE:
-                        $taskData['data'] = [];
                         $initializedChoices = false;
                         $unusedChoices = [];
                         foreach($task['choices'] as $a => $b){
@@ -225,7 +224,8 @@ class TestBuilder extends ModelBuilder {
                         }
                         break;
                     case TaskType::FREE_TEXT:
-                        $taskData['data'] = $this->faker->sentence(10);
+                        // $taskData['data'] = Arr::only($task,['autocomplete','description','answer_comments']);
+                        // $taskData['data']['calculative'] = $task['autocomplete']
                 }
                 $answers[] = $taskData;
             }
@@ -254,11 +254,11 @@ class TestBuilder extends ModelBuilder {
                 foreach ($segmentTasks as $task) {
                     if (Arr::has($task, 'answers')) {
                         $TaskAnswerData = ['id' => $task['id'], 'type' => $task['type']];
+                        $TaskAnswerData['data'] = [];
                         foreach ($task['answers'] as $studentId => $answer) {
                             switch ($task['type']) {
                                 case TaskType::CMC:
                                 case TaskType::RMC:
-                                    $TaskAnswerData['data'] = [];
                                     foreach ($task['options'] as $profOption) {
                                         foreach ($answer as $studentOptionKey => $studentOptionValue) {
                                             //todo be able to parse associative, only correct answers, different answers payload
@@ -272,8 +272,10 @@ class TestBuilder extends ModelBuilder {
                                         }
                                     }
                                     break;
-                                case TaskType::CORRESPONDENCE:
                                 case TaskType::FREE_TEXT:
+                                    $TaskAnswerData['data'] = Arr::only($task,['autocomplete','description','answer_comments']);
+                                    break;
+                                case TaskType::CORRESPONDENCE:
                                     //todo implement answers for all types
                                 default:
                             }

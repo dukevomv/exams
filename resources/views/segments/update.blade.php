@@ -260,7 +260,8 @@
           case "free_text":
             task.data.push({
               id          : element.find('.task-free-text input').val(),
-              description : element.find('.task-free-text textarea').val()
+              description : element.find('.task-free-text textarea').val(),
+              autocomplete: element.find('.task-free-text input.autocomplete').is(":checked") ? 1 : 0
             })
             break;
           case "correspondence":

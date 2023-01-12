@@ -67,7 +67,7 @@ testUtils.toggleButton = function(button,action,title=''){
     //code
   }
   if(title !== '')
-    button.text(title);
+    button.html(title);
 }
 
 testUtils.saveTest = function(final= false){
@@ -79,7 +79,7 @@ testUtils.saveTest = function(final= false){
   });
 
   makeAjaxPost(testsURL+testData.test.id+'/'+'submit',{final: final?1:0,answers},function() {
-    testUtils.toggleButton($('#save-test'),'enable','Submit'+(final?'':' (1)'));
+    testUtils.toggleButton($('#save-test'),'enable','Save'+(final?'':' <span class="badge">1</span>'));
     testUtils.toggleButton($('#save-draft-test'),'disable');
 
     if(final){

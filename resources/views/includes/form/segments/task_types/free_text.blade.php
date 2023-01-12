@@ -24,5 +24,8 @@
       <input type="hidden" value="@if($fill && $task){{$task->free_text->id}}@endif">
       <textarea type="text" class="form-control default-focus" placeholder="Bootstrap is a front end library that provides utilities to the developer.">@if($fill && $task){{$task->free_text->description}}@endif</textarea>
     </div>
+    <div class="col-md-12 row-margin-bottom task-free-text">
+      <label class="cursor-pointer"><input type="checkbox" class="autocomplete" @if($fill && $task->free_text->autocomplete) checked @endif name="autocorrect"> @if($fill && $task){{$task->free_text->autocomplete}}@endif Autocorrect with exact match</label>
+    </div>
   </div>
 </div>

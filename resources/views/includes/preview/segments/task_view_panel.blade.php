@@ -1,7 +1,9 @@
 <div class="panel panel-default task-wrap task-wrap-{{$task['type']}} relative" id="panel-task-{{$task['id']}}"
      data-task-type="{{$task['type']}}" data-task-id="{{$task['id']}}">
     <div class="panel-heading">
-        {{$task['description']}}
+        @if(isset($task['description']))
+            {{$task['description']}}
+        @endif
         @php
             $testData = [];
             if(isset($test_id)){

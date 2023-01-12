@@ -167,7 +167,7 @@ class SegmentBuilder extends ModelBuilder {
                     $this->tasks[$t]['options'] = $finalOptions;
                     break;
                 case TaskType::FREE_TEXT:
-                    $this->tasks[$t]['answer'] = $this->createOptions($type, $commons);
+                    $this->tasks[$t]['answers'] = $this->createOptions($type, $commons);
                 default:
             }
         }

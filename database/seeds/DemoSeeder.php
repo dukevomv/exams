@@ -230,6 +230,13 @@ class DemoSeeder extends Seeder {
                         'description' => 'Second Choose numbers',
                         'options'     => 6,
                     ],
+                    // [
+                    //     'type'        => TaskType::FREE_TEXT,
+                    //     'points'      => 15,
+                    //     'description'   => 'What is the programming language that runs on your browser?',
+                    //     'awnser_comments' => 'html',
+                    //     'autocomplete'     => 1,
+                    // ]
                 ],
             ],
         ];

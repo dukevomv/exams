@@ -110,7 +110,7 @@
                                         || ($testIsFinished && $timer['in_delay'])))
                                 <button type="button" class="btn btn-success"
                                         id="save-test" @if(!$test['current_user']['has_draft']) disabled @endif>
-                                    Submit @if($test['current_user']['has_draft']) (1) @endif</button>
+                                    Save @if($test['current_user']['has_draft']) <span class="badge">1</span> @endif</button>
                                 <button type="button"
                                         class="btn btn-warning pull-right" id="save-draft-test"
                                         disabled>Save as Draft
@@ -197,8 +197,8 @@
                         <div id="collapseSave" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseSave">Saves your answers in order to not lose your current progress.<br><i>Answers can be saved multiple times throughout the test examination.</i></div>
                     </li>
                     <li class="list-group-item">
-                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseSubmit" aria-expanded="true" aria-controls="collapseSubmit"><b>Submit</b></a>
-                        <div id="collapseSubmit" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseSubmit">Submits your answers in order to be graded.<br><i>Answers can be submitted multiple times throughout the test examination.</i></div>
+                        <a class="text-muted" role="button" data-toggle="collapse" href="#collapseSubmit" aria-expanded="true" aria-controls="collapseSubmit"><b>Save</b></a>
+                        <div id="collapseSubmit" class="collapse collapsed" role="tabpanel" aria-labelledby="collapseSubmit">Saves your answers in order to be graded.<br><i>Answers can be saved multiple times throughout the test examination.</i></div>
                     </li>
                 @elseif($userIsProfessor)
                     <li class="list-group-item">

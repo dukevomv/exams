@@ -120,7 +120,7 @@ class SegmentController extends Controller {
         $task_type_keys = [
             TaskType::RMC            => ['description', 'points', 'correct'],
             TaskType::CMC            => ['description', 'points', 'correct'],
-            TaskType::FREE_TEXT      => ['description'],
+            TaskType::FREE_TEXT      => ['description','autocomplete'],
             TaskType::CORRESPONDENCE => ['side_a', 'side_b'],
             TaskType::CODE           => []//todo fix this as task
         ];
