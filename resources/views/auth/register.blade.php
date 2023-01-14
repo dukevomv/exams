@@ -86,6 +86,7 @@
                     </form>
                 </div>
             </div>
+            @include('includes.trial-jumbotron')
             @include('includes.demo-jumbotron')
         </div>
     </div>

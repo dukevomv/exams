@@ -15,6 +15,7 @@
                             <a class="btn btn-default btn-lg margin-left-15" href="{{url('/register')}}" role="button">Register</a>
                         </p>
                     </div>
+                    @include('includes.trial-jumbotron')
                     @include('includes.demo-jumbotron')
                 @else
                     <div class="jumbotron">
