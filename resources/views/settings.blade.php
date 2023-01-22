@@ -5,6 +5,28 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
             @include('includes/assets/errors-banner')
+            @php
+                $trial = \Illuminate\Support\Facades\Auth::user()->trials()->first()
+            @endphp
+            @if(!is_null($trial))
+                <div class="panel panel-default">
+                    <div class="panel-heading">Trial Details</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Unique Id</label>
+                            <input type="text" class="form-control" value="{{$trial->uuid}}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Test Status</label>
+                            <input type="text" class="form-control" value="{{'draft'}}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Expires in</label>
+                            <input type="text" class="form-control" value="{{'28 days'}}" disabled>
+                        </div>
+                    </div>
+                </div>
+            @endif
             <div class="panel panel-default">
                 <div class="panel-heading">Basic Details</div>
                 <div class="panel-body">

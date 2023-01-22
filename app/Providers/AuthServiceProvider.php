@@ -37,12 +37,24 @@ class AuthServiceProvider extends ServiceProvider {
             return UserIs::admin($user);
         });
 
+        Gate::define('accessLessons', function ($user) {
+            return UserIs::notInTrial($user);
+        });
+
         Gate::define('customizeLessons', function ($user) {
-            return UserIs::admin($user);
+            return UserIs::notInTrial($user) && UserIs::admin($user);
+        });
+
+        Gate::define('accessTests', function ($user) {
+            return UserIs::professor($user) || UserIs::student($user);
         });
 
         Gate::define('customizeTests', function ($user) {
-            return UserIs::adminOrProfessor($user);
+            return UserIs::professor($user);
+        });
+
+        Gate::define('createTests', function ($user) {
+            return UserIs::professor($user) && UserIs::notInTrial($user);
         });
 
         Gate::define('takeTests', function ($user) {
@@ -50,11 +62,11 @@ class AuthServiceProvider extends ServiceProvider {
         });
 
         Gate::define('accessSegments', function ($user) {
-            return UserIs::adminOrProfessor($user);
+            return UserIs::professor($user);
         });
 
         Gate::define('viewStatistics', function ($user) {
-            return UserIs::adminOrProfessor($user);
+            return UserIs::adminOrProfessor($user) && UserIs::notInTrial($user);
         });
     }
 }

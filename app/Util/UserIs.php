@@ -33,4 +33,8 @@ class UserIs {
     public static function adminOrProfessor($user) {
         return $user->role([UserRole::ADMIN, UserRole::PROFESSOR]);
     }
+
+    public static function notInTrial($user) {
+        return is_null($user->trials()->first());
+    }
 }

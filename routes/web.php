@@ -26,6 +26,14 @@ if (config('app.demo.enabled')) {
     });
 }
 
+if (config('app.trial.enabled')) {
+    Route::group(['prefix' => 'trial'], function () {
+        Route::post('generate', 'TrialController@generate');
+        Route::post('switch-role/{role}', 'TrialController@switchRole');
+        Route::post('send-login-code', 'TrialController@sendLoginCode');
+    });
+}
+
 Route::get('/otp', 'HomeController@viewOTP');
 Route::get('/otp/resend', 'HomeController@resendOTP');
 Route::post('/otp', 'HomeController@submitOTP');
@@ -84,7 +92,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('{id}/images/{image_id}/remove', 'ImageController@remove');
         });
 
-        Route::group(['prefix' => 'tests'], function () {
+        Route::group(['prefix' => 'tests', 'middleware' => 'can:accessTests'], function () {
             //will proceed the statuses from /tests/id page
             // and will provide required fields for schedules and test
             //draft -> published -> started -> finished -> graded
@@ -92,7 +100,7 @@ Route::group(['middleware' => ['auth']], function () {
 
             //professors
             Route::group(['namespace' => 'Professor', 'middleware' => 'can:customizeTests'], function () {
-                Route::get('create', 'TestController@updateView');
+                Route::get('create', 'TestController@updateView')->middleware('can:createTests');
                 Route::get('{id}/edit', 'TestController@updateView');
                 Route::get('{id}/delete', 'TestController@delete');
                 Route::get('{id}/export-csv', 'TestController@exportCSV');

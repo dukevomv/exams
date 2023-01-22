@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Trial\Trial;
 use App\Traits\Searchable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,5 +46,9 @@ class User extends Authenticatable {
     public function role($role) {
         $role = (array)$role;
         return in_array($this->role, $role);
+    }
+
+    public function trials() {
+        return $this->morphToMany(Trial::class,'trialable','trial_entities');
     }
 }

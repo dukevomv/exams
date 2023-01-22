@@ -42,6 +42,8 @@
                     {{ config('app.name', 'Laravel') }}
                     @if(config('app.demo.enabled') && Session::has(config('app.demo.session_field')))
                         <span class="label label-info">DEMO</span>
+                    @elseif(config('app.trial.enabled') && Session::has(config('app.trial.session_field')))
+                        <span class="label label-warning">TRIAL</span>
                     @endif
                 </a>
             </div>
@@ -51,20 +53,22 @@
                 <ul class="nav navbar-nav">
                     @php $user = Auth::user(); @endphp
                     @if ($user)
-                        @if(\App\Util\UserIs::admin($user))
+                        @if($user->can('accessUsers'))
                             <li class="{{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
                                 <a href="{{ url('/users') }}">Users</a>
                             </li>
                         @endif
+                        @if($user->can('accessLessons'))
                             <li class="{{ Request::is('lessons') || Request::is('lessons/*') ? 'active' : '' }}">
                                 <a href="{{ url('/lessons') }}">Courses</a>
                             </li>
-                        @if(\App\Util\UserIs::professorOrStudent($user))
+                        @endif
+                        @if($user->can('accessTests'))
                             <li class="{{ Request::is('tests') || Request::is('tests/*') ? 'active' : '' }}">
                                 <a href="{{ url('/tests') }}">Tests</a>
                             </li>
                         @endif
-                        @if(\App\Util\UserIs::professor($user))
+                        @if($user->can('accessSegments'))
                             <li class="{{ Request::is('segments') || Request::is('segments/*') ? 'active' : '' }}">
                                 <a href="{{ url('/segments') }}">Segments</a>
                             </li>
@@ -90,26 +94,31 @@
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="{{url('/settings')}}"><i class="fa fa-cog"></i> Settings</a></li>
 
-                                @if(\App\Util\UserIs::adminOrProfessor($user))
+                                @if($user->can('viewStatistics'))
                                     <li><a href="{{url('/statistics')}}"><i class="fa fa-bar-chart"></i> Statistics</a></li>
                                 @endif
 
-                                @if(config('app.demo.enabled') && Session::has(config('app.demo.session_field')))
+                                @php
+                                    $demo = config('app.demo.enabled') && Session::has(config('app.demo.session_field'));
+                                    $trial = config('app.trial.enabled') && Session::has(config('app.trial.session_field'));
+                                    $mode = $demo ? 'demo' : ($trial ? 'trial' : null);
+                                @endphp
+                                @if(!is_null($mode))
                                     <li role="separator" class="divider"></li>
-                                    <li class="dropdown-header">DEMO Options</li>
+                                    <li class="dropdown-header">{{ucfirst($mode)}} Options</li>
                                     @foreach(\App\Enums\UserRole::values() as $role)
                                         @php $toggle = $role == Auth::user()->role ? 'on' : 'off'; @endphp
-                                    <li>
-                                        <a href="{{ url('demo/switch-role/'.$role) }}"
-                                           onclick="event.preventDefault();
-                                                     document.getElementById('switch-role-{{$role}}-form').submit();"><i class="fa fa-toggle-{{$toggle}}"></i> Switch to <span class="label label-{{$role}}">{{ucfirst($role)}}</span>
-                                        </a>
-                                        <form id="switch-role-{{$role}}-form" action="{{ url('demo/switch-role/'.$role) }}" method="POST"
-                                              style="display: none;">
-                                            <input type="hidden" value="{{ csrf_token() }}" name="_token">
-                                        </form>
-                                    </li>
-                                        @endforeach
+                                        <li>
+                                            <a href="{{ url($mode.'/switch-role/'.$role) }}"
+                                               onclick="event.preventDefault();
+                                                         document.getElementById('switch-role-{{$role}}-form').submit();"><i class="fa fa-toggle-{{$toggle}}"></i> Switch to <span class="label label-{{$role}}">{{ucfirst($role)}}</span>
+                                            </a>
+                                            <form id="switch-role-{{$role}}-form" action="{{ url($mode.'/switch-role/'.$role) }}" method="POST"
+                                                  style="display: none;">
+                                                <input type="hidden" value="{{ csrf_token() }}" name="_token">
+                                            </form>
+                                        </li>
+                                    @endforeach
                                     <li role="separator" class="divider"></li>
                                 @endif
                                 <li>

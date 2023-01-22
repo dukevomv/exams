@@ -227,10 +227,10 @@
                         ],
                     ]);
                @endphp
-
-                @foreach($commits as $commit)
-                    @include('includes.commit',$commit)
-                @endforeach
+{{-- todo - update text here based on demo or trial data - on boarding? --}}
+{{--                @foreach($commits as $commit)--}}
+{{--                    @include('includes.commit',$commit)--}}
+{{--                @endforeach--}}
 
                 @endif
             </div>

@@ -38,9 +38,25 @@ return [
     */
     'demo' => [
         'enabled'       => env('DEMO_ENABLED', false),
-        'email_suffix'  => 'exams.wiz',
+        'email_suffix'  => 'demo.exams.wiz',
         'default_role'  => \App\Enums\UserRole::PROFESSOR,
         'session_field' => 'demo_user_id',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Trial mode
+    |--------------------------------------------------------------------------
+    |
+    | This value determines if the current installation is in trial mode,
+    | in order to be able to approve new users or auto generate tests
+    |
+    */
+    'trial' => [
+        'enabled'       => env('TRIAL_ENABLED', false),
+        'email_suffix'  => 'trial.exams.wiz',
+        'default_role'  => \App\Enums\UserRole::PROFESSOR,
+        'session_field' => 'trial_id',
     ],
 
     /*
