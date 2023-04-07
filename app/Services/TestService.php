@@ -153,6 +153,8 @@ class TestService implements TestServiceInterface {
                 $this->test->unpublishSegmentData();
                 break;
             case TestStatus::PUBLISHED:
+                $this->test->publishSegmentData($this->prepareForPublish(true));
+                break;
             case TestStatus::STARTED:
             case TestStatus::FINISHED:
             case TestStatus::GRADED:
@@ -397,11 +399,11 @@ class TestService implements TestServiceInterface {
         return str_replace('task_id_', '', $taskId);
     }
 
-    public function prepareForPublish() {
+    public function prepareForPublish($forceRecreate = false) {
         $this->withoutUserAnswers()
              ->withoutUserCalculatedPoints()
              ->withCorrectAnswers();
-        return $this->toArraySegments();
+        return $this->toArraySegments($forceRecreate);
     }
 
     public function prepareForCurrentUser() {
@@ -592,8 +594,8 @@ class TestService implements TestServiceInterface {
         ];
     }
 
-    public function toArraySegments() {
-        $isPublished = self::isPublished($this->test);
+    public function toArraySegments($forceRecreate = false) {
+        $isPublished = !$forceRecreate && self::isPublished($this->test);
         $segments = $isPublished ? $this->test->getPublishedSegmentData() : $this->test->segments;
 
         $data = [];
