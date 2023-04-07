@@ -43,7 +43,6 @@ trait Demoable {
     }
 
     public function demos() {
-        //duke|todo|debt - test this actually works
         return $this->morphToMany(DemoUser::class,'demoable','demo_entities');
     }
 

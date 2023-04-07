@@ -2,10 +2,12 @@
 
 namespace App\Models\Trial;
 
+use App\Models\Lesson;
+use App\Models\OTP;
+use App\Models\Test;
 use App\Models\User;
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class Trial extends Model {
     protected $fillable = ['email','details','status','uuid'];
@@ -26,12 +28,22 @@ class Trial extends Model {
         return $this->users()->where('role',UserRole::STUDENT)->first();
     }
 
-    public function lesson() {
-        return $this->belongsToMany(User::class);
-    }
-
     public function users() {
         return $this->morphedByMany(User::class,'trialable','trial_entities');
+    }
+
+    public function lessons() {
+        return $this->morphedByMany(Lesson::class,'trialable','trial_entities');
+    }
+
+    public function tests() {
+        return $this->morphedByMany(Test::class,'trialable','trial_entities');
+    }
+
+    public function sendPendingOTPAndGetUser(): User {
+        $user = $this->getProfessorUser();
+        OTP::generateForMail($user->mailable_email,true,$user);
+        return $user;
     }
 
 

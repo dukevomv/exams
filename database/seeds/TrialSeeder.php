@@ -16,17 +16,6 @@ use Tests\Builders\LessonBuilder;
 use Tests\Builders\TestBuilder;
 
 class TrialSeeder extends Seeder {
-/*
- * todo
- * - create tests that contain student answers
- * - update a test's segments after its published date in order to show segment warning (make it finished as well)
- * - create tests that need manual grading
- * - create tests that can be auto graded from lobby
- * - create tests that are valid questions
- *
- * - add invited users  as invited status on test
- * - make feature for all types of user not only for trials
- */
     /**
      * @param null $email
      *
@@ -41,9 +30,9 @@ class TrialSeeder extends Seeder {
         Session::put(config('app.trial.session_field'), $trial->id);
 
         $users = self::generateUsersForEmail($trial, $trial->uuid, [
-            UserRole::ADMIN     => 1,
+//            UserRole::ADMIN     => 1,
             UserRole::PROFESSOR => 1,
-            UserRole::STUDENT   => 1,
+//            UserRole::STUDENT   => 1,
         ]);
 
         $lesson = self::createLessonForUsers($trial,$users);
@@ -60,7 +49,6 @@ class TrialSeeder extends Seeder {
         $tests[] = self::createPredefinedTest($testData);
 
         $trial->update(['seeded' => true]);
-        \Log::info(DB::table('trial_entities')->orderBy('id','desc')->get());
         return $trial->id;
     }
 
@@ -90,6 +78,7 @@ class TrialSeeder extends Seeder {
                 $attr = [
                     'email' => $generatedEmail,
                     'name'  => $generatedName,
+                    'otp_enabled'  => 1,
                 ];
                 if (!isset($userData[$role])) {
                     $userData[$role] = [];
@@ -121,7 +110,6 @@ class TrialSeeder extends Seeder {
                                 'gunet_code' => 'trial-'.$trial->uuid,
                             ])
                             ->withUser($users[UserRole::PROFESSOR][0]->id)
-                            ->withUser($users[UserRole::STUDENT][0]->id)
                             ->build();
         return $lesson;
     }

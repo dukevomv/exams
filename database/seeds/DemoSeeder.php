@@ -15,14 +15,6 @@ use Tests\Builders\LessonBuilder;
 use Tests\Builders\TestBuilder;
 
 class DemoSeeder extends Seeder {
-/*
- * todo
- * - create tests that contain student answers
- * - update a test's segments after its published date in order to show segment warning (make it finished as well)
- * - create tests that need manual grading
- * - create tests that can be auto graded from lobby
- * - create tests that are valid questions
- */
     /**
      * @param null $email
      *
