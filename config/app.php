@@ -38,9 +38,10 @@ return [
     */
     'demo' => [
         'enabled'       => env('DEMO_ENABLED', false),
-        'email_suffix'  => 'demo.exams.wiz',
+        'email_suffix'  => 'demo.exams.studio',
         'default_role'  => \App\Enums\UserRole::PROFESSOR,
         'session_field' => 'demo_user_id',
+        'session_guest_field' => 'guest_demo_user_id',
     ],
 
     /*
@@ -54,9 +55,10 @@ return [
     */
     'trial' => [
         'enabled'       => env('TRIAL_ENABLED', false),
-        'email_suffix'  => 'trial.exams.wiz',
+        'email_suffix'  => 'trial.exams.studio',
         'default_role'  => \App\Enums\UserRole::PROFESSOR,
         'session_field' => 'trial_id',
+        'session_guest_field' => 'guest_trial_id',
     ],
 
     /*
@@ -221,6 +223,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Emadadly\LaravelUuid\LaravelUuidServiceProvider::class,
 
     ],
 
