@@ -4,7 +4,7 @@
   <div class="container">
     <div class="row">
       <div class="col-xs-12">
-        <h1>@if($segment) Edit @else Create @endif Segment</h1>
+        <h1>@if($segment) Edit @else Create @endif Segment    <button class="btn btn-default btn-sm pull-right" data-toggle="modal" data-target="#point-system-modal"><i class="fa fa-info"></i> Point System Guide</button></h1>
       </div>
       <div class="col-md-3 sidebar-toolbar">
         <h5>Actions</h5>
@@ -18,7 +18,8 @@
             <i class="fa fa-save"></i> Save
           </button>
         </div>
-        
+
+
         <h5>Question Types</h5>
         <div class="btn-group margin-bottom-15">
           <button type="button" class="btn btn-default task-type" data-task-type="rmc">
@@ -112,6 +113,7 @@
     </div>
   </div>
   @include('includes.preview.segments.image_preview_modal')
+  @include('includes.preview.segments.point_system_guide_modal')
 @endsection
 
 @section('scripts')
