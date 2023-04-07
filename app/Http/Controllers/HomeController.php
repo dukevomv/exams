@@ -38,14 +38,22 @@ class HomeController extends Controller {
                 Rule::unique('users')->ignore($user->id),
             ],
             'name'        => 'required|string|max:255',
-            'otp_enabled' => 'string',
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->otp_enabled = $request->input('otp_enabled', false) == 'on';
         $user->save();
 
+        return redirect('settings');
+    }
+
+    public function updateOTPSetting(Request $request) {
+        $user = Auth::user();
+        $this->validate($request, [
+            'otp_enabled' => 'string',
+        ]);
+        $user->otp_enabled = $request->input('otp_enabled', false) == 'on';
+        $user->save();
         return redirect('settings');
     }
 
@@ -58,15 +66,15 @@ class HomeController extends Controller {
     }
 
     public function resendOTP() {
-        OTP::generateForMail(Auth::user()->email);
-        return back()->with(['success' => 'A new OTP has been send to your email.']);
+        OTP::generateForMail(Auth::user()->mailable_email,true,Auth::user());
+        return back()->with(['success' => 'A new OTP has been sent to your email.']);
     }
 
     public function submitOTP(Request $request) {
         $this->validate($request, [
             'otp' => 'required',
         ]);
-        $results = OTP::confirmForEmail($request->otp, Auth::user()->email);
+        $results = OTP::confirmForEmail($request->otp, Auth::user()->mailable_email,Auth::user());
         if (array_key_exists('success', $results)) {
             return redirect('/');
         } else {

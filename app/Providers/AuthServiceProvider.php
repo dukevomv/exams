@@ -29,8 +29,12 @@ class AuthServiceProvider extends ServiceProvider {
             return UserIs::approved($user);
         });
 
-        Gate::define('switchOffOTP', function ($user) {
-            return !UserIs::withPendingOTP($user);
+        Gate::define('updateProfileDetails', function ($user) {
+            return !(UserIs::withPendingOTP($user) || UserIs::invitedDirectlyOnTest($user) || !UserIs::notInTrial($user));return !(UserIs::withPendingOTP($user) || UserIs::invitedDirectlyOnTest($user) || !UserIs::notInTrial($user));
+        });
+
+        Gate::define('updateOTPSetting', function ($user) {
+            return !(UserIs::withPendingOTP($user) || UserIs::invitedDirectlyOnTest($user) || !UserIs::notInTrial($user));
         });
 
         Gate::define('accessUsers', function ($user) {
