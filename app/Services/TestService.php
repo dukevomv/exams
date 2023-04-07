@@ -227,7 +227,7 @@ class TestService implements TestServiceInterface {
         return is_null($data) ? [] : $data;
     }
 
-    //todo :deprecated
+    //todo|deprecate
     public function mergeUserAnswersToTest($test) {
         $user = $test->getUser($this->forUserId);
         if (is_null($user)) {
@@ -242,7 +242,7 @@ class TestService implements TestServiceInterface {
             }
         }
 
-        //todo make the below to be parsable with cast in pivot model
+        //todo|debt - make the below to be parsable with cast in pivot model
         $answers = json_decode($user->pivot->{$field}, true);
         if ($answers) {
             for ($s = 0; $s < count($test->segments); $s++) {

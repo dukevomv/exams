@@ -47,6 +47,10 @@ class Test extends DemoableModel {
         ]);
     }
 
+    public function invites() {
+        return $this->hasMany(TestInvite::class);
+    }
+
     public function segments() {
         return $this->belongsToMany(Segment::class)->orderBy('position', 'asc')->withTimestamps();
     }
@@ -91,20 +95,26 @@ class Test extends DemoableModel {
         return Carbon::now()->gte($this->register_time) && $this->status == TestStatus::PUBLISHED;
     }
 
-    public function register() {
-        $student = Auth::user();
+    public function register($user = null) {
+        $student = !is_null($user) ? $user : Auth::user();
         FirebaseControl::createOrUpdate('tests/' . $this->id . '/students/' . $student->id,
-            self::constructFirebaseStudent([
+            self::constructFirebaseForStudent([
                 'registered_at' => Carbon::now()->toDateTimeString(),
                 'status'        => TestUserStatus::REGISTERED,
-            ])
+            ],$student)
         );
 
-        $this->users()->attach(Auth::id(), ['status' => TestUserStatus::REGISTERED]);
+        $this->users()->attach($user->id, ['status' => TestUserStatus::REGISTERED]);
     }
 
     private static function constructFirebaseStudent($payload) {
         $student = Auth::user();
+        return array_merge([
+            'name' => $student->name,
+        ], $payload);
+    }
+
+    private static function constructFirebaseForStudent($payload,$student) {
         return array_merge([
             'name' => $student->name,
         ], $payload);

@@ -13,6 +13,8 @@ use App\Services\TestServiceInterface;
 use App\Util\Points;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Log;
 
 class TestController extends Controller {
@@ -110,7 +112,7 @@ class TestController extends Controller {
     public function delete($id = null) {
         $test = Test::where('id', $id)->first();
         if (is_null($id) || is_null($test)) {
-            return back()->with(['error' => 'Test cannot be deleted.']);
+            return back()->with(['error' => 'Test cannot be deleted']);
         }
         $test->delete();
         return back()->with(['success' => 'Test deleted successfully']);
@@ -162,11 +164,28 @@ class TestController extends Controller {
             return redirect('/tests/' . $id);
         }
         $this->service->calculateUserPoints($userId);
-
-        return view('tests.preview', [
+        $data = [
             'test'    => $this->service->prepareForCurrentUser(),
             'forUser' => $userId,
-        ]);
+        ];
+        $data['is_professor'] = Auth::user()->role === \App\Enums\UserRole::PROFESSOR;
+        $data['is_student'] = Auth::user()->role === \App\Enums\UserRole::STUDENT;
+
+        $data['professor_for_student'] = $data['is_professor']
+            && isset($data['test']['for_student']);
+        $data['professor_for_student_not_participated'] = $data['professor_for_student']
+            && in_array($data['test']['for_student']['status'],
+                [
+                    \App\Enums\TestUserStatus::LEFT,
+                    \App\Enums\TestUserStatus::REGISTERED
+                ]);
+        $data['show_segments'] = $data['professor_for_student']
+                && in_array($data['test']['status'], [
+                    \App\Enums\TestStatus::FINISHED,
+                    \App\Enums\TestStatus::GRADED
+                ]);
+
+        return view('tests.preview',$data);
     }
 
     public function autoGrade($id, $userId) {
@@ -177,9 +196,7 @@ class TestController extends Controller {
     }
 
     public function autoCalculateGrades($id) {
-        //todo make sure db value is valid!!!!!!
-        //todo make sure tests with non calc can not auto grade everyone at once
-        //make sure test is not graded already
+        //todo|debt - make sure tests with non calc can not auto grade everyone at once and test is not graded already
         $this->service->setById($id);
         $this->service->autoGradeUsers();
         return back();
@@ -198,7 +215,7 @@ class TestController extends Controller {
         ]);
 
         $this->service->setById($id);
-        //todo the below line is to set the forUserId for the student is being graded
+        //todo|debt - the below line is to set the forUserId for the student is being graded
         $this->service->calculateUserPoints($userId);
         $this->service->gradeUserTask($request->only('task_id', 'points'));
         return back();
@@ -206,7 +223,7 @@ class TestController extends Controller {
 
     public function publishGrade($id, $userId, Request $request) {
         $test = $this->service->fetchById($id);
-        //todo make sure grades are publishable
+        //todo|debt - make sure grades are publishable
         $test->publishProfessorGrade($userId);
         return [];
     }

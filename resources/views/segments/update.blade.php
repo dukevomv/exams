@@ -235,7 +235,6 @@
       })
       this.tasks = tasks
 
-      //todo the below  seems as a duplicate - ensure it is not
       function GetTaskDetails(element, task_type){
         let task = {
           id          : element.find('.panel-body input.task-id').val().trim() != '' ? element.find('.panel-body input.task-id').val().trim() : null,
@@ -275,7 +274,7 @@
             })
             break;
           case "code":
-            //todo: fix this
+            //todo|debt - fix code type
             task.data.push({
               id          : element.find('.task-code input').val(),
               description : element.find('.task-code textarea').val()

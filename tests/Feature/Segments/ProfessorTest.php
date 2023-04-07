@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Tests;
+namespace Tests\Feature\Segments;
 
 use App\Enums\TaskType;
 use App\Enums\UserRole;

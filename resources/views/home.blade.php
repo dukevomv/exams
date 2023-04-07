@@ -3,9 +3,9 @@
 @section('content')
     <div class="container">
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
+            <div class="col-xs-12">
                 @if(Auth::guest())
-                    <div class="jumbotron">
+                    <div class="jumbotron hidden">
                         <h1>Hello Guest!</h1>
                         <p><b>Login</b> or <b>Register</b> in order to use this platform or to keep up with the
                             development News.</p>
@@ -16,9 +16,9 @@
                         </p>
                     </div>
                     @include('includes.trial-jumbotron')
-                    @include('includes.demo-jumbotron')
+{{--                    @include('includes.demo-jumbotron')--}}
                 @else
-                    <div class="jumbotron">
+                    <div class="jumbotron hidden">
                         <img class="col-xs-4 pull-right" src="{{URL::to('images/professor.png')}}" alt="professor-illustration">
                         <h1>Hi, {{Auth::user()->name}}</h1>
                         <p><span class="label label-danger">NEW</span><br>The Current feature is added in the latest
@@ -227,7 +227,7 @@
                         ],
                     ]);
                @endphp
-{{-- todo - update text here based on demo or trial data - on boarding? --}}
+{{-- duke|todo|trial - update text here based on demo or trial data - on boarding? --}}
 {{--                @foreach($commits as $commit)--}}
 {{--                    @include('includes.commit',$commit)--}}
 {{--                @endforeach--}}

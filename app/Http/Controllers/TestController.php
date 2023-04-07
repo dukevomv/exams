@@ -10,9 +10,11 @@ use App\Models\TestInvite;
 use App\Scopes\OnlyTrialScope;
 use App\Scopes\WithoutTrialScope;
 use App\Services\TestServiceInterface;
-use Auth;
+use App\Util\UserIs;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class TestController extends Controller {
 
@@ -41,7 +43,33 @@ class TestController extends Controller {
             $data['timer'] = $this->service->calculateTimer($test);
         }
 
-        return view('tests.preview', $data);
+        $data['is_professor'] = Auth::user()->role === \App\Enums\UserRole::PROFESSOR;
+        $data['is_student'] = Auth::user()->role === \App\Enums\UserRole::STUDENT;
+
+        $data['show_segments'] = false;
+        $data['professor_for_student'] = $data['is_professor']
+            && isset($test['for_student']);
+        $data['professor_for_student_not_participated'] = $data['professor_for_student']
+            && in_array($test['for_student']['status'],
+                [
+                    \App\Enums\TestUserStatus::LEFT,
+                    \App\Enums\TestUserStatus::REGISTERED
+                ]);
+        if($data['is_student']){
+            $data['show_segments'] = (
+                    ($data['test']['status'] === \App\Enums\TestStatus::STARTED
+                    && !$data['timer']['in_delay'])
+                ||  ($data['test']['status'] === \App\Enums\TestStatus::FINISHED
+                    && $data['timer']['in_delay']));
+        } elseif($data['is_professor']){
+            $data['show_segments'] = $data['professor_for_student']
+                && in_array($data['test']['status'], [
+                        \App\Enums\TestStatus::FINISHED,
+                        \App\Enums\TestStatus::GRADED
+                    ]);
+        }
+
+            return view('tests.preview', $data);
     }
 
     public function lobby($id = null) {

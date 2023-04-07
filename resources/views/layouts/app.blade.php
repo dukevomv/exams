@@ -12,6 +12,30 @@
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=greek" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <style>
+
+        /* todo|debt - move these to app.css */
+        .banner{
+            font-size: 10px;
+            font-weight: 700;
+            margin: 0 0 20px;
+            padding: 5px 15px;
+            position: relative;
+            left:-15px;
+            top:14px;
+            border-radius: 5px;
+        }
+        .banner-yellow{
+            background-color: #FFF2C7;
+            border: 1px solid #F0B400;
+            color: #F0B400;
+        }
+        .banner-blue{
+            background-color: #b8cdfc;
+            border: 1px solid #3765cd;
+            color: #3765cd;
+        }
+    </style>
     @yield('styles')
 </head>
 <body>
@@ -37,15 +61,14 @@
                     <span class="icon-bar"></span>
                 </button>
 
-                <!-- Branding Image -->
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                    @if(config('app.demo.enabled') && Session::has(config('app.demo.session_field')))
-                        <span class="label label-info">DEMO</span>
-                    @elseif(config('app.trial.enabled') && Session::has(config('app.trial.session_field')))
-                        <span class="label label-warning">TRIAL</span>
-                    @endif
+                    @include('includes.navbar_logo')
                 </a>
+                @if(\App\Util\Demo::shouldShowModeBanner(\App\Util\Demo::DEMO))
+                    <span class="banner banner-blue">D E M O</span>
+                @elseif(App\Util\Demo::shouldShowModeBanner(\App\Util\Demo::TRIAL))
+                    <span class="banner banner-yellow">T R I A L</span>
+                @endif
             </div>
 
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
@@ -80,9 +103,11 @@
                 <ul class="nav navbar-nav navbar-right">
                     <!-- Authentication Links -->
                     @if (Auth::guest())
-                        {{session('demo_user')}}
-                        <li><a href="{{ route('login') }}">Login</a></li>
-                        <li><a href="{{ route('register') }}">Register</a></li>
+                        @if(!\Illuminate\Support\Facades\Request::is('public/*'))
+                            {{session('demo_user')}}
+                            <li><a href="{{ route('login') }}">Login</a></li>
+                            <li><a href="{{ route('register') }}">Register</a></li>
+                        @endif
                     @else
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
@@ -99,11 +124,9 @@
                                 @endif
 
                                 @php
-                                    $demo = config('app.demo.enabled') && Session::has(config('app.demo.session_field'));
-                                    $trial = config('app.trial.enabled') && Session::has(config('app.trial.session_field'));
-                                    $mode = $demo ? 'demo' : ($trial ? 'trial' : null);
+                                    $mode = \App\Util\Demo::getModeFromSessionIfAny();
                                 @endphp
-                                @if(!is_null($mode))
+                                @if(!is_null($mode) && \App\Util\Demo::shouldBeAbleToSwitchRole())
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">{{ucfirst($mode)}} Options</li>
                                     @foreach(\App\Enums\UserRole::values() as $role)
