@@ -28,6 +28,7 @@ if (config('app.demo.enabled')) {
 
 if (config('app.trial.enabled')) {
     Route::group(['prefix' => 'trial'], function () {
+        Route::get('/', 'TrialController@index');
         Route::post('generate', 'TrialController@generate');
         Route::post('switch-role/{role}', 'TrialController@switchRole');
         Route::post('send-login-code', 'TrialController@sendLoginCode');
@@ -37,6 +38,11 @@ if (config('app.trial.enabled')) {
 Route::get('/otp', 'HomeController@viewOTP');
 Route::get('/otp/resend', 'HomeController@resendOTP');
 Route::post('/otp', 'HomeController@submitOTP');
+
+Route::get('public/tests/{testId}/invited-students/{inviteUuid}/preview', 'TestController@previewInvitation')->name('test.invitation.preview');
+Route::post('public/tests/{testId}/invited-students/{inviteUuid}/accept', 'TestController@acceptInvitation')->name('test.invitation.accept');
+Route::post('public/tests/{testId}/invited-students/{inviteUuid}/login-code', 'TestController@sendLoginCodeForInvitation')->name('test.invitation.login-code');
+
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/settings', 'HomeController@settings');
