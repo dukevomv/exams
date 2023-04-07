@@ -3,18 +3,19 @@
 namespace App\Traits;
 
 use App\Models\Demo\DemoEntity;
+use App\Models\Demo\DemoUser;
+use App\Models\Trial\Trial;
 use App\Models\Trial\TrialEntity;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Session;
+use App\Scopes\OnlyDemoScope;
+use App\Scopes\OnlyTrialScope;
+use App\Scopes\WithoutDemoScope;
+use App\Scopes\WithoutTrialScope;
+use App\Util\Demo;
+use App\Util\UserIs;
+use Illuminate\Support\Facades\Auth;
 
 trait Demoable {
-
     //this Trait applies for Trial entries as well
-
-    public static $identifierFields = [
-        'demo' => 'demo_user_id',
-        'trial' => 'trial_id'
-    ];
 
     public function addDemoableEntity(){
         $this->addEntityOfType('demo');
@@ -24,8 +25,9 @@ trait Demoable {
     }
 
     private function addEntityOfType($type){
-        if(config('app.'.$type.'.enabled') && Session::has(config('app.'.$type.'.session_field'))){
-            $this->{$type.'_entity'}()->create([ self::$identifierFields[$type] => Session::get(config('app.'.$type.'.session_field'))]);
+        $sessionValue = Demo::getSessionValueOfMode($type);
+        if(config('app.'.$type.'.enabled') && !is_null($sessionValue)){
+            $this->{$type.'_entity'}()->create([ Demo::IDENTIFIER_FIELDS[$type] => $sessionValue]);
         }
     }
 
@@ -36,33 +38,49 @@ trait Demoable {
         return $this->morphOne(TrialEntity::class, 'trialable');
     }
 
+    public function trials() {
+        return $this->morphToMany(Trial::class,'trialable','trial_entities');
+    }
+
+    public function demos() {
+        //duke|todo|debt - test this actually works
+        return $this->morphToMany(DemoUser::class,'demoable','demo_entities');
+    }
+
+    public function getTrial() {
+        return $this->trials()->first();
+    }
+
+    public function getDemo() {
+        return $this->demos()->first();
+    }
+
     protected static function boot(){
         static::created(function ($model) {
             $model->addDemoableEntity();
             $model->addTrialableEntity();
         });
 
-        $mode = null;
-        foreach (['demo','trial'] as $type) {
-            if (config('app.'.$type.'.enabled')
-                && Session::has(config('app.' . $type . '.session_field'))) {
-                    $mode = $type;
-                    break;
+        $mode = Demo::getModeFromSessionIfAny();
+
+        if(!Auth::guest() && !UserIs::withPendingOTP(Auth::user())){
+            if(!is_null($mode)){
+                static::addGlobalScope($mode == Demo::DEMO ? new OnlyDemoScope : new OnlyTrialScope);
+            } else {
+                static::addGlobalScope(new WithoutDemoScope);
+                static::addGlobalScope(new WithoutTrialScope);
             }
         }
-        if(!is_null($mode)){
-            static::addGlobalScope('only'.ucfirst($mode), function (Builder $builder) use ($mode){
-                $builder->whereHas($mode.'_entity', function($q) use ($mode) {
-                    $q->where(self::$identifierFields[$mode], Session::get(config('app.'.$mode.'.session_field')));
-                });
-            });
-        } else {
-            static::addGlobalScope('without'.ucfirst($type), function (Builder $builder) use ($type) {
-                $builder->has($type.'_entity', '=', 0);
-            });
-        }
-
         parent::boot();
+    }
+
+    private static function getScopesByMode($mode){
+        switch ($mode){
+            case Demo::DEMO:
+                return ['only'=>OnlyDemoScope::class,'without'=>WithoutDemoScope::class];
+            case Demo::TRIAL:
+                return ['only'=>OnlyTrialScope::class,'without'=>WithoutTrialScope::class];
+        }
     }
 
 }
