@@ -12,30 +12,6 @@
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=greek" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <style>
-
-        /* todo|debt - move these to app.css */
-        .banner{
-            font-size: 10px;
-            font-weight: 700;
-            margin: 0 0 20px;
-            padding: 5px 15px;
-            position: relative;
-            left:-15px;
-            top:14px;
-            border-radius: 5px;
-        }
-        .banner-yellow{
-            background-color: #FFF2C7;
-            border: 1px solid #F0B400;
-            color: #F0B400;
-        }
-        .banner-blue{
-            background-color: #b8cdfc;
-            border: 1px solid #3765cd;
-            color: #3765cd;
-        }
-    </style>
     @yield('styles')
 </head>
 <body>
