@@ -104,6 +104,11 @@
                       <i class="fa fa-eye"></i>
                     </a>
                   @endif
+                  @if(in_array($test->status,['published']) && Auth::user()->role == 'professor')
+                    <a href="{{url('tests/'.$test->id.'/invited-students')}}" type="button" class="btn btn-info btn-xs">
+                      <i class="fa fa-envelope"></i>
+                    </a>
+                  @endif
                   @if(in_array($test->status,['draft','published']) && Auth::user()->role == 'professor')
                     <a href="{{url('tests/'.$test->id.'/edit')}}" type="button" class="btn btn-success btn-xs">
                       <i class="fa fa-pencil"></i>

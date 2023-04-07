@@ -7,6 +7,8 @@ use App\Enums\TestUserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use App\Models\Test;
+use App\Models\TestInvite;
+use App\Notifications\StudentInvitedToTest;
 use App\Services\TestServiceInterface;
 use App\Util\Points;
 use Carbon\Carbon;
@@ -55,6 +57,54 @@ class TestController extends Controller {
         }
 
         return $this->service->updateOrCreate($request->input('id', null), $fields, $request->input('segments', []));
+    }
+
+    public function inviteStudentsList($testId) {
+        $test = Test::where('id', $testId)->where('status', TestStatus::PUBLISHED)->first();
+        if (is_null($test)) {
+            return redirect('tests');
+        }
+        return view('tests.invites', ['testId' => $test->id, 'invites' => $test->invites()->orderBy('student_name','asc')->paginate(25)]);
+    }
+
+    public function inviteStudents($testId,Request $request) {
+        $this->validate($request, [
+            'student_name'=> 'required|string',
+            'student_email'=> 'required|string|email',
+            'send_invite'=> 'sometimes',
+        ]);
+
+        $test = Test::findOrFail($testId);
+        if($test->invites()->where('student_email',$request->input('student_email'))->count() > 0){
+            return back()->with(['error' => 'Student email already exists in the list.']);
+        }
+        $invite = $test->invites()->create($request->only(['student_name','student_email']));
+
+        if($request->input('send_invite','off') === 'on'){
+            $invite->notify(new StudentInvitedToTest($test));
+        }
+        return back()->with(['success' => 'Student added in invitation list successfully']);
+    }
+
+    public function sendInvitation($testId,$id) {
+        $invite = TestInvite::findOrFail($id);
+        if($invite->notifications()->count() == 0){
+            $invite->notify(new StudentInvitedToTest($invite->test));
+        }
+        return back()->with(['success' => 'Student invited']);
+    }
+
+    public function removeInvitedStudent($testId,$id,Request $request) {
+        $test = Test::findOrFail($testId);
+        $invite = $test->invites()->find($id);
+        if(is_null($invite)){
+            return back()->with(['error' => 'Entry was not found on the list']);
+        }
+        if($invite->status === TestInvite::ACCEPTED){
+            return back()->with(['error' => 'You can not delete an accepted invitation']);
+        }
+        $invite->delete();
+        return back()->with(['success' => 'Student removed from invitation list']);
     }
 
     public function delete($id = null) {

@@ -15,7 +15,7 @@ trait AuthenticatesUsers {
 
         $this->clearLoginAttempts($request);
         if ($this->guard()->user()->otp_enabled == 1) {
-            OTP::generateForMail($this->guard()->user()->email);
+            OTP::generateForMail($this->guard()->user()->email,$this->guard()->user());
             $this->redirectTo = '/otp';
         }
 
