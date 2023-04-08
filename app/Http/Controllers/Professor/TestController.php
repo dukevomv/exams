@@ -12,6 +12,7 @@ use App\Models\Test;
 use App\Models\TestInvite;
 use App\Notifications\StudentInvitedToTest;
 use App\Services\TestServiceInterface;
+use App\Util\Demo;
 use App\Util\Points;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -206,8 +207,10 @@ class TestController extends Controller {
     public function publishGrades($id) {
         $test = $this->service->setById($id);
         $this->service->publishTestGrades();
-        $this->sendGradesMailToProfessor($test);
-        $this->sendGradesMailToStudents($test);
+        if(Demo::getModeFromSessionIfAny() !== Demo::DEMO){
+            $this->sendGradesMailToProfessor($test);
+            $this->sendGradesMailToStudents($test);
+        }
         return back();
     }
 
