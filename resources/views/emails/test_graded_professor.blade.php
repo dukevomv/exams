@@ -3,12 +3,12 @@
 
 ## Examination Statistics
 @if(isset($test['stats']))
-<span>Participated: <b>{{$test['stats']['students']['participated']}}/{{$test['stats']['students']['total']}} students</b></span>
+<span>Total: <b>{{$test['stats']['students']['total']}} students</b></span>
+<br>
+<span>Graded: <b>{{$test['stats']['students']['graded']}} students</b></span>
 <br>
 <span>Above 50%: <b>{{$test['stats']['students']['passed']}} students</b></span>
 <br>
-<br>
-<span>Graded: <b>{{$test['stats']['students']['graded']}}/{{$test['stats']['students']['total']}} students</b></span>
 <br>
 <span>Minimum: <b>{{$test['stats']['min']}}</b></span>
 <br>
@@ -23,6 +23,5 @@
 
 We have also attached each student's grade with percentage in a csv format.
 
-Thanks,
-{{ config('app.name') }}
+Thank you for using {{ config('app.name') }}
 @endcomponent

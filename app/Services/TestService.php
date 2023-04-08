@@ -542,6 +542,7 @@ class TestService implements TestServiceInterface {
         return [
             'id'           => $u->id,
             'name'         => $u->name,
+            'email'        => $u->mailable_email,
             'role'         => $u->role,
             'status'       => $u->pivot->status,
             'entered_at'   => Carbon::parse($u->pivot->created_at)->diffForHumans(),

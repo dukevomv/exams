@@ -6,19 +6,17 @@ use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Http\Controllers\Controller;
 use App\Mail\TestGradedForProfessor;
+use App\Mail\TestGradedForStudent;
 use App\Models\Lesson;
 use App\Models\Test;
 use App\Models\TestInvite;
 use App\Notifications\StudentInvitedToTest;
-use App\Notifications\TestWasGradedForProfessor;
 use App\Services\TestServiceInterface;
 use App\Util\Points;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
-use Log;
 
 class TestController extends Controller {
 
@@ -209,6 +207,7 @@ class TestController extends Controller {
         $test = $this->service->setById($id);
         $this->service->publishTestGrades();
         $this->sendGradesMailToProfessor($test);
+        $this->sendGradesMailToStudents($test);
         return back();
     }
 
@@ -282,7 +281,13 @@ class TestController extends Controller {
             fputcsv($file, $student);
         }
         rewind($file);
-        Mail::to('dukevomv@gmail.com')->send(new TestGradedForProfessor($this->service->toArray(),$payload,$file));
+        Mail::to(Auth::user()->mailable_email)->send(new TestGradedForProfessor($this->service->toArray(),$payload,$file));
         fclose($file);
+    }
+
+    private function sendGradesMailToStudents($test){
+        foreach ($this->service->toArrayUsers() as $student){
+            Mail::to($student['email'])->send(new TestGradedForStudent($test,$student));
+        }
     }
 }
