@@ -84,7 +84,7 @@ class TestController extends Controller {
         }
         $invite = $test->invites()->create($request->only(['student_name','student_email']));
 
-        if($request->input('send_invite','off') === 'on'){
+        if($request->input('send_invite','off') === 'on' && Demo::shouldSendMails()){
             $invite->notify(new StudentInvitedToTest($test));
         }
         return back()->with(['success' => 'Student added in invitation list successfully']);
@@ -92,7 +92,7 @@ class TestController extends Controller {
 
     public function sendInvitation($testId,$id) {
         $invite = TestInvite::findOrFail($id);
-        if($invite->notifications()->count() == 0){
+        if($invite->notifications()->count() == 0 && Demo::shouldSendMails()){
             $invite->notify(new StudentInvitedToTest($invite->test));
         }
         return back()->with(['success' => 'Student invited']);
@@ -207,7 +207,7 @@ class TestController extends Controller {
     public function publishGrades($id) {
         $test = $this->service->setById($id);
         $this->service->publishTestGrades();
-        if(Demo::getModeFromSessionIfAny() !== Demo::DEMO){
+        if(Demo::shouldSendMails()){
             $this->sendGradesMailToProfessor($test);
             $this->sendGradesMailToStudents($test);
         }
