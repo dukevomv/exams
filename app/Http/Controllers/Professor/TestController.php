@@ -5,15 +5,18 @@ namespace App\Http\Controllers\Professor;
 use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Http\Controllers\Controller;
+use App\Mail\TestGradedForProfessor;
 use App\Models\Lesson;
 use App\Models\Test;
 use App\Models\TestInvite;
 use App\Notifications\StudentInvitedToTest;
+use App\Notifications\TestWasGradedForProfessor;
 use App\Services\TestServiceInterface;
 use App\Util\Points;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Log;
 
@@ -203,8 +206,9 @@ class TestController extends Controller {
     }
 
     public function publishGrades($id) {
-        $this->service->setById($id);
+        $test = $this->service->setById($id);
         $this->service->publishTestGrades();
+        $this->sendGradesMailToProfessor($test);
         return back();
     }
 
@@ -230,15 +234,29 @@ class TestController extends Controller {
 
     public function exportCSV($id, Request $request) {
         $test = $this->service->setById($id);
+        $payload = $this->generateGradeCSVPayloadForTest($test);
 
-        $filename = $test->name . ' - ' . Carbon::now()->toDateString();
         $headers = [
             "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=" . $filename . ".csv",
+            "Content-Disposition" => "attachment; filename=" . $payload['filename'] . ".csv",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0",
         ];
+
+        $callback = function () use ($payload) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $payload['columns']);
+            foreach ($payload['students'] as $s) {
+                fputcsv($file, $s);
+            }
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
+    private function generateGradeCSVPayloadForTest($test){
+        $filename = $test->name . ' - ' . Carbon::now()->toDateString();
 
         $columns = ['Student ID', 'Student Name', 'Grade', 'Total', 'Percentage'];
         $students = [];
@@ -248,15 +266,23 @@ class TestController extends Controller {
                 $students[] = [$st['id'], $st['name'], $st['given_points'], $st['total_points'], $percentage];
             }
         }
+        return [
+            'filename' => $filename,
+            'students' => $students,
+            'columns' => $columns,
+        ];
+    }
 
-        $callback = function () use ($students, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-            foreach ($students as $s) {
-                fputcsv($file, $s);
-            }
-            fclose($file);
-        };
-        return response()->stream($callback, 200, $headers);
+    private function sendGradesMailToProfessor($test){
+        $payload = $this->generateGradeCSVPayloadForTest($test);
+        $file = fopen('php://temp', 'w+');
+        $column_headers = $payload['columns'];
+        fputcsv($file, $column_headers);
+        foreach ($payload['students'] as $student){
+            fputcsv($file, $student);
+        }
+        rewind($file);
+        Mail::to('dukevomv@gmail.com')->send(new TestGradedForProfessor($this->service->toArray(),$payload,$file));
+        fclose($file);
     }
 }
