@@ -70,6 +70,7 @@
                                 <button type="button" class="btn btn-primary" id="auto-calculate-test"
                                         @if(!$test['auto_calculative']) disabled @endif>Auto Calculate Grades
                                 </button><br>
+                                <small><i class="fa fa-warning"></i> By publishing the exam, student grades will be emailed to you and to each student.  This can only happen once.</small>
                                 @if(!$test['auto_calculative'])
                                     <small><i class="fa fa-warning"></i> Test must not include task types that can not
                                         be auto graded in order to auto calculate all students' grades.</small>
