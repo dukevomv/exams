@@ -29,9 +29,8 @@ class Demo {
         return ucfirst($emailParts[0]);
     }
 
-    public static function shouldSendMails() {
-        $mode = self::getModeFromSessionIfAny();
-        return is_null($mode) || $mode !== Demo::DEMO;
+    public static function shouldSendMails(): bool {
+        return self::getModeFromSessionIfAny() !== Demo::DEMO;
     }
 
     public static function getModeFromSessionIfAny(){
