@@ -3,48 +3,8 @@
 @section('content')
   <div class="container">
     <div class="row">
-      <div class="row-margin-bottom col-xs-12">
-        <div class="row">
-          <div class="col-xs-9">
-            <div class="btn-group pull-left margin-left-15">
-              <button id="lesson" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <?php
-                $selected_status = Request::input('status','All');
-                foreach(\App\Enums\TestStatus::values() as $status){
-                  if($selected_status == $status){
-                    $selected_status = ucFirst($status);
-                    break;
-                  }
-                }
-                ?>
-                Status: {{$selected_status}} <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu">
-                <li @if(Request::input('status','') == '')class="active"@endif><a href="{{route('tests_index',Request::except('page','status'))}}">All</a></li>
-                <li role="separator" class="divider"></li>
-                @foreach(\App\Enums\TestStatus::values() as $status)
-                  <li @if(Request::input('status','') == $status)class="active"@endif>
-                    <a href="{{route('tests_index',array_merge(Request::except('page'),['status'=>$status]))}}">{{ucfirst($status)}}</a>
-                  </li>
-                @endforeach
-              </ul>
-            </div>
-            @if (Auth::user()->can('createTests'))
-              <div class="btn-group margin-left-15 pull-left">
-                <a href="{{url('tests/create')}}" type="button" class="btn btn-primary" >
-                  <i class="fa fa-plus"></i> Create
-                </a>
-              </div>
-            @endif
-          </div>
-          <div class="col-xs-3">
-            @include('includes.assets.search-wrap', ['value'=>Request::input('search','')])
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
       <div class="col-xs-12">
+        <h3>Invite Students directly on "{{$testName}}"</h3>
         <div class="panel panel-default">
           <table class="table">
             <tr>
