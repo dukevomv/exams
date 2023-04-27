@@ -21,6 +21,7 @@ Route::get('/now', function () {
 
 if (config('app.demo.enabled')) {
     Route::group(['prefix' => 'demo'], function () {
+        Route::get('/', 'DemoController@index');
         Route::post('generate', 'DemoController@generate');
         Route::post('switch-role/{role}', 'DemoController@switchRole');
     });

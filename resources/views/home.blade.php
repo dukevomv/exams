@@ -4,30 +4,16 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
-                @if(Auth::guest())
-                    <div class="jumbotron hidden">
-                        <h1>Hello Guest!</h1>
-                        <p><b>Login</b> or <b>Register</b> in order to use this platform or to keep up with the
-                            development News.</p>
-                        <br>
-                        <p>
-                            <a class="btn btn-primary btn-lg" href="{{url('/login')}}" role="button">Login now</a>
-                            <a class="btn btn-default btn-lg margin-left-15" href="{{url('/register')}}" role="button">Register</a>
-                        </p>
-                    </div>
-                    @include('includes.trial-jumbotron')
-{{--                    @include('includes.demo-jumbotron')--}}
-                @else
-                    <div class="jumbotron hidden">
-                        <img class="col-xs-4 pull-right" src="{{URL::to('images/professor.png')}}" alt="professor-illustration">
-                        <h1>Hi, {{Auth::user()->name}}</h1>
-                        <p><span class="label label-danger">NEW</span><br>The Current feature is added in the latest
-                            group of updates.</p>
-                        <p><span class="label label-primary">FRONTEND</span><br>Most likely to contain User Interface
-                            changes that will provide new flows and functionalities to the user.</p>
-                        <p><span class="label label-success">BACKEND</span><br>Contains implementation in the background
-                            that fixes the infrastructure and might not be visible to the user.</p>
-                    </div>
+                <div class="jumbotron hidden">
+                    <img class="col-xs-4 pull-right" src="{{URL::to('images/professor.png')}}" alt="professor-illustration">
+                    <h1>Hi, {{Auth::user()->name}}</h1>
+                    <p><span class="label label-danger">NEW</span><br>The Current feature is added in the latest
+                        group of updates.</p>
+                    <p><span class="label label-primary">FRONTEND</span><br>Most likely to contain User Interface
+                        changes that will provide new flows and functionalities to the user.</p>
+                    <p><span class="label label-success">BACKEND</span><br>Contains implementation in the background
+                        that fixes the infrastructure and might not be visible to the user.</p>
+                </div>
 
                 @php
                     $new_commits = [
@@ -227,12 +213,10 @@
                         ],
                     ]);
                @endphp
-{{-- duke|todo|trial - update text here based on demo or trial data - on boarding? --}}
-{{--                @foreach($commits as $commit)--}}
-{{--                    @include('includes.commit',$commit)--}}
-{{--                @endforeach--}}
+                @foreach($commits as $commit)
+                    @include('includes.commit',$commit)
+                @endforeach
 
-                @endif
             </div>
         </div>
     </div>

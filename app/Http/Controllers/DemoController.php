@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Session;
 
 class DemoController extends Controller {
 
+    public function index(Request $request) {
+        return view('demo');
+    }
+
     public function generate(Request $request) {
         $request->validate([
             'demo_email' => 'required|email',
@@ -22,7 +26,7 @@ class DemoController extends Controller {
         $demoUserId = Artisan::call('demo:seed', ['email' => $request->get('demo_email')]);
         $this->loginUserRole($demoUserId, config('app.demo.default_role'));
         Mail::to(config('mail.from.address'))->send(new DemoCreated($request->get('demo_email')));
-        return back();
+        return redirect('/');
     }
 
     public function switchRole($role, Request $request) {

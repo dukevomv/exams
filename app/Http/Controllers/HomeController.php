@@ -21,7 +21,7 @@ class HomeController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function home() {
-        return view('home');
+        return view(Auth::guest() ? 'landing':'home');
     }
 
     public function settings() {

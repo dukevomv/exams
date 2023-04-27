@@ -68,7 +68,7 @@ class TestController extends Controller {
         if (is_null($test)) {
             return redirect('tests');
         }
-        return view('tests.invites', ['testId' => $test->id, 'invites' => $test->invites()->orderBy('student_name','asc')->paginate(25)]);
+        return view('tests.invites', ['testId' => $test->id,'testName' => $test->name, 'invites' => $test->invites()->orderBy('student_name','asc')->paginate(25)]);
     }
 
     public function inviteStudents($testId,Request $request) {

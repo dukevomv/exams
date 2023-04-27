@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+    {{--    todo|remove this when app.css is built --}}
 <style>
     .trial-page-wrap{
         margin-top:30px;
@@ -141,44 +142,10 @@
         <div class="col-xs-12 col-md-6">
             <div class="row">
                 <div class="col-xs-12">
-                    <div class="jumbotron trial-login-wrap">
-                        <div class="row">
-                            <div class="row">
-                                <div class="col-xs-8">
-                                    <h3>Find your Trial Exam</h3>
-                                    <p>Add your email, and you'll receive a <br><b>One-Time Password</b> to your inbox and access your Trial Exam.</p>
-                                </div>
-                            </div>
-                            <div class="image-wrap">
-                                <img width="100px" src="{{asset('images/professor.png')}}" alt="">
-                            </div>
-                            <form action="{{url('/trial/send-login-code')}}" method="POST">
-                                <input type="hidden" value="{{ csrf_token() }}" name="_token">
-                                <div class="input-group search-wrap">
-                                    <input type="email" name="trial_email" class="form-control input-lg" placeholder="Your Email" value="{{ old('trial_email') }}" required>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-primary btn-lg" type="submit">Send Login Code</button>
-                                    </span>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    @include('includes.jumbotrons.trial_login')
                 </div>
                 <div class="col-xs-12">
-                    <div class="jumbotron demo-wrap">
-                        <div class="row">
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <h3>See how it works</h3>
-                                    <p>Create auto-generated data and explore our  features using different roles like <b>Admin</b>, <b>Professor</b> and <b>Student</b>. Manage Exams, Courses and Users in a sandbox environment to <b>understand the Exams Studio's capabilities</b>.</p>
-                                </div>
-                            </div>
-                        <a href="https://sandbox.exams.studio">Explore Demo <i class="fa fa-arrow-right"></i></a>
-                        </div>
-                        <div class="image-wrap">
-                            <img width="150px" src="{{asset('images/stars@2x.png')}}" alt="">
-                        </div>
-                    </div>
+                    @include('includes.jumbotrons.demo_intro')
                 </div>
             </div>
         </div>
