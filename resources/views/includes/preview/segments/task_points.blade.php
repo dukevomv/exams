@@ -28,11 +28,6 @@ if($manually_saved){
 }
 
 @endphp
-<style>
-    .editable {
-        cursor: pointer;
-    }
-</style>
 
 <div class="col-md-3 no-padding pull-right">
     @if($editable)
