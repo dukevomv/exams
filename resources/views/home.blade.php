@@ -4,214 +4,103 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
-                <div class="jumbotron hidden">
-                    <img class="col-xs-4 pull-right" src="{{URL::to('images/professor.png')}}" alt="professor-illustration">
-                    <h1>Hi, {{Auth::user()->name}}</h1>
-                    <p><span class="label label-danger">NEW</span><br>The Current feature is added in the latest
-                        group of updates.</p>
-                    <p><span class="label label-primary">FRONTEND</span><br>Most likely to contain User Interface
-                        changes that will provide new flows and functionalities to the user.</p>
-                    <p><span class="label label-success">BACKEND</span><br>Contains implementation in the background
-                        that fixes the infrastructure and might not be visible to the user.</p>
-                </div>
-
                 @php
-                    $new_commits = [
+                $messages = [
+                    'trial' => [
+                    ],
+                    'demo' => [
                         [
-                            'title' => 'Demo Data Exclusion',
-                            'date' => '16 May 2021',
-                            'tags' => ['back'],
-                            'body' => '<p><b>Exclude</b> Demo data when user login normally.<br>Also <b>include</b> only current user\'s data when in demo mode.</p>'
+                            'title' => 'Switch User Roles',
+                            'body' => '<p>For demo users only, you have the ability to <b>switch the current user role</b> to experience the platform from each user\'s point of view.<br>
+                            Check at the top-right user dropdown and you will see the 3 available roles to switch to.</p>'
+                        ],
+                    ],
+                    'admin' => [
+                        [
+                            'title' => 'Manage Users',
+                            'body' => '<p><b>Approve or Reject</b> users to the platform based on their profile details.
+                            <br>Users can freely register with their preferred role but administrators are the ones that will <b>validate them and allow them to navigate the platform.</b></p>'
                         ],
                         [
-                            'title' => 'Image support',
-                            'date' => '15 May 2021',
-                            'tags' => ['back','front'],
-                            'body' => '<p>Allow professors to include <b>images</b> in the segment tasks.</p>'
+                            'title' => 'Delete Users',
+                            'body' => '<p>The deletion of users after they have finished with their examination is also available in the <b>Users</b> tab.
+                            <br> <b>You can undo the deletion</b> anytime you want to be able to see the user in your users list again.</p>'
                         ],
                         [
-                            'title' => 'Test Guidelines',
-                            'date' => '13 May 2021',
-                            'tags' => ['front'],
-                            'body' => '<p><b>Explain the actions</b> each user can do during the examination time. Including student and professor\'s buttons</p>.'
+                            'title' => 'Manage Courses',
+                            'body' => '<p>Create and update courses and then <b>allow users to request access</b> on them. Courses with exams will not be able to be deleted.
+                            <br>Admins approve user requests on courses in order for them to view the course exams.</p>'
+                        ],
+                    ],
+                    'professor' => [
+                        [
+                            'title' => 'Segments & Question Types',
+                            'body' => '<p>Each Test consists of <b>multiple Segments ordered by you</b>. Segments help you consist small groups of questions (commonly used for same topic) and each segment contains <b>the questions</b> for the student along <b>with their points</b> assigned to them. Types of Questions:
+                                <br>- Single Choice Select
+                                <br>- Multiple Choice Select
+                                <br>- Correspondence
+                                <br>- Free Text (autocorrect optionally)'
+                        ],
+                        [
+                            'title' => 'Exam Creation',
+                            'body' => '<p>After creating your segments you can <b>create an exam and attach your existing segments</b>. Select examination date and time, duration and description.
+                            <br> You can also <b>update the segments</b> after you\'ve created the exam.'],
+                        [
+                            'title' => 'Invite Students directly on exam',
+                            'body' => '<p>After you publish it, you will be able to invite students directly on your examination, bypassing for that single exam the approval procedure of users in the platform (Invited students will only be able to see the specific exam).
+                                <br><i>If you want students to be available for multiple examinations they can all signup and request access to your course (Requires administrator approval).</i></p>'
+                        ],
+                        [
+                            'title' => 'Starting Examination',
+                            'body' => '<p>Press the <b>"Start"</b> button to initiate the clock. When Starting Exam the clock will <b>countdown 30’’ for students to prepare</b> before the segments appear on the screen. After those 30’’ the examination will start and <b>everyone’s page will refresh</b> to show the contents of the examination.
+                            <br> The clock will start counting down with the exam’s duration.
+                            <br><b>Students will be able to submit their answers unrelated of the expiring clock</b>, thus providing the ability to professors to control the exact examination\'s duration.</p>'
+                        ],
+                        [
+                            'title' => 'Finishing Examination',
+                            'body' => '<p>Press the <b>"Finish"</b> button to end the examination. When Finishing Exam the clock will countdown the last 30’’ for the student to <b>finalise their answers and submit for review</b>.
+                            <br>After those seconds the examination will be <b>locked and no other answers can be submitted</b> to the system.</p>'
+                        ],
+                        [
+                            'title' => 'Grading Examination',
+                            'body' => '<p>Assign the equivalent amount of points to each segment question by viewing each student\'s answers and press <b>"Publish Grades"</b>.
+                            <br>When using autocorrect questions, you will be able to <b>automatically correct all student\'s answers</b> by pressing <b>"Auto Calculate Grades"</b>.</p>'
+                        ],
+                        [
+                            'title' => 'Publishing Exam Results',
+                            'body' => '<p>After all students are graded, you can publish examination\'s grades and inform students with their grades.
+                            <br>This action will also <b>email students and the professor</b> publishing the test with all <b>student’s results</b> and general statistics for all test.</p>'
                         ]
-                    ];
-
-                    for($i=0;$i<count($new_commits);$i++){
-                        $new_commits[$i]['tags'][] = 'new';
+                    ],
+                    'student' => [
+                        [
+                            'title' => 'Invited Students',
+                            'body' => '<p>Students that have accepted the invitation can <b>only preview the single course they\'ve been invited to</b>.
+                            <br>You can <b>re-access accepted invitations by using the same invitation email</b> that came first by the professor.</p>'
+                        ],
+                        [
+                            'title' => 'Attend Examination',
+                            'body' => '<p>Make sure to be online on the date and time of examination and <b>keep track of professor\'s updates around the exam</b> in order to be able to take the exam.
+                            <br>Professor will manually start and finish the exam and <b>the clock will be indicative of the exam\'s duration</b>.</p>'
+                        ],
+                        [
+                            'title' => 'Extra 30 seconds',
+                            'body' => '<p>On Start and finish action from the professor, you will be given 30 seconds in the beginning to <b>prepare for the test</b>.<br>Upon finishing you will be given another 30 seconds to <b>finalize your answers</b>.</p>'
+                        ],
+                        [
+                            'title' => 'Examination Results',
+                            'body' => '<p>You will be <b>informed by the professors with an email</b> of the exams\'s results when all students are graded.</p>'
+                        ],
+                    ],
+                ];
+                    foreach($messages as $type => $list){
+                        for($i=0;$i<count($list);$i++){
+                            $messages[$type][$i]['tags'] = [$type];
+                        }
                     }
-
-                    $commits = array_merge($new_commits,[
-                        [
-                            'title' => 'Export to CSV',
-                            'date' => '9 March 2021',
-                            'tags' => ['back','front'],
-                            'body' => '<p>Allow professors to <b>export</b> test grades to csv.</p>'
-                        ],
-                        [
-                            'title' => 'Grading stats',
-                            'date' => '7 March 2021',
-                            'tags' => ['back','front'],
-                            'body' => '<p>Calculate <b>grade range and standard deviation</b> on test pages - professor view only.</p>'
-                        ],
-                        [
-                            'title' => 'Auto Grading Tests',
-                            'date' => '8 February 2021',
-                            'tags' => ['back','front'],
-                            'body' => '<p>New actions have been added for the professor view in Test Lobby, providing the ability to <b>auto grade all test students</b> (when of course the test contains auto-calculative tasks).</p>'
-                        ],
-                        [
-                            'title' => 'Segment Updates',
-                            'date' => '3 February 2021',
-                            'tags' => ['front'],
-                            'body' => '<p>Show in professor\'s view a <b>warning</b> if the segment has changed after the test\'s publication.</p>'
-                        ],
-                        [
-                            'title' => 'Segment Re-usability',
-                            'date' => '3 February 2021',
-                            'tags' => ['back'],
-                            'body' => '<p>Refactor backend logic to fetch data from cached test when published in order to <b>avoid changing an old test</b> by updating the segments used.</p>'
-                        ],
-                        [
-                            'title' => 'One Time Passwords',
-                            'date' => '19 January 2021',
-                            'tags' => ['front','back'],
-                            'body' => '<p>All users now can have <b>OTP</b> as a second step verification after they login.</p>'
-                        ],
-                        [
-                            'title' => 'Test Grading',
-                            'date' => '4 January 2021',
-                            'tags' => ['front','back'],
-                            'body' => '<p>Professors can <b>grade student answers</b> after the tests are finished, and then <b>publish the results</b> to the students.</p>'
-                        ],
-                        [
-                            'title' => 'Auto Grading',
-                            'date' => '3 January 2021',
-                            'tags' => ['back'],
-                            'body' => '<p>Some of the task types are now able to <b>automatically calculate student\'s points</b> based on their answers.</p>'
-                        ],
-                        [
-                            'title' => 'Demo Helper',
-                            'date' => '2 January 2021',
-                            'tags' => ['front','back'],
-                            'body' => '<p>Specific environments can register users with the Demo seeder, providing a <b>helpful UI</b> to easily see the features of this platforms <b>without creating multiple accounts</b>.</p>'
-                        ],
-                        [
-                            'title' => 'Automated Tests',
-                            'date' => '13 December 2020',
-                            'tags' => ['back'],
-                            'body' => '<p>In order to ensure the quality of the project\'s features and utilities, an <b>automated test suite has been developed</b> and maintained as features are added.</p>'
-                        ],
-                        [
-                            'title' => 'Task Type answers',
-                            'date' => '27 November 2020',
-                            'tags' => ['front','back'],
-                            'body' => '<p>Now <b>Multiple choice (Radio & Checkbox), Correspondence and Free text</b> questions are operating normally during the test\'s duration ans are savable from the students</p>'
-                        ],
-                        [
-                            'title' => 'Task Type Correspondence',
-                            'date' => '27 November 2020',
-                            'tags' => ['front','back'],
-                            'body' => '<p>A new task type was added that is named <b>Correspondence</b>. It provides the ability to match pairs.</p>'
-                        ],
-                        [
-                            'title' => 'User Administration',
-                            'date' => '28 July 2018',
-                            'tags' => ['front','back'],
-                            'body' => '<p><b>Admins</b> can now manage <a href="'.url('/users').'" target="_blank">Users</a> by approving or disapproving current users.</p>'
-                        ],
-                        [
-                            'title' => 'URL filters on Lists and Search',
-                            'date' => '11 May 2018',
-                            'tags' => ['front'],
-                            'body' => '<p><b>Filters</b> are available to all lists <b>Users</b>, <b>Courses</b> and <b>Tests</b>inside url for permanent and sharable filtering.</p>
-                                <p><b>Search</b> is also added to the lists and provides the ability to look into custom fields based on the list.</p>'
-                        ],
-                        [
-                            'title' => 'Authorization',
-                            'date' => '18 March 2018',
-                            'tags' => ['back'],
-                            'body' => '<p>
-                                Authorization for specific role is filtered dynamically and shows error page based on
-                                the action.
-                            </p>
-                            <p>
-                                Links from other roles that dont show in Navigation Bar are also filtered.
-                            </p>'
-                        ],
-                        [
-                            'title' => 'Routing based on role',
-                            'date' => '22 February 2018',
-                            'tags' => ['front'],
-                            'body' => '<p>
-                                Tabs in the Navigation bar are different per <b>Role</b> and provide a Role hierarchy
-                            </p>
-                            <p>
-                                Admins <b>></b> Professors <b>></b> Students
-                            </p>'
-                        ],
-                        [
-                            'title' => 'User registration based on type',
-                            'date' => '04 February 2018',
-                            'tags' => ['back','front'],
-                            'body' => '<p>
-                                The <a href="'.url('/register').'" target="_blank">Register</a> page, now has
-                                <b>Role</b> option for Admin, Professors or Students.
-                            </p>
-                            <p>
-                                All Users that register are saved in a <b>pending</b> state and must be approved by an
-                                existing approved user in the platform.
-                            </p>'
-                        ],
-                        [
-                            'title' => 'Tests Logic',
-                            'date' => '12 November 2017',
-                            'tags' => ['back'],
-                            'body' => '<p>
-                                The <a href="'.url('/tests').'" target="_blank">Tests</a> section is created and it
-                                will contain all your saved tests ready to become your student\'s exams.
-                            </p>'
-                        ],
-                        [
-                            'title' => 'Segments Logic',
-                            'date' => '11 November 2017',
-                            'tags' => ['front','back'],
-                            'body' => '<p>
-                                The <a href="'.url('/segments').'" target="_blank">Segments</a> section basic
-                                functionality is ready with its actions and its full backend implementation with the 2
-                                first types of questions, Multiple and Single Choice.
-                            </p>
-                            <p>
-                                <b>Functionalities added:</b> Listing, Create, Edit and Delete
-                            </p>
-                            <p>
-                                <b>Functionalities coming soon:</b> Validation in Forms.
-                            </p>'
-                        ],
-                        [
-                            'title' => 'Courses Logic',
-                            'date' => '23 August 2017',
-                            'tags' => ['front','back'],
-                            'body' => '<p>
-                                A new Tab <a href="'.url('/lessons').'" target="_blank">Courses</a> is added to the
-                                Navigation Bar, along with its
-                                own basic listing functionalities.
-                            </p>
-                            <p>
-                                <b>Functionalities added:</b> UI Tables, Dropdown with working Filters and optional
-                                Pagination
-                            </p>'
-                        ],
-                        [
-                            'title' => 'First Blood',
-                            'date' => '7 August 2017',
-                            'tags' => ['back'],
-                            'body' => '<p><b>Exams</b> after some time of reconsider, decided to start things from the scratch, for
-                            more stuff up its back.
-                            So here we go with <a href="https://laravel.com/docs/5.4" target="_blank">Laravel 5.4</a>
-                            for our framework.</p>'
-                        ],
-                    ]);
+                    $mode = \App\Util\Demo::getModeFromSessionIfAny();
+                    $modeMessages = is_null($mode) ? [] : $messages[$mode];
+                    $commits = array_merge($modeMessages,$messages[\Illuminate\Support\Facades\Auth::user()->role]);
                @endphp
                 @foreach($commits as $commit)
                     @include('includes.commit',$commit)
