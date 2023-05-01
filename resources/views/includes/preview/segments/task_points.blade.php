@@ -53,12 +53,3 @@ if($manually_saved){
         <span class="pull-right label label-{{$class}} @if($editable) editable @endif">{{$output}}</span>
     @endif
 </div>
-
-{{-- todo show input  on click
-hide input on click
-on save update points and save on test
-create function to use input values and generate pills and colors (not on load)
-calculate automated given points once in back
-and append the proffessors on top
-keep data in db as well
---}}

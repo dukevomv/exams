@@ -25,6 +25,6 @@ class OTP extends Mailable {
      * @return $this
      */
     public function build() {
-        return $this->subject('Your OTP for Exams Wizard')->markdown('emails.otp', ['code' => $this->code]);
+        return $this->subject('Your OTP for '.config('app.name'))->markdown('emails.otp', ['code' => $this->code]);
     }
 }

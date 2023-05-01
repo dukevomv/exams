@@ -29,20 +29,36 @@ class AuthServiceProvider extends ServiceProvider {
             return UserIs::approved($user);
         });
 
-        Gate::define('switchOffOTP', function ($user) {
-            return !UserIs::withPendingOTP($user);
+        Gate::define('updateProfileDetails', function ($user) {
+            return !(UserIs::withPendingOTP($user) || UserIs::invitedDirectlyOnTest($user) || !UserIs::notInTrial($user));return !(UserIs::withPendingOTP($user) || UserIs::invitedDirectlyOnTest($user) || !UserIs::notInTrial($user));
+        });
+
+        Gate::define('updateOTPSetting', function ($user) {
+            return !(UserIs::withPendingOTP($user) || UserIs::invitedDirectlyOnTest($user) || !UserIs::notInTrial($user));
         });
 
         Gate::define('accessUsers', function ($user) {
             return UserIs::admin($user);
         });
 
+        Gate::define('accessLessons', function ($user) {
+            return UserIs::notInTrial($user);
+        });
+
         Gate::define('customizeLessons', function ($user) {
-            return UserIs::admin($user);
+            return UserIs::notInTrial($user) && UserIs::admin($user);
+        });
+
+        Gate::define('accessTests', function ($user) {
+            return UserIs::professor($user) || UserIs::student($user);
         });
 
         Gate::define('customizeTests', function ($user) {
-            return UserIs::adminOrProfessor($user);
+            return UserIs::professor($user);
+        });
+
+        Gate::define('createTests', function ($user) {
+            return UserIs::professor($user) && UserIs::notInTrial($user);
         });
 
         Gate::define('takeTests', function ($user) {
@@ -50,11 +66,11 @@ class AuthServiceProvider extends ServiceProvider {
         });
 
         Gate::define('accessSegments', function ($user) {
-            return UserIs::adminOrProfessor($user);
+            return UserIs::professor($user);
         });
 
         Gate::define('viewStatistics', function ($user) {
-            return UserIs::adminOrProfessor($user);
+            return UserIs::adminOrProfessor($user) && UserIs::notInTrial($user);
         });
     }
 }

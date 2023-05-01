@@ -5,13 +5,19 @@ namespace App\Http\Controllers\Professor;
 use App\Enums\TestStatus;
 use App\Enums\TestUserStatus;
 use App\Http\Controllers\Controller;
+use App\Mail\TestGradedForProfessor;
+use App\Mail\TestGradedForStudent;
 use App\Models\Lesson;
 use App\Models\Test;
+use App\Models\TestInvite;
+use App\Notifications\StudentInvitedToTest;
 use App\Services\TestServiceInterface;
+use App\Util\Demo;
 use App\Util\Points;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class TestController extends Controller {
 
@@ -57,10 +63,58 @@ class TestController extends Controller {
         return $this->service->updateOrCreate($request->input('id', null), $fields, $request->input('segments', []));
     }
 
+    public function inviteStudentsList($testId) {
+        $test = Test::where('id', $testId)->where('status', TestStatus::PUBLISHED)->first();
+        if (is_null($test)) {
+            return redirect('tests');
+        }
+        return view('tests.invites', ['testId' => $test->id,'testName' => $test->name, 'invites' => $test->invites()->orderBy('student_name','asc')->paginate(25)]);
+    }
+
+    public function inviteStudents($testId,Request $request) {
+        $this->validate($request, [
+            'student_name'=> 'required|string',
+            'student_email'=> 'required|string|email',
+            'send_invite'=> 'sometimes',
+        ]);
+
+        $test = Test::findOrFail($testId);
+        if($test->invites()->where('student_email',$request->input('student_email'))->count() > 0){
+            return back()->with(['error' => 'Student email already exists in the list.']);
+        }
+        $invite = $test->invites()->create($request->only(['student_name','student_email']));
+
+        if($request->input('send_invite','off') === 'on' && Demo::shouldSendMails()){
+            $invite->notify(new StudentInvitedToTest($test));
+        }
+        return back()->with(['success' => 'Student added in invitation list successfully']);
+    }
+
+    public function sendInvitation($testId,$id) {
+        $invite = TestInvite::findOrFail($id);
+        if($invite->notifications()->count() == 0 && Demo::shouldSendMails()){
+            $invite->notify(new StudentInvitedToTest($invite->test));
+        }
+        return back()->with(['success' => 'Student invited']);
+    }
+
+    public function removeInvitedStudent($testId,$id,Request $request) {
+        $test = Test::findOrFail($testId);
+        $invite = $test->invites()->find($id);
+        if(is_null($invite)){
+            return back()->with(['error' => 'Entry was not found on the list']);
+        }
+        if($invite->status === TestInvite::ACCEPTED){
+            return back()->with(['error' => 'You can not delete an accepted invitation']);
+        }
+        $invite->delete();
+        return back()->with(['success' => 'Student removed from invitation list']);
+    }
+
     public function delete($id = null) {
         $test = Test::where('id', $id)->first();
         if (is_null($id) || is_null($test)) {
-            return back()->with(['error' => 'Test cannot be deleted.']);
+            return back()->with(['error' => 'Test cannot be deleted']);
         }
         $test->delete();
         return back()->with(['success' => 'Test deleted successfully']);
@@ -112,11 +166,28 @@ class TestController extends Controller {
             return redirect('/tests/' . $id);
         }
         $this->service->calculateUserPoints($userId);
-
-        return view('tests.preview', [
+        $data = [
             'test'    => $this->service->prepareForCurrentUser(),
             'forUser' => $userId,
-        ]);
+        ];
+        $data['is_professor'] = Auth::user()->role === \App\Enums\UserRole::PROFESSOR;
+        $data['is_student'] = Auth::user()->role === \App\Enums\UserRole::STUDENT;
+
+        $data['professor_for_student'] = $data['is_professor']
+            && isset($data['test']['for_student']);
+        $data['professor_for_student_not_participated'] = $data['professor_for_student']
+            && in_array($data['test']['for_student']['status'],
+                [
+                    \App\Enums\TestUserStatus::LEFT,
+                    \App\Enums\TestUserStatus::REGISTERED
+                ]);
+        $data['show_segments'] = $data['professor_for_student']
+                && in_array($data['test']['status'], [
+                    \App\Enums\TestStatus::FINISHED,
+                    \App\Enums\TestStatus::GRADED
+                ]);
+
+        return view('tests.preview',$data);
     }
 
     public function autoGrade($id, $userId) {
@@ -127,17 +198,19 @@ class TestController extends Controller {
     }
 
     public function autoCalculateGrades($id) {
-        //todo make sure db value is valid!!!!!!
-        //todo make sure tests with non calc can not auto grade everyone at once
-        //make sure test is not graded already
+        //todo|debt - make sure tests with non calc can not auto grade everyone at once and test is not graded already
         $this->service->setById($id);
         $this->service->autoGradeUsers();
         return back();
     }
 
     public function publishGrades($id) {
-        $this->service->setById($id);
+        $test = $this->service->setById($id);
         $this->service->publishTestGrades();
+        if(Demo::shouldSendMails()){
+            $this->sendGradesMailToProfessor($test);
+            $this->sendGradesMailToStudents($test);
+        }
         return back();
     }
 
@@ -148,7 +221,7 @@ class TestController extends Controller {
         ]);
 
         $this->service->setById($id);
-        //todo the below line is to set the forUserId for the student is being graded
+        //todo|debt - the below line is to set the forUserId for the student is being graded
         $this->service->calculateUserPoints($userId);
         $this->service->gradeUserTask($request->only('task_id', 'points'));
         return back();
@@ -156,22 +229,36 @@ class TestController extends Controller {
 
     public function publishGrade($id, $userId, Request $request) {
         $test = $this->service->fetchById($id);
-        //todo make sure grades are publishable
+        //todo|debt - make sure grades are publishable
         $test->publishProfessorGrade($userId);
         return [];
     }
 
     public function exportCSV($id, Request $request) {
         $test = $this->service->setById($id);
+        $payload = $this->generateGradeCSVPayloadForTest($test);
 
-        $filename = $test->name . ' - ' . Carbon::now()->toDateString();
         $headers = [
             "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=" . $filename . ".csv",
+            "Content-Disposition" => "attachment; filename=" . $payload['filename'] . ".csv",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0",
         ];
+
+        $callback = function () use ($payload) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $payload['columns']);
+            foreach ($payload['students'] as $s) {
+                fputcsv($file, $s);
+            }
+            fclose($file);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
+    private function generateGradeCSVPayloadForTest($test){
+        $filename = $test->name . ' - ' . Carbon::now()->toDateString();
 
         $columns = ['Student ID', 'Student Name', 'Grade', 'Total', 'Percentage'];
         $students = [];
@@ -181,15 +268,29 @@ class TestController extends Controller {
                 $students[] = [$st['id'], $st['name'], $st['given_points'], $st['total_points'], $percentage];
             }
         }
+        return [
+            'filename' => $filename,
+            'students' => $students,
+            'columns' => $columns,
+        ];
+    }
 
-        $callback = function () use ($students, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-            foreach ($students as $s) {
-                fputcsv($file, $s);
-            }
-            fclose($file);
-        };
-        return response()->stream($callback, 200, $headers);
+    private function sendGradesMailToProfessor($test){
+        $payload = $this->generateGradeCSVPayloadForTest($test);
+        $file = fopen('php://temp', 'w+');
+        $column_headers = $payload['columns'];
+        fputcsv($file, $column_headers);
+        foreach ($payload['students'] as $student){
+            fputcsv($file, $student);
+        }
+        rewind($file);
+        Mail::to(Auth::user()->mailable_email)->send(new TestGradedForProfessor($this->service->toArray(),$payload,$file));
+        fclose($file);
+    }
+
+    private function sendGradesMailToStudents($test){
+        foreach ($this->service->toArrayUsers() as $student){
+            Mail::to($student['email'])->send(new TestGradedForStudent($test,$student));
+        }
     }
 }

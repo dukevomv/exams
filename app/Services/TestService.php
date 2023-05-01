@@ -125,6 +125,10 @@ class TestService implements TestServiceInterface {
 
     public function updateOrCreate($id, $fields, $segments) {
         $existing = $this->fetchById($id, false);
+
+        if(is_null($existing) && !\Illuminate\Support\Facades\Auth::user()->can('createTests')){
+            abort(401, 'You cannot create a new Test');
+        }
         if (!is_null($existing) && !in_array($existing->status, [TestStatus::PUBLISHED, TestStatus::DRAFT])) {
             abort(400, 'You cannot update this test');
         }
@@ -149,6 +153,8 @@ class TestService implements TestServiceInterface {
                 $this->test->unpublishSegmentData();
                 break;
             case TestStatus::PUBLISHED:
+                $this->test->publishSegmentData($this->prepareForPublish(true));
+                break;
             case TestStatus::STARTED:
             case TestStatus::FINISHED:
             case TestStatus::GRADED:
@@ -223,7 +229,7 @@ class TestService implements TestServiceInterface {
         return is_null($data) ? [] : $data;
     }
 
-    //todo :deprecated
+    //todo|deprecate
     public function mergeUserAnswersToTest($test) {
         $user = $test->getUser($this->forUserId);
         if (is_null($user)) {
@@ -238,7 +244,7 @@ class TestService implements TestServiceInterface {
             }
         }
 
-        //todo make the below to be parsable with cast in pivot model
+        //todo|debt - make the below to be parsable with cast in pivot model
         $answers = json_decode($user->pivot->{$field}, true);
         if ($answers) {
             for ($s = 0; $s < count($test->segments); $s++) {
@@ -393,11 +399,11 @@ class TestService implements TestServiceInterface {
         return str_replace('task_id_', '', $taskId);
     }
 
-    public function prepareForPublish() {
+    public function prepareForPublish($forceRecreate = false) {
         $this->withoutUserAnswers()
              ->withoutUserCalculatedPoints()
              ->withCorrectAnswers();
-        return $this->toArraySegments();
+        return $this->toArraySegments($forceRecreate);
     }
 
     public function prepareForCurrentUser() {
@@ -536,6 +542,7 @@ class TestService implements TestServiceInterface {
         return [
             'id'           => $u->id,
             'name'         => $u->name,
+            'email'        => $u->mailable_email,
             'role'         => $u->role,
             'status'       => $u->pivot->status,
             'entered_at'   => Carbon::parse($u->pivot->created_at)->diffForHumans(),
@@ -588,8 +595,8 @@ class TestService implements TestServiceInterface {
         ];
     }
 
-    public function toArraySegments() {
-        $isPublished = self::isPublished($this->test);
+    public function toArraySegments($forceRecreate = false) {
+        $isPublished = !$forceRecreate && self::isPublished($this->test);
         $segments = $isPublished ? $this->test->getPublishedSegmentData() : $this->test->segments;
 
         $data = [];

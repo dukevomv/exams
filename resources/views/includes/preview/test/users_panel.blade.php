@@ -25,9 +25,6 @@
 </div>
 
 <script>
-  //todo remove realtime events on non started tests (no need of realtime on users)
-
-
   function jsUcfirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
@@ -48,6 +45,4 @@
                     </a>\
                 </th>';
     }
-
-
 </script>

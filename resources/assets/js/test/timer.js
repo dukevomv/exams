@@ -40,8 +40,14 @@ testUtils.setTimerTo = function(seconds) {
   var now = '';
   now = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds_left < 10 ? '0' : '') + seconds_left
   $('#test-timer').text(now);
-  if (testData.timer.in_delay)
-    $('#test-timer').addClass('alarm');
-  else
+  if (testData.timer.in_delay){
+    if(testData.test.status === "published") {
+      $('#test-timer').addClass('green');
+    } else {
+      $('#test-timer').addClass('alarm');
+    }
+  } else {
     $('#test-timer').removeClass('alarm');
+    $('#test-timer').removeClass('green');
+  }
 }

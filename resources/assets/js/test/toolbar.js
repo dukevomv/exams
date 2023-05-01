@@ -44,8 +44,6 @@ function makeAjaxPost(path,data = {},callback = null){
 }
 
 
-//todo these are not working
-// - saving test and reloading
 $('#save-test').on('click',function(e){
   testUtils.saveTest(true);
 });
@@ -129,7 +127,7 @@ testUtils.saveTest = function(final= false){
         })
         break;
       case "code":
-        //todo: fix code task type input
+        //todo|debt - fix code task type input
         task.data.push({
           id          : element.find('.task-code input').val(),
           description : element.find('.task-code textarea').val()

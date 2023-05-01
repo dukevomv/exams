@@ -6,12 +6,9 @@
             <div class="row">
                 @include('includes.preview.test.sidebar', ['test' => $test,'timer' => isset($timer)? $timer:null])
                 <div class="main col-xs-8 pull-right main-panel">
-                    @if ((Auth::user()->role == \App\Enums\UserRole::STUDENT
-                            && (($test['status'] == \App\Enums\TestStatus::STARTED && !$timer['in_delay'])
-                                || ($test['status'] == \App\Enums\TestStatus::FINISHED && $timer['in_delay'])))
-                        || (Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($forUser) && in_array($test['status'],[\App\Enums\TestStatus::FINISHED,\App\Enums\TestStatus::GRADED])))
+                    @if ($show_segments)
                         <div id="test-student-segments" data-spy="scroll" data-target="#segment-list" data-offset="0">
-                            @if(Auth::user()->role == \App\Enums\UserRole::PROFESSOR && isset($test['for_student']) && in_array($test['for_student']['status'],[\App\Enums\TestUserStatus::LEFT,\App\Enums\TestUserStatus::REGISTERED]))
+                            @if($professor_for_student_not_participated)
                                 <div class="alert alert-danger" role="alert">
                                     <b>Warning!</b> The current student has <b>not</b> participated in the test.
                                 </div>

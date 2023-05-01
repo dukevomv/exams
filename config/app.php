@@ -38,9 +38,27 @@ return [
     */
     'demo' => [
         'enabled'       => env('DEMO_ENABLED', false),
-        'email_suffix'  => 'exams.wiz',
+        'email_suffix'  => 'demo.exams.studio',
         'default_role'  => \App\Enums\UserRole::PROFESSOR,
         'session_field' => 'demo_user_id',
+        'session_guest_field' => 'guest_demo_user_id',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Trial mode
+    |--------------------------------------------------------------------------
+    |
+    | This value determines if the current installation is in trial mode,
+    | in order to be able to approve new users or auto generate tests
+    |
+    */
+    'trial' => [
+        'enabled'       => env('TRIAL_ENABLED', false),
+        'email_suffix'  => 'trial.exams.studio',
+        'default_role'  => \App\Enums\UserRole::PROFESSOR,
+        'session_field' => 'trial_id',
+        'session_guest_field' => 'guest_trial_id',
     ],
 
     /*
@@ -190,6 +208,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -204,6 +223,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Emadadly\LaravelUuid\LaravelUuidServiceProvider::class,
 
     ],
 

@@ -2,27 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\Admin\DemoCreated;
 use App\Models\Demo\DemoUser;
+use App\Models\Demo\TrialUser;
 use App\Models\User;
 use App\Util\Demo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 
 class DemoController extends Controller {
 
+    public function index(Request $request) {
+        return view('demo');
+    }
+
     public function generate(Request $request) {
         $request->validate([
-            'email' => 'required|email',
+            'demo_email' => 'required|email',
         ]);
-        $demoUserId = Artisan::call('demo:seed', ['email' => $request->email]);
+        $demoUserId = Artisan::call('demo:seed', ['email' => $request->get('demo_email')]);
         $this->loginUserRole($demoUserId, config('app.demo.default_role'));
-        return back();
+        Mail::to(config('mail.from.address'))->send(new DemoCreated($request->get('demo_email')));
+        return redirect('/');
     }
 
     public function switchRole($role, Request $request) {
-        if (Session::has(config('app.demo.session_field'))) {
+        if (Demo::shouldBeAbleToSwitchRole()) {
             $demoUserId = Session::get(config('app.demo.session_field'));
             $this->loginUserRole($demoUserId, $role);
         }

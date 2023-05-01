@@ -52,12 +52,12 @@
                 @endforeach
               </ul>
             </div>
-            @if (Auth::user()->role == 'professor')
-            <div class="btn-group margin-left-15 pull-left">
-              <a href="{{url('tests/create')}}" type="button" class="btn btn-primary" >
-                <i class="fa fa-plus"></i> Create
-              </a>
-            </div>
+            @if (Auth::user()->can('createTests'))
+              <div class="btn-group margin-left-15 pull-left">
+                <a href="{{url('tests/create')}}" type="button" class="btn btn-primary" >
+                  <i class="fa fa-plus"></i> Create
+                </a>
+              </div>
             @endif
           </div>
           <div class="col-xs-3">
@@ -102,6 +102,11 @@
                   @if(true)
                     <a href="{{url('tests/'.$test->id)}}" type="button" class="btn btn-primary btn-xs">
                       <i class="fa fa-eye"></i>
+                    </a>
+                  @endif
+                  @if(in_array($test->status,['published']) && Auth::user()->role == 'professor')
+                    <a href="{{url('tests/'.$test->id.'/invited-students')}}" type="button" class="btn btn-info btn-xs">
+                      <i class="fa fa-envelope"></i>
                     </a>
                   @endif
                   @if(in_array($test->status,['draft','published']) && Auth::user()->role == 'professor')
