@@ -96,12 +96,12 @@ class Test extends DemoableModel {
     }
 
     public function register($user = null) {
-        $student = !is_null($user) ? $user : Auth::user();
-        FirebaseControl::createOrUpdate('tests/' . $this->id . '/students/' . $student->id,
+        $user = !is_null($user) ? $user : Auth::user();
+        FirebaseControl::createOrUpdate('tests/' . $this->id . '/students/' . $user->id,
             self::constructFirebaseForStudent([
                 'registered_at' => Carbon::now()->toDateTimeString(),
                 'status'        => TestUserStatus::REGISTERED,
-            ],$student)
+            ],$user)
         );
 
         $this->users()->attach($user->id, ['status' => TestUserStatus::REGISTERED]);
