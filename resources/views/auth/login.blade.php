@@ -48,6 +48,11 @@
                             </div>
                         </div>
 
+                        <div class="col-md-6 col-md-offset-4 text-center">
+                            <div class="g-recaptcha @if(!config('recaptcha.enabled')) hidden @endif" data-sitekey="{{config('recaptcha.key')}}"></div>
+                            <br>
+                        </div>
+
                         <div class="form-group">
                             <div class="col-md-8 col-md-offset-4">
                                 <button type="submit" class="btn btn-primary">

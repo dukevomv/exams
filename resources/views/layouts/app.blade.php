@@ -29,6 +29,7 @@
     window.userData =  {!! json_encode(Auth::user()) !!};
     @endif
 </script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <div id="app">
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">

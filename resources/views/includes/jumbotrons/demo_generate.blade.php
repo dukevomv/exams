@@ -19,6 +19,8 @@
         @endif
         <form action="{{url('/demo/generate')}}" method="POST">
             <input type="hidden" value="{{ csrf_token() }}" name="_token">
+            <div class="g-recaptcha @if(!config('recaptcha.enabled')) hidden @endif" data-sitekey="{{config('recaptcha.key')}}"></div>
+            <br>
             <div class="input-group search-wrap">
                 <input type="email" name="demo_email" class="form-control input-lg" placeholder="Your Email" value="{{ old('demo_email') }}" required>
                 <span class="input-group-btn">

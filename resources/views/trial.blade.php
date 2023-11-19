@@ -58,6 +58,8 @@
                         <br>
                         <input type="text" name="reason" class="form-control input-lg" placeholder="How did you find us?" value="{{ old('reason') }}" required>
                         <br>
+                        <div class="g-recaptcha @if(!config('recaptcha.enabled')) hidden @endif" data-sitekey="{{config('recaptcha.key')}}"></div>
+                        <br>
                         <button type="submit" class="btn btn-primary btn-lg pull-right" role="button">Start Trial
                         </button>
                     </form>
